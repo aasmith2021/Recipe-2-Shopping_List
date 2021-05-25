@@ -7,9 +7,11 @@ namespace Recipe2ShoppingList
     {
         static void Main(string[] args)
         {
+            string currentDirectory = Directory.GetCurrentDirectory();
             string line;
+
             //Read from file
-            StreamReader sr = new StreamReader("..\\RecipesDatabase.txt");
+            StreamReader sr = new StreamReader($"{currentDirectory}\\RecipesDatabase.txt");
             line = sr.ReadLine();
 
             while (line != null)
@@ -20,10 +22,11 @@ namespace Recipe2ShoppingList
 
             sr.Close();
 
+
             //Write to file
-            StreamWriter sw = new StreamWriter(".\\RecipesDatabase.txt", true);
-            sw.WriteLine("Whatup, World!");
-            sw.WriteLine("Diggy Dog.");
+            StreamWriter sw = new StreamWriter($"{currentDirectory}\\RecipesDatabase.txt", true);
+            sw.WriteLine("I'm adding new text to this file!");
+            sw.WriteLine();
             sw.Close();
 
         }
