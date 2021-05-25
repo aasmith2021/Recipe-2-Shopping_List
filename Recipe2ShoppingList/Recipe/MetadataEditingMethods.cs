@@ -20,7 +20,7 @@ namespace Recipe2ShoppingList
             else
             {
                 string currentUserNotes = recipe.Metadata.TitleNotes.UserNotes;
-                recipe.Metadata.TitleNotes.UserNotes = currentUserNotes + "\n" + newUserNotes;
+                recipe.Metadata.TitleNotes.UserNotes = currentUserNotes + $"{Environment.NewLine}" + newUserNotes;
             }
         }
 

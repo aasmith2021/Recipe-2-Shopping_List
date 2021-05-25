@@ -22,13 +22,18 @@ namespace Recipe2ShoppingList
 
         public Servings Servings { get; set; }
 
-        public void PrintMetadata()
+        public string ProduceMetadataText()
         {
-            this.TitleNotes.PrintTitleNotes();
-            Console.WriteLine();
-            this.PrepTimes.PrintPrepTimes();
-            this.Servings.PrintServings();
-            Console.WriteLine();
+            string metadataText = "";
+            
+            metadataText += this.TitleNotes.ProduceTitleNotesText();
+            metadataText += $"{Environment.NewLine}";
+            metadataText += this.PrepTimes.ProducePrepTimesText();
+            metadataText += $"{Environment.NewLine}";
+            metadataText += this.Servings.ProduceServingsText();
+            metadataText += $"{Environment.NewLine}";
+
+            return metadataText;
         }
     }
 }

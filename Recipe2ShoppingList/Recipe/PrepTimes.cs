@@ -23,43 +23,45 @@ namespace Recipe2ShoppingList
             }
         }
 
-        public void PrintPrepTimes()
+        public string ProducePrepTimesText()
         {
-            bool printPrepTime = this.PrepTime != 0;
-            bool printCookTime = this.CookTime != 0;
-            bool printTotalTime = this.TotalTime != 0;
+            bool includePrepTime = this.PrepTime != 0;
+            bool includeCookTime = this.CookTime != 0;
+            bool includeTotalTime = this.TotalTime != 0;
             string convertedPrepTime = MetadataEditingMethods.ConvertTimeToHoursAndMinutes(this.PrepTime);
             string convertedCookTime = MetadataEditingMethods.ConvertTimeToHoursAndMinutes(this.CookTime);
             string convertedTotalTime = MetadataEditingMethods.ConvertTimeToHoursAndMinutes(this.TotalTime);
 
-            string entireTimeStatement = "";
+            string prepTimesText = "";
 
-            if (printPrepTime)
+            if (includePrepTime)
             {
-                entireTimeStatement += $"Prep: {convertedPrepTime}";
+                prepTimesText += $"Prep: {convertedPrepTime}";
             }
 
-            if ((printPrepTime && printCookTime) || (printPrepTime && printTotalTime))
+            if ((includePrepTime && includeCookTime) || (includePrepTime && includeTotalTime))
             {
-                entireTimeStatement += " | ";
+                prepTimesText += " | ";
             }
 
-            if (printCookTime)
+            if (includeCookTime)
             {
-                entireTimeStatement += $"Cook: {convertedCookTime}";
+                prepTimesText += $"Cook: {convertedCookTime}";
             }
 
-            if(printCookTime && printTotalTime)
+            if(includeCookTime && includeTotalTime)
             {
-                entireTimeStatement += " | ";
+                prepTimesText += " | ";
             }
 
-            if (printTotalTime)
+            if (includeTotalTime)
             {
-                entireTimeStatement += $"Total: {convertedTotalTime}";
+                prepTimesText += $"Total: {convertedTotalTime}";
             }
 
-            Console.WriteLine(entireTimeStatement);
+            prepTimesText += $"{Environment.NewLine}";
+
+            return prepTimesText;
         }
     }
 }

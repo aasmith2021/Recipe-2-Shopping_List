@@ -23,9 +23,11 @@ namespace Recipe2ShoppingList
             instructionBlocks.RemoveAt(indexOfBlockToDelete);
         }
 
-        public void PrintInstructions()
+        public string ProduceInstructionsText()
         {
-            Console.WriteLine("INSTRUCTIONS:");
+            string instructionsText = "";
+            
+            instructionsText += $"INSTRUCTIONS:{Environment.NewLine}";
 
             for (int i = 0; i < this.InstructionBlocks.Length; i++)
             {
@@ -33,18 +35,25 @@ namespace Recipe2ShoppingList
                 int lineNumber = 1;
                 string lineNumberString = $"{lineNumber}.";
 
+                if(currentInstructionBlock.BlockHeading != "")
+                {
+                    instructionsText += $"<{currentInstructionBlock.BlockHeading}>{Environment.NewLine}";
+                }
+                
                 foreach (string instructionLine in currentInstructionBlock.InstructionLines)
                 {
-                    Console.WriteLine($"{lineNumberString,-2} {instructionLine}");
+                    instructionsText += $"{lineNumberString,-2} {instructionLine}{Environment.NewLine}";
                     lineNumber++;
                     lineNumberString = $"{lineNumber}.";
                 }
 
                 if (i != this.InstructionBlocks.Length - 1)
                 {
-                    Console.WriteLine();
+                    instructionsText += $"{Environment.NewLine}";
                 }
             }
+
+            return instructionsText;
         }
     }
 }

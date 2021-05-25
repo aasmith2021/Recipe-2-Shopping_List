@@ -23,14 +23,19 @@ namespace Recipe2ShoppingList
             allIngredients.Remove(ingredientToDelete);
         }
 
-        public void PrintIngredients()
+        public string ProduceIngredientsText()
         {
-            Console.WriteLine("INGREDIENTS:");
+            string ingredientsText = "";
+            
+            ingredientsText += $"INGREDIENTS:{Environment.NewLine}";
             foreach (Ingredient ingredient in this.AllIngredients)
-            {                
-                Console.WriteLine($"{ingredient.Quantity} {ingredient.MeasurementUnit} {ingredient.Name}");
+            {
+                ingredientsText += $"{ingredient.Quantity} {ingredient.MeasurementUnit} {ingredient.Name}{Environment.NewLine}";
             }
-            Console.WriteLine();
+
+            ingredientsText += $"{Environment.NewLine}";
+
+            return ingredientsText;
         }
     }
 }

@@ -13,17 +13,22 @@ namespace Recipe2ShoppingList
             this.Ingredients = ingredients;
         }
 
+        public int RecipeId { get; set; }
+
         public Metadata Metadata { get; set; }
 
         public CookingInstructions CookingInstructions { get; set; }
 
         public Ingredients Ingredients { get; set; }
 
-        public void PrintRecipe()
+        public string ProduceRecipeText()
         {
-            this.Metadata.PrintMetadata();
-            this.Ingredients.PrintIngredients();
-            this.CookingInstructions.PrintInstructions();
+            string recipeText = "";
+            recipeText += this.Metadata.ProduceMetadataText();
+            recipeText += this.Ingredients.ProduceIngredientsText();
+            recipeText += this.CookingInstructions.ProduceInstructionsText();
+
+            return recipeText;
         }
     }
 }

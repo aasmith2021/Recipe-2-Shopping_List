@@ -16,14 +16,18 @@ namespace Recipe2ShoppingList
 
         public string UserNotes { get; set; }
 
-        public void PrintTitleNotes()
+        public string ProduceTitleNotesText()
         {
-            Console.WriteLine($"----- {this.RecipeTitle.ToUpper()} -----");
+            string titleNotesText = "";
+
+            titleNotesText += $"----- {this.RecipeTitle.ToUpper()} -----{Environment.NewLine}";
             if (this.UserNotes != "")
             {
-                Console.WriteLine();
-                Console.WriteLine($"Notes: {this.UserNotes}");
+                titleNotesText += $"{Environment.NewLine}";
+                titleNotesText += $"Notes: {this.UserNotes}{Environment.NewLine}";
             }
+
+            return titleNotesText;
         }
     }
 }
