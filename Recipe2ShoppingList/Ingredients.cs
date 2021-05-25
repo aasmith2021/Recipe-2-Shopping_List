@@ -22,5 +22,15 @@ namespace Recipe2ShoppingList
         {
             allIngredients.Remove(ingredientToDelete);
         }
+
+        public void PrintIngredients()
+        {
+            Console.WriteLine("INGREDIENTS:");
+            foreach (Ingredient ingredient in this.AllIngredients)
+            {                
+                Console.WriteLine($"{ingredient.Quantity} {ingredient.MeasurementUnit} {ingredient.Name}");
+            }
+            Console.WriteLine();
+        }
     }
 }

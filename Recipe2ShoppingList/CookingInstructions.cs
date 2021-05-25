@@ -5,22 +5,46 @@ using System.Text;
 namespace Recipe2ShoppingList
 {
     class CookingInstructions
-    {        
-        private List<InstructionBlock> allInstructions = new List<InstructionBlock>();
+    {       
+        private List<InstructionBlock> instructionBlocks = new List<InstructionBlock>();
 
-        public InstructionBlock[] AllInstructions
+        public InstructionBlock[] InstructionBlocks
         {
-            get { return this.allInstructions.ToArray(); }
+            get { return this.instructionBlocks.ToArray(); }
         }
 
         public void AddInstructionBlock(InstructionBlock newInstructionBlock)
         {
-            allInstructions.Add(newInstructionBlock);
+            instructionBlocks.Add(newInstructionBlock);
         }
 
         public void DeleteInstructionBlock(int indexOfBlockToDelete)
         {
-            allInstructions.RemoveAt(indexOfBlockToDelete);
+            instructionBlocks.RemoveAt(indexOfBlockToDelete);
+        }
+
+        public void PrintInstructions()
+        {
+            Console.WriteLine("INSTRUCTIONS:");
+
+            for (int i = 0; i < this.InstructionBlocks.Length; i++)
+            {
+                InstructionBlock currentInstructionBlock = this.InstructionBlocks[i];
+                int lineNumber = 1;
+                string lineNumberString = $"{lineNumber}.";
+
+                foreach (string instructionLine in currentInstructionBlock.InstructionLines)
+                {
+                    Console.WriteLine($"{lineNumberString,-2} {instructionLine}");
+                    lineNumber++;
+                    lineNumberString = $"{lineNumber}.";
+                }
+
+                if (i != this.InstructionBlocks.Length - 1)
+                {
+                    Console.WriteLine();
+                }
+            }
         }
     }
 }

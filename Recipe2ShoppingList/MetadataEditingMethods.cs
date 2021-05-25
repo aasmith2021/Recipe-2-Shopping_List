@@ -6,56 +6,87 @@ namespace Recipe2ShoppingList
 {
     class MetadataEditingMethods
     {
-        public void UpdateTitle(Recipe recipe, string newTitle)
+        public static void UpdateTitle(Recipe recipe, string newTitle)
         {
-            recipe.RecipeMetadata.TitleAndNotes.RecipeTitle = newTitle;
+            recipe.Metadata.TitleNotes.RecipeTitle = newTitle;
         }
 
-        public void UpdateUserNotes(Recipe recipe, string newUserNotes, bool replaceCurrentNotes = false)
+        public static void UpdateUserNotes(Recipe recipe, string newUserNotes, bool replaceCurrentNotes = false)
         {
             if (replaceCurrentNotes)
             {
-                recipe.RecipeMetadata.TitleAndNotes.UserNotes = newUserNotes;
+                recipe.Metadata.TitleNotes.UserNotes = newUserNotes;
             }
             else
             {
-                string currentUserNotes = recipe.RecipeMetadata.TitleAndNotes.UserNotes;
-                recipe.RecipeMetadata.TitleAndNotes.UserNotes = currentUserNotes + "\n" + newUserNotes;
+                string currentUserNotes = recipe.Metadata.TitleNotes.UserNotes;
+                recipe.Metadata.TitleNotes.UserNotes = currentUserNotes + "\n" + newUserNotes;
             }
         }
 
-        public void UpdatePrepOrCookTime(Recipe recipe, int newTime, bool updatePrepTime)
+        public static void UpdatePrepTime(Recipe recipe, int newTime)
         {
-            if (updatePrepTime)
-            {
-                recipe.RecipeMetadata.PrepTimes.PrepTime = newTime;
-            }
-            else
-            {
-                recipe.RecipeMetadata.PrepTimes.CookTime = newTime;
-            }
+                recipe.Metadata.PrepTimes.PrepTime = newTime;
         }
 
-        public void UpdateFoodType(Recipe recipe, string newFoodType)
+        public static void UpdateCookTime(Recipe recipe, int newTime)
         {
-            recipe.RecipeMetadata.Tags.FoodType = newFoodType;
+            recipe.Metadata.PrepTimes.CookTime = newTime;
         }
 
-        public void UpdateFoodGenre(Recipe recipe, string newFoodGenre)
+        public static void UpdateFoodType(Recipe recipe, string newFoodType)
         {
-            recipe.RecipeMetadata.Tags.FoodGenre = newFoodGenre;
+            recipe.Metadata.Tags.FoodType = newFoodType;
         }
 
-        public void UpdateNumberOfServings(Recipe recipe, int newNumberOfServings, bool updateLowNumberOfServings)
+        public static void UpdateFoodGenre(Recipe recipe, string newFoodGenre)
+        {
+            recipe.Metadata.Tags.FoodGenre = newFoodGenre;
+        }
+
+        public static void UpdateNumberOfServings(Recipe recipe, int newNumberOfServings, bool updateLowNumberOfServings)
         {
             if (updateLowNumberOfServings)
             {
-                recipe.RecipeMetadata.Servings.LowNumberOfServings = newNumberOfServings;
+                recipe.Metadata.Servings.LowNumberOfServings = newNumberOfServings;
             }
             else
             {
-                recipe.RecipeMetadata.Servings.HighNumberOfServings = newNumberOfServings;
+                recipe.Metadata.Servings.HighNumberOfServings = newNumberOfServings;
             }
+        }
+
+        public static string ConvertTimeToHoursAndMinutes(int time)
+        {
+            int timeRemaining = time;
+            int hoursCount = 0;
+            string formattedTime = "";
+
+            while (timeRemaining >= 60)
+            {
+                timeRemaining -= 60;
+                hoursCount++;
+            }
+
+            if (hoursCount > 1)
+            {
+                formattedTime += $"{hoursCount} hrs ";
+            }
+            else if (hoursCount == 1)
+            {
+                formattedTime += $"{hoursCount} hr ";
+            }
+
+            if (timeRemaining < 60 && timeRemaining != 1)
+            {
+                formattedTime += $"{timeRemaining.ToString()} mins";
+            }
+            else if (timeRemaining == 1)
+            {
+                formattedTime += $"{timeRemaining.ToString()} min";
+            }
+
+            return formattedTime;
         }
     }
 }

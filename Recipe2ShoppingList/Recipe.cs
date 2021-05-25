@@ -18,5 +18,12 @@ namespace Recipe2ShoppingList
         public CookingInstructions CookingInstructions { get; set; }
 
         public Ingredients Ingredients { get; set; }
+
+        public void PrintRecipe()
+        {
+            this.Metadata.PrintMetadata();
+            this.Ingredients.PrintIngredients();
+            this.CookingInstructions.PrintInstructions();
+        }
     }
 }

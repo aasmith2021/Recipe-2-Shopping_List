@@ -15,5 +15,18 @@ namespace Recipe2ShoppingList
         public int LowNumberOfServings { get; set; }
 
         public int HighNumberOfServings { get; set; }
+
+        public void PrintServings()
+        {
+            string entirePrintStatement = $"Servings: {this.LowNumberOfServings}";
+            bool includeHighNumberOfServings = this.HighNumberOfServings != 0;
+            
+            if (includeHighNumberOfServings)
+            {
+                entirePrintStatement += $" - {this.HighNumberOfServings}";
+            }
+            
+            Console.WriteLine(entirePrintStatement);
+        }
     }
 }

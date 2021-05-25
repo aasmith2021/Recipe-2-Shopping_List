@@ -15,5 +15,15 @@ namespace Recipe2ShoppingList
         public string RecipeTitle { get; set; }
 
         public string UserNotes { get; set; }
+
+        public void PrintTitleNotes()
+        {
+            Console.WriteLine($"----- {this.RecipeTitle.ToUpper()} -----");
+            if (this.UserNotes != "")
+            {
+                Console.WriteLine();
+                Console.WriteLine($"Notes: {this.UserNotes}");
+            }
+        }
     }
 }

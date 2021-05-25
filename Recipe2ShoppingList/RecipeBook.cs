@@ -6,22 +6,25 @@ namespace Recipe2ShoppingList
 {
     class RecipeBook
     {
-        private List<Recipe> masterRecipeBook = new List<Recipe>();
+        private List<Recipe> recipes = new List<Recipe>();
 
-        public Recipe[] GetAllRecipes()
+        public Recipe[] Recipes
         {
-            Recipe[] allRecipes = masterRecipeBook.ToArray();
-            return allRecipes;
+            get
+            {
+                Recipe[] allRecipes = recipes.ToArray();
+                return allRecipes;
+            }
         }
 
         public void AddRecipe(Recipe newRecipe)
         {
-            masterRecipeBook.Add(newRecipe);
+            recipes.Add(newRecipe);
         }
 
         public void DeleteRecipe(Recipe recipeToDelete)
         {
-            masterRecipeBook.Remove(recipeToDelete);
+            recipes.Remove(recipeToDelete);
         }
 
     }
