@@ -31,7 +31,7 @@ namespace Recipe2ShoppingList
             Recipe[] allRecipes = firstRecipeBook.Recipes;
             Recipe firstRecipe = allRecipes[0];
 
-            Console.WriteLine(firstRecipe.ProduceRecipeText(true));
+            Console.WriteLine(allRecipeBooks[0].ProduceRecipeBookText(true));
 
 
 
