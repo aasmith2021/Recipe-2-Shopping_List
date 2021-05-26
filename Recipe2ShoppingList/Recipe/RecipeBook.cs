@@ -35,20 +35,36 @@ namespace Recipe2ShoppingList
             recipes.Remove(recipeToDelete);
         }
 
-        public string ProduceRecipeBookText()
+        public string ProduceRecipeBookText(bool printVersion)
         {
             string recipeBookText = "";
 
-            recipeBookText += $"RECIPE BOOK NAME: {this.Name}{Environment.NewLine}{Environment.NewLine}";
-            
-            for (int i = 0; i < this.Recipes.Length; i++)
+            if (printVersion)
             {
-                recipeBookText += $"Recipe #{this.Recipes[i].RecipeId}{Environment.NewLine}";
-                recipeBookText += this.Recipes[i].ProduceRecipeText();
-                
-                if (i != this.Recipes.Length - 1)
+                recipeBookText += $"RECIPE BOOK NAME: {this.Name}{Environment.NewLine}{Environment.NewLine}";
+
+                for (int i = 0; i < this.Recipes.Length; i++)
                 {
-                    recipeBookText += $"{Environment.NewLine}{Environment.NewLine}";
+                    recipeBookText += $"Recipe #{this.Recipes[i].RecipeId}{Environment.NewLine}";
+                    recipeBookText += this.Recipes[i].ProduceRecipeText(printVersion);
+
+                    if (i != this.Recipes.Length - 1)
+                    {
+                        recipeBookText += $"{Environment.NewLine}{Environment.NewLine}";
+                    }
+                }
+            }
+            else
+            {
+                recipeBookText += $"-NEW_RECIPE_BOOK-{Environment.NewLine}";
+                recipeBookText += $"RECIPE_BOOK_NAME:{this.Name}{Environment.NewLine}";
+
+                for (int i = 0; i < this.Recipes.Length; i++)
+                {
+                    recipeBookText += $"-START_OF_RECIPE-{Environment.NewLine}";
+                    recipeBookText += $"RECIPE_#:{this.Recipes[i].RecipeId}{Environment.NewLine}";
+                    recipeBookText += this.Recipes[i].ProduceRecipeText(printVersion);
+                    recipeBookText += $"-END_OF_RECIPE-{Environment.NewLine}";
                 }
             }
 

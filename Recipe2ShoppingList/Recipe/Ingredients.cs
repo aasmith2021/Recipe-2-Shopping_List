@@ -23,17 +23,32 @@ namespace Recipe2ShoppingList
             allIngredients.Remove(ingredientToDelete);
         }
 
-        public string ProduceIngredientsText()
+        public string ProduceIngredientsText(bool printVersion)
         {
             string ingredientsText = "";
-            
-            ingredientsText += $"INGREDIENTS:{Environment.NewLine}";
-            foreach (Ingredient ingredient in this.AllIngredients)
-            {
-                ingredientsText += $"{ingredient.Quantity} {ingredient.MeasurementUnit} {ingredient.Name}{Environment.NewLine}";
-            }
 
-            ingredientsText += $"{Environment.NewLine}";
+            if (printVersion)
+            {
+                ingredientsText += $"INGREDIENTS:{Environment.NewLine}";
+
+                foreach (Ingredient ingredient in this.AllIngredients)
+                {
+                    ingredientsText += $"{ingredient.Quantity} {ingredient.MeasurementUnit} {ingredient.Name}{Environment.NewLine}";
+                }
+
+                ingredientsText += $"{Environment.NewLine}";
+            }
+            else
+            {
+                ingredientsText += $"-START_OF_INGREDIENTS-{Environment.NewLine}";
+                
+                foreach (Ingredient ingredient in this.AllIngredients)
+                {
+                    ingredientsText += $"INGREDIENT_NAME:{ingredient.Name}{Environment.NewLine}";
+                    ingredientsText += $"QTY:{ingredient.Quantity}{Environment.NewLine}";
+                    ingredientsText += $"UNIT:{ingredient.MeasurementUnit}{Environment.NewLine}";
+                }
+            }
 
             return ingredientsText;
         }

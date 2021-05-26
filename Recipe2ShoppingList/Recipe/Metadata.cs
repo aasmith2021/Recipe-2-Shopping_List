@@ -22,16 +22,18 @@ namespace Recipe2ShoppingList
 
         public Servings Servings { get; set; }
 
-        public string ProduceMetadataText()
+        public string ProduceMetadataText(bool printVersion)
         {
             string metadataText = "";
+
+            metadataText += this.TitleNotes.ProduceTitleNotesText(printVersion);
             
-            metadataText += this.TitleNotes.ProduceTitleNotesText();
-            metadataText += $"{Environment.NewLine}";
-            metadataText += this.PrepTimes.ProducePrepTimesText();
-            metadataText += $"{Environment.NewLine}";
-            metadataText += this.Servings.ProduceServingsText();
-            metadataText += $"{Environment.NewLine}";
+            //Adds the tags text for when data is writte to a file, but nothing
+            //when the printVersion is created
+            metadataText += printVersion ? "" : Tags.ProduceTagsText(printVersion);
+
+            metadataText += this.PrepTimes.ProducePrepTimesText(printVersion);
+            metadataText += this.Servings.ProduceServingsText(printVersion);
 
             return metadataText;
         }

@@ -7,25 +7,35 @@ namespace Recipe2ShoppingList
     {
         static void Main(string[] args)
         {
-            RecipeBooks allData = new RecipeBooks();
-            
-            RecipeBook myCookBook = new RecipeBook("My Cook Book");
+            ////GENERATE NEW RECIPE BOOK, SAVE TO FILE
+            //RecipeBooks allData = new RecipeBooks();
 
-            Recipe recipe1 = GenerateTestRecipe1();
-            Recipe recipe2 = GenerateTestRecipe2();
+            //RecipeBook myCookBook = new RecipeBook("My Cook Book");
 
-            myCookBook.AddRecipe(recipe1);
-            myCookBook.AddRecipe(recipe2);
+            //Recipe recipe1 = GenerateTestRecipe1();
+            //Recipe recipe2 = GenerateTestRecipe2();
 
-            allData.AddRecipeBook(myCookBook);
+            //myCookBook.AddRecipe(recipe1);
+            //myCookBook.AddRecipe(recipe2);
 
-            ReadWriteMethods.WriteRecipeBooksToFile(allData);
+            //allData.AddRecipeBook(myCookBook);
 
+            //WriteToFile.WriteRecipeBooksToFile(allData);
+
+
+            //READ FROM FILE, PRINT FIRST RECIPE
+            RecipeBooks recipeBooks = ReadFromFile.GenerateAllRecipeBooksFromFile();
+            RecipeBook[] allRecipeBooks = recipeBooks.AllRecipeBooks;
+            RecipeBook firstRecipeBook = allRecipeBooks[0];
+            Recipe[] allRecipes = firstRecipeBook.Recipes;
+            Recipe firstRecipe = allRecipes[0];
+
+            Console.WriteLine(firstRecipe.ProduceRecipeText(true));
         }
 
         static Recipe GenerateTestRecipe1()
         {
-            TitleNotes tn1 = new TitleNotes("Mac & Cheese");
+            TitleNotes tn1 = new TitleNotes("Mac & Cheesez");
             PrepTimes prepTimes1 = new PrepTimes(10, 55);
             Tags tags1 = new Tags("Pasta", "Italian");
             Servings servings1 = new Servings(8, 12);

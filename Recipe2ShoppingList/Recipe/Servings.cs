@@ -16,17 +16,27 @@ namespace Recipe2ShoppingList
 
         public int HighNumberOfServings { get; set; }
 
-        public string ProduceServingsText()
+        public string ProduceServingsText(bool printVersion)
         {
-            string servingsText = $"Servings: {this.LowNumberOfServings}";
+            string servingsText = "";
             bool includeHighNumberOfServings = this.HighNumberOfServings != 0;
-            
-            if (includeHighNumberOfServings)
-            {
-                servingsText += $" - {this.HighNumberOfServings}";
-            }
 
-            servingsText += $"{Environment.NewLine}";
+            if (printVersion)
+            {
+                servingsText += $"Servings: {this.LowNumberOfServings}";
+
+                if (includeHighNumberOfServings)
+                {
+                    servingsText += $" - {this.HighNumberOfServings}";
+                }
+
+                servingsText += $"{Environment.NewLine}{Environment.NewLine}";
+            }
+            else
+            {
+                servingsText += $"LOW_SERVINGS:{this.LowNumberOfServings}{Environment.NewLine}";
+                servingsText += $"HIGH_SERVIGS:{this.HighNumberOfServings}{Environment.NewLine}";
+            }
             
             return servingsText;
         }

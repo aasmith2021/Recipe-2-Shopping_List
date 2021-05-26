@@ -21,12 +21,12 @@ namespace Recipe2ShoppingList
 
         public Ingredients Ingredients { get; set; }
 
-        public string ProduceRecipeText()
+        public string ProduceRecipeText(bool printVersion)
         {
             string recipeText = "";
-            recipeText += this.Metadata.ProduceMetadataText();
-            recipeText += this.Ingredients.ProduceIngredientsText();
-            recipeText += this.CookingInstructions.ProduceInstructionsText();
+            recipeText += this.Metadata.ProduceMetadataText(printVersion);
+            recipeText += this.Ingredients.ProduceIngredientsText(printVersion);
+            recipeText += this.CookingInstructions.ProduceInstructionsText(printVersion);
 
             return recipeText;
         }

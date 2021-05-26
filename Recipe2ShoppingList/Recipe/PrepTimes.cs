@@ -6,7 +6,7 @@ namespace Recipe2ShoppingList
 {
     class PrepTimes
     {
-        public PrepTimes(int prepTime = 0, int cookTime = 0, int totalTime = 0)
+        public PrepTimes(int prepTime = 0, int cookTime = 0)
         {
             this.PrepTime = prepTime;
             this.CookTime = cookTime;
@@ -23,7 +23,7 @@ namespace Recipe2ShoppingList
             }
         }
 
-        public string ProducePrepTimesText()
+        public string ProducePrepTimesText(bool printVersion)
         {
             bool includePrepTime = this.PrepTime != 0;
             bool includeCookTime = this.CookTime != 0;
@@ -34,32 +34,40 @@ namespace Recipe2ShoppingList
 
             string prepTimesText = "";
 
-            if (includePrepTime)
+            if (printVersion)
             {
-                prepTimesText += $"Prep: {convertedPrepTime}";
-            }
+                if (includePrepTime)
+                {
+                    prepTimesText += $"Prep: {convertedPrepTime}";
+                }
 
-            if ((includePrepTime && includeCookTime) || (includePrepTime && includeTotalTime))
+                if ((includePrepTime && includeCookTime) || (includePrepTime && includeTotalTime))
+                {
+                    prepTimesText += " | ";
+                }
+
+                if (includeCookTime)
+                {
+                    prepTimesText += $"Cook: {convertedCookTime}";
+                }
+
+                if (includeCookTime && includeTotalTime)
+                {
+                    prepTimesText += " | ";
+                }
+
+                if (includeTotalTime)
+                {
+                    prepTimesText += $"Total: {convertedTotalTime}";
+                }
+
+                prepTimesText += $"{Environment.NewLine}{Environment.NewLine}";
+            }
+            else
             {
-                prepTimesText += " | ";
+                prepTimesText += $"PREP_TIME:{this.PrepTime}{Environment.NewLine}";
+                prepTimesText += $"COOK_TIME:{this.CookTime}{Environment.NewLine}";
             }
-
-            if (includeCookTime)
-            {
-                prepTimesText += $"Cook: {convertedCookTime}";
-            }
-
-            if(includeCookTime && includeTotalTime)
-            {
-                prepTimesText += " | ";
-            }
-
-            if (includeTotalTime)
-            {
-                prepTimesText += $"Total: {convertedTotalTime}";
-            }
-
-            prepTimesText += $"{Environment.NewLine}";
 
             return prepTimesText;
         }
