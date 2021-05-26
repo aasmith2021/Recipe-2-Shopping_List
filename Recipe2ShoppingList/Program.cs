@@ -6,31 +6,38 @@ namespace Recipe2ShoppingList
     class Program
     {
         static void Main(string[] args)
-        {
-            ////GENERATE NEW RECIPE BOOK, SAVE TO FILE
-            //RecipeBooks allData = new RecipeBooks();
+        {           
+            //GENERATE NEW RECIPE BOOK, SAVE TO FILE
+            RecipeBooks brandNewRecipeBooks = new RecipeBooks();
 
-            //RecipeBook myCookBook = new RecipeBook("My Cook Book");
+            RecipeBook myCookBook = new RecipeBook("My Cook Book");
 
-            //Recipe recipe1 = GenerateTestRecipe1();
-            //Recipe recipe2 = GenerateTestRecipe2();
+            Recipe recipe1 = GenerateTestRecipe1();
+            Recipe recipe2 = GenerateTestRecipe2();
 
-            //myCookBook.AddRecipe(recipe1);
-            //myCookBook.AddRecipe(recipe2);
+            myCookBook.AddRecipe(recipe1);
+            myCookBook.AddRecipe(recipe2);
 
-            //allData.AddRecipeBook(myCookBook);
+            brandNewRecipeBooks.AddRecipeBook(myCookBook);
 
-            //WriteToFile.WriteRecipeBooksToFile(allData);
+            WriteToFile.WriteRecipeBooksToFile(brandNewRecipeBooks);
+
 
 
             //READ FROM FILE, PRINT FIRST RECIPE
-            RecipeBooks recipeBooks = ReadFromFile.GenerateAllRecipeBooksFromFile();
-            RecipeBook[] allRecipeBooks = recipeBooks.AllRecipeBooks;
+            RecipeBooks recipeBooksFromFile = ReadFromFile.GenerateAllRecipeBooksFromFile();
+            RecipeBook[] allRecipeBooks = recipeBooksFromFile.AllRecipeBooks;
             RecipeBook firstRecipeBook = allRecipeBooks[0];
             Recipe[] allRecipes = firstRecipeBook.Recipes;
             Recipe firstRecipe = allRecipes[0];
 
             Console.WriteLine(firstRecipe.ProduceRecipeText(true));
+
+
+
+            //WRITE DATA READ FROM THE FILE TO A NEW ALTERNATE FILE TO CHECK FOR DATA LOSS
+            WriteToFile.WriteRecipeBooksToAlternateFile(recipeBooksFromFile);
+
         }
 
         static Recipe GenerateTestRecipe1()
