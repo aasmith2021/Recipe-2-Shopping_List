@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class PrepTimes
+    public class PrepTimes
     {
         public PrepTimes(int prepTime = 0, int cookTime = 0)
         {
