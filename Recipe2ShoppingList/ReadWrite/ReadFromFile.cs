@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    public class ReadFromFile : FileMethods
+    public class ReadFromFile : DataHelperMethods
     {
-        public static RecipeBookLibrary GetRecipeBookLibraryFromFile()
+        public static RecipeBookLibrary GetRecipeBookLibraryFromFile(string alternateFilePath = "")
         {
             RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
-            string allDataFromFile = GetAllDatabaseText();
+            string allDataFromFile = GetAllDatabaseText(alternateFilePath);
 
             string[] separateRecipeBooks = allDataFromFile.Split("-NEW_RECIPE_BOOK-", StringSplitOptions.RemoveEmptyEntries);
 
@@ -27,10 +27,10 @@ namespace Recipe2ShoppingList
             return recipeBookLibrary;
         }
 
-        public static string GetAllDatabaseText()
+        public static string GetAllDatabaseText(string alternateFilePath = "")
         {
             string databaseText = "";
-            StreamReader sr = new StreamReader(WriteToFile.GetDatabaseFilePath());
+            StreamReader sr = new StreamReader(DataHelperMethods.GetDatabaseFilePath(alternateFilePath));
             string currentLineOfText = sr.ReadLine();
 
             while (currentLineOfText != null)
@@ -53,13 +53,18 @@ namespace Recipe2ShoppingList
             return recipeBookName;
         }
 
-        public static string GetDataFromStartAndEndMarkers(string data, string startMarker, string endMarker)
+        private static string GetDataFromStartAndEndMarkers(string data, string startMarker, string endMarker)
         {
             int startIndexOfReturnData = data.IndexOf(startMarker) + startMarker.Length;
             int startIndexOfEndMarker = data.IndexOf(endMarker);
             int lengthOfReturnData = startIndexOfEndMarker - startIndexOfReturnData;
 
-            string returnData = data.Substring(startIndexOfReturnData, lengthOfReturnData);
+            string returnData = "";            
+            
+            if (lengthOfReturnData >= 0)
+            {
+                returnData = data.Substring(startIndexOfReturnData, lengthOfReturnData);
+            }
 
             return returnData;
         }
@@ -67,13 +72,17 @@ namespace Recipe2ShoppingList
         private static void AddAllRecipesToRecipeBook(RecipeBook recipeBook, string recipeBookData)
         {
             string recipeStartMarker = "-START_OF_RECIPE-";
-            string recipesDataForWholeBook = recipeBookData.Substring(recipeBookData.IndexOf(recipeStartMarker));
 
-            string[] allRecipesDataSeparated = recipesDataForWholeBook.Split("-START_OF_RECIPE-", StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string recipeData in allRecipesDataSeparated)
+            if (recipeBookData.IndexOf(recipeStartMarker) >= 0)
             {
-                AddOneRecipeToRecipeBook(recipeBook, recipeData);
+                string recipesDataForWholeBook = recipeBookData.Substring(recipeBookData.IndexOf(recipeStartMarker));
+
+                string[] allRecipesDataSeparated = recipesDataForWholeBook.Split("-START_OF_RECIPE-", StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string recipeData in allRecipesDataSeparated)
+                {
+                    AddOneRecipeToRecipeBook(recipeBook, recipeData);
+                }
             }
         }
 
@@ -81,7 +90,7 @@ namespace Recipe2ShoppingList
         {
             Metadata metadataToAdd = GetMetadataForRecipe(recipeData);
             CookingInstructions cookingInstructionsToAdd = GetCookingInstructionsForRecipe(recipeData);
-            Ingredients ingredientsToAdd = GetIngredientsForRecipe(recipeData);
+            IngredientsList ingredientsToAdd = GetIngredientsForRecipe(recipeData);
 
             Recipe recipeToAdd = new Recipe(metadataToAdd, cookingInstructionsToAdd, ingredientsToAdd);
 
@@ -90,17 +99,17 @@ namespace Recipe2ShoppingList
 
         private static Metadata GetMetadataForRecipe(string recipeData)
         {
-            TitleNotes titleNotes = GetTitleNotesForRecipe(recipeData);
-            PrepTimes prepTimes = GetPrepTimesForRecipe(recipeData);
+            string[] titleAndNotes = GetTitleAndNotesForRecipe(recipeData);
+            Times prepTimes = GetPrepTimesForRecipe(recipeData);
             Tags tags = GetTagsForRecipe(recipeData);
             Servings servings = GetServingsForRecipe(recipeData);
 
-            Metadata metadataToReturn = new Metadata(titleNotes, prepTimes, tags, servings);
+            Metadata metadataToReturn = new Metadata(titleAndNotes[0], prepTimes, tags, servings, titleAndNotes[1]);
 
             return metadataToReturn;
         }
 
-        private static TitleNotes GetTitleNotesForRecipe(string recipeData)
+        private static string[] GetTitleAndNotesForRecipe(string recipeData)
         {
             string recipeTitleMarker = "RECIPE_TITLE:";
             string userNotesMarker = "USER_NOTES:";
@@ -109,12 +118,12 @@ namespace Recipe2ShoppingList
             string recipeTitle = GetDataFromStartAndEndMarkers(recipeData, recipeTitleMarker, userNotesMarker);
             string userNotes = GetDataFromStartAndEndMarkers(recipeData, userNotesMarker, endMarker);
 
-            TitleNotes titleNotesToReturn = new TitleNotes(recipeTitle, userNotes);
+            string[] titleAndNotesToReturn = { recipeTitle, userNotes };
 
-            return titleNotesToReturn;
+            return titleAndNotesToReturn;
         }
 
-        private static PrepTimes GetPrepTimesForRecipe(string recipeData)
+        private static Times GetPrepTimesForRecipe(string recipeData)
         {
             string prepTimeMarker = "PREP_TIME:";
             string cookTimeMarker = "COOK_TIME:";
@@ -123,7 +132,7 @@ namespace Recipe2ShoppingList
             int prepTime = Int32.Parse(GetDataFromStartAndEndMarkers(recipeData, prepTimeMarker, cookTimeMarker));
             int cookTime = Int32.Parse(GetDataFromStartAndEndMarkers(recipeData, cookTimeMarker, endMarker));
 
-            PrepTimes prepTimesToReturn = new PrepTimes(prepTime, cookTime);
+            Times prepTimesToReturn = new Times(prepTime, cookTime);
 
             return prepTimesToReturn;
         }
@@ -145,7 +154,7 @@ namespace Recipe2ShoppingList
         private static Servings GetServingsForRecipe(string recipeData)
         {
             string lowServingsMarker = "LOW_SERVINGS:";
-            string highServingsMarker = "HIGH_SERVIGS:";
+            string highServingsMarker = "HIGH_SERVINGS:";
             string endMarker = "-START_OF_INGREDIENTS-";
 
             int lowServingsAmount = Int32.Parse(GetDataFromStartAndEndMarkers(recipeData, lowServingsMarker, highServingsMarker));
@@ -206,7 +215,7 @@ namespace Recipe2ShoppingList
             return instructionLines;
         }
 
-        private static Ingredients GetIngredientsForRecipe(string recipeData)
+        private static IngredientsList GetIngredientsForRecipe(string recipeData)
         {
             string recipeDataStartMarker = "-START_OF_INGREDIENTS-";
             string endMarker = "-START_OF_INSTRUCTIONS-";
@@ -214,7 +223,7 @@ namespace Recipe2ShoppingList
 
             Ingredient[] ingredientsToAdd = GetIngredientsFromText(ingredientsText);
 
-            Ingredients allIngredientsToReturn = new Ingredients();
+            IngredientsList allIngredientsToReturn = new IngredientsList();
             
             foreach (Ingredient ingredient in ingredientsToAdd)
             {

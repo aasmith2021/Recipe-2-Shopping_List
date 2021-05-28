@@ -6,17 +6,19 @@ namespace Recipe2ShoppingList
 {
     public class Metadata
     {
-        public Metadata(TitleNotes titleAndNotes, PrepTimes prepTimes, Tags tags, Servings servings)
+        public Metadata(string title, Times prepTimes, Tags tags, Servings servings, string userNotes = "")
         {
-            this.TitleNotes = titleAndNotes;
+            this.Title = title;
+            this.Notes = userNotes;
             this.PrepTimes = prepTimes;
             this.Tags = tags;
             this.Servings = servings;
         }
+        public string Title { get; set; }
 
-        public TitleNotes TitleNotes { get; set; }
+        public string Notes { get; set; }
 
-        public PrepTimes PrepTimes { get; set; }
+        public Times PrepTimes { get; set; }
 
         public Tags Tags { get; set; }
 
@@ -26,8 +28,22 @@ namespace Recipe2ShoppingList
         {
             string metadataText = "";
 
-            metadataText += this.TitleNotes.ProduceTitleNotesText(printVersion);
-            
+            if (printVersion)
+            {
+                metadataText += $"----- {this.Title.ToUpper()} -----{Environment.NewLine}";
+                metadataText += $"{Environment.NewLine}";
+                if (this.Notes != "")
+                {
+                    metadataText += $"Notes: {this.Notes}{Environment.NewLine}";
+                    metadataText += $"{Environment.NewLine}";
+                }
+            }
+            else
+            {
+                metadataText += $"RECIPE_TITLE:{this.Title}{Environment.NewLine}";
+                metadataText += $"USER_NOTES:{this.Notes}{Environment.NewLine}";
+            }
+
             //Adds the tags text for when data is writte to a file, but nothing
             //when the printVersion is created
             metadataText += printVersion ? "" : Tags.ProduceTagsText(printVersion);

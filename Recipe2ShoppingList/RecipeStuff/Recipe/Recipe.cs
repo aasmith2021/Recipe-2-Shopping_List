@@ -6,7 +6,7 @@ namespace Recipe2ShoppingList
 {
     public class Recipe
     {
-        public Recipe(Metadata metadata, CookingInstructions cookingInstructions, Ingredients ingredients)
+        public Recipe(Metadata metadata, CookingInstructions cookingInstructions, IngredientsList ingredients)
         {
             this.Metadata = metadata;
             this.CookingInstructions = cookingInstructions;
@@ -19,7 +19,7 @@ namespace Recipe2ShoppingList
 
         public CookingInstructions CookingInstructions { get; set; }
 
-        public Ingredients Ingredients { get; set; }
+        public IngredientsList Ingredients { get; set; }
 
         public string ProduceRecipeText(bool printVersion)
         {

@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    public class PrepTimes
+    public class Times
     {
-        public PrepTimes(int prepTime = 0, int cookTime = 0)
+        public Times(int prepTime = 0, int cookTime = 0)
         {
             this.PrepTime = prepTime;
             this.CookTime = cookTime;
@@ -23,14 +23,57 @@ namespace Recipe2ShoppingList
             }
         }
 
+        public void UpdatePrepTime(int newTime)
+        {
+            this.PrepTime = newTime;
+        }
+
+        public void UpdateCookTime(int newTime)
+        {
+            this.CookTime = newTime;
+        }
+
+        public static string ConvertTimeToHoursAndMinutes(int time)
+        {
+            int timeRemaining = time;
+            int hoursCount = 0;
+            string formattedTime = "";
+
+            while (timeRemaining >= 60)
+            {
+                timeRemaining -= 60;
+                hoursCount++;
+            }
+
+            if (hoursCount > 1)
+            {
+                formattedTime += $"{hoursCount} hrs ";
+            }
+            else if (hoursCount == 1)
+            {
+                formattedTime += $"{hoursCount} hr ";
+            }
+
+            if (timeRemaining < 60 && timeRemaining != 1)
+            {
+                formattedTime += $"{timeRemaining} mins";
+            }
+            else if (timeRemaining == 1)
+            {
+                formattedTime += $"{timeRemaining} min";
+            }
+
+            return formattedTime;
+        }
+
         public string ProducePrepTimesText(bool printVersion)
         {
             bool includePrepTime = this.PrepTime != 0;
             bool includeCookTime = this.CookTime != 0;
             bool includeTotalTime = this.TotalTime != 0;
-            string convertedPrepTime = MetadataEditingMethods.ConvertTimeToHoursAndMinutes(this.PrepTime);
-            string convertedCookTime = MetadataEditingMethods.ConvertTimeToHoursAndMinutes(this.CookTime);
-            string convertedTotalTime = MetadataEditingMethods.ConvertTimeToHoursAndMinutes(this.TotalTime);
+            string convertedPrepTime = Times.ConvertTimeToHoursAndMinutes(this.PrepTime);
+            string convertedCookTime = Times.ConvertTimeToHoursAndMinutes(this.CookTime);
+            string convertedTotalTime = Times.ConvertTimeToHoursAndMinutes(this.TotalTime);
 
             string prepTimesText = "";
 

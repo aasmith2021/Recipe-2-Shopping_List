@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    public class Ingredients
+    public class IngredientsList
     {
         private List<Ingredient> allIngredients = new List<Ingredient>();
 

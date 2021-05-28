@@ -16,6 +16,18 @@ namespace Recipe2ShoppingList
 
         public int HighNumberOfServings { get; set; }
 
+        public void UpdateNumberOfServings(int newNumberOfServings, bool updateLowNumberOfServings)
+        {
+            if (updateLowNumberOfServings)
+            {
+                this.LowNumberOfServings = newNumberOfServings;
+            }
+            else
+            {
+                this.HighNumberOfServings = newNumberOfServings;
+            }
+        }
+
         public string ProduceServingsText(bool printVersion)
         {
             string servingsText = "";
@@ -35,7 +47,7 @@ namespace Recipe2ShoppingList
             else
             {
                 servingsText += $"LOW_SERVINGS:{this.LowNumberOfServings}{Environment.NewLine}";
-                servingsText += $"HIGH_SERVIGS:{this.HighNumberOfServings}{Environment.NewLine}";
+                servingsText += $"HIGH_SERVINGS:{this.HighNumberOfServings}{Environment.NewLine}";
             }
             
             return servingsText;

@@ -1,58 +1,12 @@
-﻿using System;
-using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Recipe2ShoppingList;
 
-namespace Recipe2ShoppingList
+namespace Recipe2ShoppingList.Test
 {
-    class Program
+    [TestClass]
+    public class ReadWriteTests
     {
-        static void Main(string[] args)
-        {
-            //Console.WriteLine("Enter a URL:");
-            //string url = Console.ReadLine();
-            //string output = DataHelperMethods.GetWebsiteDataFromURL(url);
-            ////string[] splitSeparators = { "\"", ",", ":" };
-            //string splitOutput = output.Substring(output.IndexOf("prep"), 1200);//.Split(splitSeparators, StringSplitOptions.RemoveEmptyEntries);
-
-            //Console.WriteLine(splitOutput);
-
-            //foreach (string myString in splitOutput)
-            //{
-            //    Console.WriteLine(myString);
-            //}
-
-            //string test = "Love.love love/love:joy\"peace\":patience:";
-            //string[] splitSeparators = { "\"", ",", ":", ".", "/" };
-
-            //string[] splitTest = test.Split(splitSeparators, StringSplitOptions.RemoveEmptyEntries);
-
-            //foreach (string element in splitTest)
-            //{
-            //    Console.WriteLine(element);
-            //}
-
-            //RecipeBookLibrary databaseRecipeBookLibraryToWrite = GetTestRecipeBookLibrary();
-            //databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile();
-            //RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile();
-            //alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile("alternate");
-
-            //string allDatabaseText = ReadFromFile.GetAllDatabaseText();
-            //string allAlternateText = ReadFromFile.GetAllDatabaseText("alternate");
-
-            //if (allDatabaseText == allAlternateText)
-            //{
-            //    Console.WriteLine("Databases are equal!");
-            //}
-
-            //if (allDatabaseText.Length == allAlternateText.Length)
-            //{
-            //    Console.WriteLine("Databases are the same length!");
-            //}
-
-            DataHelperMethods.ReadWriteTest();
-
-        }
-
-        private static Recipe GenerateTestRecipe1()
+        private Recipe GenerateTestRecipe1()
         {
             string recipeTitle = "Mac & Cheese";
             Times prepTimes1 = new Times(10, 55);
@@ -89,7 +43,7 @@ namespace Recipe2ShoppingList
             return recipe1;
         }
 
-        private static Recipe GenerateTestRecipe2()
+        private Recipe GenerateTestRecipe2()
         {
             string recipeTitle = "Tuna Casserole";
             Times prepTimes1 = new Times(10, 45);
@@ -130,17 +84,51 @@ namespace Recipe2ShoppingList
             return recipe1;
         }
 
-        private static RecipeBookLibrary GetTestRecipeBookLibrary()
+        private RecipeBookLibrary GetTestRecipeBookLibrary()
         {
             RecipeBookLibrary testRecipeBookLibrary = new RecipeBookLibrary();
             RecipeBook myCookBook = new RecipeBook("My Cook Book");
-            testRecipeBookLibrary.AddRecipeBook(myCookBook);
             Recipe recipe1 = GenerateTestRecipe1();
             Recipe recipe2 = GenerateTestRecipe2();
             myCookBook.AddRecipe(recipe1);
             myCookBook.AddRecipe(recipe2);
-
+            testRecipeBookLibrary.AddRecipeBook(myCookBook);
             return testRecipeBookLibrary;
+        }
+
+        [TestMethod]
+        public void WriteToFile_ReadFromFile_WriteToFile_produces_original_RecipeBookLibrary()
+        {
+            //Arrange
+            RecipeBookLibrary databaseRecipeBookLibraryToWrite = GetTestRecipeBookLibrary();
+            databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile("original_test_database");
+            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("original_test_database");
+            alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile("alternate_test_database");
+
+            //Act
+            string allDatabaseText = ReadFromFile.GetAllDatabaseText("original_test_database");
+            string allAlternateText = ReadFromFile.GetAllDatabaseText("alternate_test_database");
+
+            //Assert
+            Assert.AreEqual(allDatabaseText, allAlternateText, "Writing a RecipeBookLibrary to file, reading it back, and writing it to a new file did not produce the same data in both files.");
+        }
+
+        [TestMethod]
+        public void WriteToFile_ReadFromFile_change_recipe_book_name_WriteToFile_produces_different_output()
+        {
+            //Arrange
+            RecipeBookLibrary databaseRecipeBookLibraryToWrite = GetTestRecipeBookLibrary();
+            databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile("original_test_database");
+            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("original_test_database");
+            alternateRecipeBookLibraryReadFromFile.AllRecipeBooks[0].Name = "My Other Cook Book";
+            alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile("alternate_test_database");
+
+            //Act
+            string allDatabaseText = ReadFromFile.GetAllDatabaseText("original_test_database");
+            string allAlternateText = ReadFromFile.GetAllDatabaseText("alternate_test_database");
+
+            //Assert
+            Assert.AreNotEqual(allDatabaseText, allAlternateText, "Writing a RecipeBookLibrary to a file, reading it back, changing it and writing it to a new file incorrectly produced the same data in both files.");
         }
     }
 }

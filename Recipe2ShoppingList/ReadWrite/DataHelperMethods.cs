@@ -1,55 +1,70 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class Program
+    public abstract class DataHelperMethods
     {
-        static void Main(string[] args)
+        protected static string GetDatabaseFilePath(string alternateFilePath = "")
         {
-            //Console.WriteLine("Enter a URL:");
-            //string url = Console.ReadLine();
-            //string output = DataHelperMethods.GetWebsiteDataFromURL(url);
-            ////string[] splitSeparators = { "\"", ",", ":" };
-            //string splitOutput = output.Substring(output.IndexOf("prep"), 1200);//.Split(splitSeparators, StringSplitOptions.RemoveEmptyEntries);
+            string filePath = Directory.GetCurrentDirectory();
 
-            //Console.WriteLine(splitOutput);
+            if(alternateFilePath == "")
+            {
+                filePath += "\\Recipe_Database.txt";
+            }
+            else
+            {
+                filePath += $"\\{alternateFilePath}.txt";
+            }
 
-            //foreach (string myString in splitOutput)
-            //{
-            //    Console.WriteLine(myString);
-            //}
+            return filePath;
+        }
 
-            //string test = "Love.love love/love:joy\"peace\":patience:";
-            //string[] splitSeparators = { "\"", ",", ":", ".", "/" };
+        public static string GetWebsiteDataFromURL(string url)
+        {
+            WebClient webClient = new WebClient();
 
-            //string[] splitTest = test.Split(splitSeparators, StringSplitOptions.RemoveEmptyEntries);
+            string websiteData = webClient.DownloadString(url);
 
-            //foreach (string element in splitTest)
-            //{
-            //    Console.WriteLine(element);
-            //}
+            return websiteData;
+        }
 
-            //RecipeBookLibrary databaseRecipeBookLibraryToWrite = GetTestRecipeBookLibrary();
-            //databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile();
-            //RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile();
-            //alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile("alternate");
+        public static void ReadWriteTest()
+        {
+            RecipeBookLibrary databaseRecipeBookLibraryToWrite = GetTestRecipeBookLibrary();
+            databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile("original_test_database");
+            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("original_test_database");
+            alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile("alternate_test_database");
 
-            //string allDatabaseText = ReadFromFile.GetAllDatabaseText();
-            //string allAlternateText = ReadFromFile.GetAllDatabaseText("alternate");
+            string allDatabaseText = ReadFromFile.GetAllDatabaseText("original_test_database");
+            string allAlternateText = ReadFromFile.GetAllDatabaseText("alternate_test_database");
 
-            //if (allDatabaseText == allAlternateText)
-            //{
-            //    Console.WriteLine("Databases are equal!");
-            //}
+            if (allDatabaseText == allAlternateText)
+            {
+                Console.WriteLine("The text in both databases are equal!");
+            }
 
-            //if (allDatabaseText.Length == allAlternateText.Length)
-            //{
-            //    Console.WriteLine("Databases are the same length!");
-            //}
+            if (allDatabaseText.Length == allAlternateText.Length)
+            {
+                Console.WriteLine("Both databases are the same length!");
+            }
+        }
 
-            DataHelperMethods.ReadWriteTest();
+        private static RecipeBookLibrary GetTestRecipeBookLibrary()
+        {
+            RecipeBookLibrary testRecipeBookLibrary = new RecipeBookLibrary();
+            RecipeBook myCookBook = new RecipeBook("My Cook Book");
+            testRecipeBookLibrary.AddRecipeBook(myCookBook);
+            Recipe recipe1 = GenerateTestRecipe1();
+            Recipe recipe2 = GenerateTestRecipe2();
+            myCookBook.AddRecipe(recipe1);
+            myCookBook.AddRecipe(recipe2);
 
+            return testRecipeBookLibrary;
         }
 
         private static Recipe GenerateTestRecipe1()
@@ -128,19 +143,6 @@ namespace Recipe2ShoppingList
             Recipe recipe1 = new Recipe(metadata1, ckinst1, recipeIngredients);
 
             return recipe1;
-        }
-
-        private static RecipeBookLibrary GetTestRecipeBookLibrary()
-        {
-            RecipeBookLibrary testRecipeBookLibrary = new RecipeBookLibrary();
-            RecipeBook myCookBook = new RecipeBook("My Cook Book");
-            testRecipeBookLibrary.AddRecipeBook(myCookBook);
-            Recipe recipe1 = GenerateTestRecipe1();
-            Recipe recipe2 = GenerateTestRecipe2();
-            myCookBook.AddRecipe(recipe1);
-            myCookBook.AddRecipe(recipe2);
-
-            return testRecipeBookLibrary;
         }
     }
 }

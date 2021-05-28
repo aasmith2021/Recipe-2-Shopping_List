@@ -16,6 +16,16 @@ namespace Recipe2ShoppingList
 
         public string FoodGenre { get; set; }
 
+        public void UpdateFoodType(string newFoodType)
+        {
+            this.FoodType = newFoodType;
+        }
+
+        public void UpdateFoodGenre(string newFoodGenre)
+        {
+            this.FoodGenre = newFoodGenre;
+        }
+
         public string ProduceTagsText(bool printVersion)
         {
             string tagsText = "";
