@@ -90,7 +90,7 @@ namespace Recipe2ShoppingList
         {
             Metadata metadataToAdd = GetMetadataForRecipe(recipeData);
             CookingInstructions cookingInstructionsToAdd = GetCookingInstructionsForRecipe(recipeData);
-            IngredientsList ingredientsToAdd = GetIngredientsForRecipe(recipeData);
+            IngredientList ingredientsToAdd = GetIngredientsForRecipe(recipeData);
 
             Recipe recipeToAdd = new Recipe(metadataToAdd, cookingInstructionsToAdd, ingredientsToAdd);
 
@@ -215,7 +215,7 @@ namespace Recipe2ShoppingList
             return instructionLines;
         }
 
-        private static IngredientsList GetIngredientsForRecipe(string recipeData)
+        private static IngredientList GetIngredientsForRecipe(string recipeData)
         {
             string recipeDataStartMarker = "-START_OF_INGREDIENTS-";
             string endMarker = "-START_OF_INSTRUCTIONS-";
@@ -223,7 +223,7 @@ namespace Recipe2ShoppingList
 
             Ingredient[] ingredientsToAdd = GetIngredientsFromText(ingredientsText);
 
-            IngredientsList allIngredientsToReturn = new IngredientsList();
+            IngredientList allIngredientsToReturn = new IngredientList();
             
             foreach (Ingredient ingredient in ingredientsToAdd)
             {

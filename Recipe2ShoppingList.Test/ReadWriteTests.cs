@@ -34,7 +34,7 @@ namespace Recipe2ShoppingList.Test
             Ingredient pasta = new Ingredient("1", "8 oz", "Box of macaroni pasta");
             Ingredient cheese = new Ingredient("3", "Cups", "Shredded cheddar cheese");
 
-            IngredientsList macAndCheeseIngredients = new IngredientsList();
+            IngredientList macAndCheeseIngredients = new IngredientList();
             macAndCheeseIngredients.AddIngredient(pasta);
             macAndCheeseIngredients.AddIngredient(cheese);
 
@@ -74,7 +74,7 @@ namespace Recipe2ShoppingList.Test
             Ingredient tuna = new Ingredient("1", "can", "tuna");
             Ingredient soup = new Ingredient("1", "10 oz can", "Cream of Mushroom soup");
 
-            IngredientsList recipeIngredients = new IngredientsList();
+            IngredientList recipeIngredients = new IngredientList();
             recipeIngredients.AddIngredient(pasta);
             recipeIngredients.AddIngredient(tuna);
             recipeIngredients.AddIngredient(soup);
