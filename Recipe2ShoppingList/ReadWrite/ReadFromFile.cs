@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class ReadFromFile : FileMethods
+    public class ReadFromFile : FileMethods
     {
-        public static RecipeBookLibrary GenerateRecipeBookLibraryFromFile()
+        public static RecipeBookLibrary GetRecipeBookLibraryFromFile()
         {
             RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
             string allDataFromFile = GetAllDatabaseText();

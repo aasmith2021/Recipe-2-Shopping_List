@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class Recipe
+    public class Recipe
     {
         public Recipe(Metadata metadata, CookingInstructions cookingInstructions, Ingredients ingredients)
         {

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class Ingredient
+    public class Ingredient
     {
         public Ingredient(string quantity, string measurementUnit, string name)
         {

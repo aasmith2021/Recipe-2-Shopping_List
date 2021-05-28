@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class FileMethods
+    public class FileMethods
     {
         protected static string GetDatabaseFilePath()
         {

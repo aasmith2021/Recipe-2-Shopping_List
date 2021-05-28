@@ -5,11 +5,11 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class WriteToFile : FileMethods
+    public class WriteToFile : FileMethods
     {      
-        public static void WriteRecipeBooksToFile(RecipeBookLibrary allData)
+        public static void WriteRecipeBookLibraryToFile(RecipeBookLibrary recipeBookLibrary)
         {
-            RecipeBook[] allRecipeBooks = allData.AllRecipeBooks;
+            RecipeBook[] allRecipeBooks = recipeBookLibrary.AllRecipeBooks;
 
             StreamWriter sw = new StreamWriter(GetDatabaseFilePath());
 

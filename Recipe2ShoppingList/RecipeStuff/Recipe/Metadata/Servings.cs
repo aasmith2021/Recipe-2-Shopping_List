@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class Servings
+    public class Servings
     {
         public Servings(int lowNumberOfServings, int highNumberOfServings = 0)
         {

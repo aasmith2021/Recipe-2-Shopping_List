@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class InstructionBlock
+    public class InstructionBlock
     {
         public InstructionBlock(string blockHeading = "")
         {

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class MetadataEditingMethods
+    public class MetadataEditingMethods
     {
         public static void UpdateTitle(Recipe recipe, string newTitle)
         {

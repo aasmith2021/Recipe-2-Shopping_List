@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class Tags
+    public class Tags
     {
         public Tags(string foodType, string foodGenre)
         {

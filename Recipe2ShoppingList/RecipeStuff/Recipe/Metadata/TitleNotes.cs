@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    class TitleNotes
+    public class TitleNotes
     {
         public TitleNotes(string recipeTitle, string userNotes = "")
         {
