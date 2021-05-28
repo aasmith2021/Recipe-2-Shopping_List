@@ -7,7 +7,7 @@ namespace Recipe2ShoppingList
 {
     class WriteToFile : FileMethods
     {      
-        public static void WriteRecipeBooksToFile(RecipeBooks allData)
+        public static void WriteRecipeBooksToFile(RecipeBookLibrary allData)
         {
             RecipeBook[] allRecipeBooks = allData.AllRecipeBooks;
 
@@ -21,7 +21,7 @@ namespace Recipe2ShoppingList
             sw.Close();
         }
 
-        public static void WriteRecipeBooksToAlternateFile(RecipeBooks allData)
+        public static void WriteRecipeBooksToAlternateFile(RecipeBookLibrary allData)
         {
             RecipeBook[] allRecipeBooks = allData.AllRecipeBooks;
 

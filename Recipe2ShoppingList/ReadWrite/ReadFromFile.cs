@@ -7,9 +7,9 @@ namespace Recipe2ShoppingList
 {
     class ReadFromFile : FileMethods
     {
-        public static RecipeBooks GenerateAllRecipeBooksFromFile()
+        public static RecipeBookLibrary GenerateRecipeBookLibraryFromFile()
         {
-            RecipeBooks allRecipeBooks = new RecipeBooks();
+            RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
             string allDataFromFile = GetAllDatabaseText();
 
             string[] separateRecipeBooks = allDataFromFile.Split("-NEW_RECIPE_BOOK-", StringSplitOptions.RemoveEmptyEntries);
@@ -21,10 +21,10 @@ namespace Recipe2ShoppingList
 
                 AddAllRecipesToRecipeBook(newRecipeBookToAdd, separateRecipeBooks[i]);
 
-                allRecipeBooks.AddRecipeBook(newRecipeBookToAdd);
+                recipeBookLibrary.AddRecipeBook(newRecipeBookToAdd);
             }            
             
-            return allRecipeBooks;
+            return recipeBookLibrary;
         }
 
         public static string GetAllDatabaseText()

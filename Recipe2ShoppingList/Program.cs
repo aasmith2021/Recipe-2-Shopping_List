@@ -6,9 +6,12 @@ namespace Recipe2ShoppingList
     class Program
     {
         static void Main(string[] args)
-        {           
+        {
+
+
+
             //GENERATE NEW RECIPE BOOK, SAVE TO FILE
-            RecipeBooks brandNewRecipeBooks = new RecipeBooks();
+            RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
 
             RecipeBook myCookBook = new RecipeBook("My Cook Book");
 
@@ -18,15 +21,15 @@ namespace Recipe2ShoppingList
             myCookBook.AddRecipe(recipe1);
             myCookBook.AddRecipe(recipe2);
 
-            brandNewRecipeBooks.AddRecipeBook(myCookBook);
+            recipeBookLibrary.AddRecipeBook(myCookBook);
 
-            WriteToFile.WriteRecipeBooksToFile(brandNewRecipeBooks);
+            WriteToFile.WriteRecipeBooksToFile(recipeBookLibrary);
 
 
 
             //READ FROM FILE, PRINT FIRST RECIPE
-            RecipeBooks recipeBooksFromFile = ReadFromFile.GenerateAllRecipeBooksFromFile();
-            RecipeBook[] allRecipeBooks = recipeBooksFromFile.AllRecipeBooks;
+            RecipeBookLibrary recipeBookLibraryFromFile = ReadFromFile.GenerateRecipeBookLibraryFromFile();
+            RecipeBook[] allRecipeBooks = recipeBookLibraryFromFile.AllRecipeBooks;
             RecipeBook firstRecipeBook = allRecipeBooks[0];
             Recipe[] allRecipes = firstRecipeBook.Recipes;
             Recipe firstRecipe = allRecipes[0];
@@ -36,7 +39,7 @@ namespace Recipe2ShoppingList
 
 
             //WRITE DATA READ FROM THE FILE TO A NEW ALTERNATE FILE TO CHECK FOR DATA LOSS
-            WriteToFile.WriteRecipeBooksToAlternateFile(recipeBooksFromFile);
+            WriteToFile.WriteRecipeBooksToAlternateFile(recipeBookLibraryFromFile);
 
         }
 
