@@ -6,6 +6,11 @@ namespace Recipe2ShoppingList
 {
     public class Tags
     {
+        public Tags()
+        {
+
+        }
+        
         public Tags(string foodType, string foodGenre)
         {
             this.FoodType = foodType;

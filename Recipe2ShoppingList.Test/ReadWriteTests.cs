@@ -4,7 +4,7 @@ using Recipe2ShoppingList;
 namespace Recipe2ShoppingList.Test
 {
     [TestClass]
-    public class ReadWriteTests
+    public class ReadWriteTests : DataHelperMethods
     {
         private Recipe GenerateTestRecipe1()
         {

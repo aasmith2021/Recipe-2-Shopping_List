@@ -6,6 +6,11 @@ namespace Recipe2ShoppingList
 {
     public class Servings
     {
+        public Servings()
+        {
+
+        }
+        
         public Servings(int lowNumberOfServings, int highNumberOfServings = 0)
         {
             this.LowNumberOfServings = lowNumberOfServings;

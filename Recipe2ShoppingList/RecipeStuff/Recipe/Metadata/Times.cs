@@ -6,6 +6,11 @@ namespace Recipe2ShoppingList
 {
     public class Times
     {
+        public Times()
+        {
+
+        }
+        
         public Times(int prepTime = 0, int cookTime = 0)
         {
             this.PrepTime = prepTime;

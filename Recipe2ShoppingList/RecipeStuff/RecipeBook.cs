@@ -70,5 +70,33 @@ namespace Recipe2ShoppingList
 
             return recipeBookText;
         }
+
+        public void AddAllRecipesToRecipeBook(string recipeBookText)
+        {
+            string recipeStartMarker = "-START_OF_RECIPE-";
+
+            if (recipeBookText.IndexOf(recipeStartMarker) >= 0)
+            {
+                string recipesDataForWholeBook = recipeBookText.Substring(recipeBookText.IndexOf(recipeStartMarker));
+
+                string[] allRecipesTextSeparated = recipesDataForWholeBook.Split(recipeStartMarker, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string recipeText in allRecipesTextSeparated)
+                {
+                    this.AddOneRecipeToRecipeBook(recipeText);
+                }
+            }
+        }
+
+        private void AddOneRecipeToRecipeBook(string recipeText)
+        {
+            Recipe recipeToAdd = new Recipe();
+
+            recipeToAdd.AddMetadataFromFile(recipeText);
+            recipeToAdd.AddCookingInstructionsFromFile(recipeText);
+            recipeToAdd.AddIngredientsFromFile(recipeText);
+
+            this.AddRecipe(recipeToAdd);
+        }
     }
 }
