@@ -25,17 +25,27 @@ namespace Recipe2ShoppingList
         }
 
         protected static string GetAllDatabaseText(string alternateFilePath = "")
-        {
+        {            
             string databaseText = "";
-            StreamReader sr = new StreamReader(GetDatabaseFilePath(alternateFilePath));
-            string currentLineOfText = sr.ReadLine();
 
-            while (currentLineOfText != null)
+            //Try-Catch the exception for starting the program when the database file doesn't
+            //exist yet.
+            try
             {
-                databaseText += currentLineOfText;
-                currentLineOfText = sr.ReadLine();
+                StreamReader sr = new StreamReader(GetDatabaseFilePath(alternateFilePath));
+
+                string currentLineOfText = sr.ReadLine();
+
+                while (currentLineOfText != null)
+                {
+                    databaseText += currentLineOfText;
+                    currentLineOfText = sr.ReadLine();
+                }
+                sr.Close();
             }
-            sr.Close();
+            catch (FileNotFoundException)
+            {
+            }
 
             return databaseText;
         }
@@ -64,6 +74,21 @@ namespace Recipe2ShoppingList
 
             return websiteData;
         }
+
+        //<<<Stuff I was using to get data from a URL>>>
+
+        //Console.WriteLine("Enter a URL:");
+        //string url = Console.ReadLine();
+        //string output = DataHelperMethods.GetWebsiteDataFromURL(url);
+        ////string[] splitSeparators = { "\"", ",", ":" };
+        //string splitOutput = output.Substring(output.IndexOf("prep"), 1200);//.Split(splitSeparators, StringSplitOptions.RemoveEmptyEntries);
+
+        //Console.WriteLine(splitOutput);
+
+        //foreach (string myString in splitOutput)
+        //{
+        //    Console.WriteLine(myString);
+        //}
 
     }
 }
