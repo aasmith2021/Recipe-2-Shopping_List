@@ -84,5 +84,44 @@ namespace Recipe2ShoppingList
 
             return result;
         }
+
+        public static void AreYouSure(string changeMessage, out bool isSure)
+        {
+            isSure = false;
+            
+            Console.WriteLine();
+            Console.WriteLine($"Are you sure you want to {changeMessage}?");
+            Console.WriteLine();
+            Console.Write("Enter \"Y\" for Yes or \"N\" for No: ");
+
+            List<string> options = new List<string>() { "Y", "N" };
+
+            string userInput = GetUserOption(options);
+
+            if (userInput == "Y")
+            {
+                isSure = true;
+            }
+        }
+
+        public static void SuccessfulChange(bool changeConfirmed, string changeNoun, string changeVerb)
+        {
+            if (changeConfirmed)
+            {
+                Console.WriteLine();
+                Console.WriteLine($"Success! The {changeNoun} was {changeVerb}.");
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine($"No worries! The {changeNoun} was not {changeVerb}.");
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+            }
+        }
     }
 }

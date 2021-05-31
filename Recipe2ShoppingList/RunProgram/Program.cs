@@ -10,10 +10,10 @@ namespace Recipe2ShoppingList
         {
             bool exitProgram = false;
 
-            while(!exitProgram)
+            while (!exitProgram)
             {
                 ProgramExecution.RunProgram(out exitProgram);
-            }  
+            }
 
             //RecipeBookLibrary libraryToSaveToFile = GetTestRecipeBookLibrary();
             //libraryToSaveToFile.WriteRecipeBookLibraryToFile("test_database");
@@ -103,11 +103,15 @@ namespace Recipe2ShoppingList
         //{
         //    RecipeBookLibrary testRecipeBookLibrary = new RecipeBookLibrary();
         //    RecipeBook myCookBook = new RecipeBook("My Cook Book");
+        //    RecipeBook betterEats = new RecipeBook("Better Eats");
         //    Recipe recipe1 = GenerateTestRecipe1();
         //    Recipe recipe2 = GenerateTestRecipe2();
         //    myCookBook.AddRecipe(recipe1);
         //    myCookBook.AddRecipe(recipe2);
+        //    betterEats.AddRecipe(recipe2);
+        //    betterEats.AddRecipe(recipe1);
         //    testRecipeBookLibrary.AddRecipeBook(myCookBook);
+        //    testRecipeBookLibrary.AddRecipeBook(betterEats);
         //    return testRecipeBookLibrary;
         //}
     }

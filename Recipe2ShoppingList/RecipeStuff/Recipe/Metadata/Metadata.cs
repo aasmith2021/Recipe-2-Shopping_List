@@ -19,6 +19,8 @@ namespace Recipe2ShoppingList
             this.Tags = tags;
             this.Servings = servings;
         }
+        public int RecipeId { get; set; } = 0;
+
         public string Title { get; set; }
 
         public string Notes { get; set; }
@@ -35,16 +37,22 @@ namespace Recipe2ShoppingList
 
             if (printVersion)
             {
-                metadataText += $"----- {this.Title.ToUpper()} -----{Environment.NewLine}";
+                metadataText += UserInterface.MakeStringConsoleLengthLines($"----- {this.Title.ToUpper()} -----{Environment.NewLine}");
+                
+                //This is commented out right now because I don't think we need the recipe # to display when
+                //we print the recipe to the console.
+                //metadataText += $"Recipe #{this.RecipeId}{Environment.NewLine}";
+
                 metadataText += $"{Environment.NewLine}";
                 if (this.Notes != "")
                 {
-                    metadataText += $"Notes: {this.Notes}{Environment.NewLine}";
+                    metadataText += UserInterface.MakeStringConsoleLengthLines($"Notes: {this.Notes}{Environment.NewLine}");
                     metadataText += $"{Environment.NewLine}";
                 }
             }
             else
             {
+                metadataText += $"RECIPE_#:{this.RecipeId}{Environment.NewLine}";
                 metadataText += $"RECIPE_TITLE:{this.Title}{Environment.NewLine}";
                 metadataText += $"USER_NOTES:{this.Notes}{Environment.NewLine}";
             }

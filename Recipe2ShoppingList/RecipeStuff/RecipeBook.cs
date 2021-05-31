@@ -26,7 +26,11 @@ namespace Recipe2ShoppingList
 
         public void AddRecipe(Recipe newRecipe)
         {
-            newRecipe.RecipeId = this.Recipes.Length + 1;
+            if (newRecipe.Metadata.RecipeId == 0)
+            {
+                newRecipe.Metadata.RecipeId = this.Recipes.Length + 1;
+            }
+
             recipes.Add(newRecipe);
         }
 
@@ -45,7 +49,6 @@ namespace Recipe2ShoppingList
 
                 for (int i = 0; i < this.Recipes.Length; i++)
                 {
-                    recipeBookText += $"Recipe #{this.Recipes[i].RecipeId}{Environment.NewLine}";
                     recipeBookText += this.Recipes[i].ProduceRecipeText(printVersion);
 
                     if (i != this.Recipes.Length - 1)
@@ -59,13 +62,14 @@ namespace Recipe2ShoppingList
                 recipeBookText += $"-NEW_RECIPE_BOOK-{Environment.NewLine}";
                 recipeBookText += $"RECIPE_BOOK_NAME:{this.Name}{Environment.NewLine}";
 
+
                 for (int i = 0; i < this.Recipes.Length; i++)
                 {
                     recipeBookText += $"-START_OF_RECIPE-{Environment.NewLine}";
-                    recipeBookText += $"RECIPE_#:{this.Recipes[i].RecipeId}{Environment.NewLine}";
                     recipeBookText += this.Recipes[i].ProduceRecipeText(printVersion);
                     recipeBookText += $"-END_OF_RECIPE-{Environment.NewLine}";
                 }
+                recipeBookText += $"-END_OF_RECIPE_BOOK-{Environment.NewLine}";
             }
 
             return recipeBookText;

@@ -43,8 +43,8 @@ namespace Recipe2ShoppingList
             }
             else
             {
-                tagsText += $"FOOD_TYPE:{this.FoodType}{Environment.NewLine}";
-                tagsText += $"FOOD_GENRE:{this.FoodGenre}{Environment.NewLine}";
+                tagsText += UserInterface.MakeStringConsoleLengthLines($"FOOD_TYPE:{this.FoodType}{Environment.NewLine}");
+                tagsText += UserInterface.MakeStringConsoleLengthLines($"FOOD_GENRE:{this.FoodGenre}{Environment.NewLine}");
             }
 
             return tagsText;

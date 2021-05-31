@@ -44,7 +44,7 @@ namespace Recipe2ShoppingList
 
                     foreach (string instructionLine in currentInstructionBlock.InstructionLines)
                     {
-                        instructionsText += $"{lineNumberString,-2} {instructionLine}{Environment.NewLine}";
+                        instructionsText += UserInterface.MakeStringConsoleLengthLines($"{lineNumberString,-2} {instructionLine}{Environment.NewLine}");
                         lineNumber++;
                         lineNumberString = $"{lineNumber}.";
                     }

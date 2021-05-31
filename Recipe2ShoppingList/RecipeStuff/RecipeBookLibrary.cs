@@ -39,7 +39,7 @@ namespace Recipe2ShoppingList
 
             foreach (RecipeBook recipeBook in allRecipeBooks)
             {
-                sw.WriteLine(recipeBook.ProduceRecipeBookText(false));
+                sw.Write(recipeBook.ProduceRecipeBookText(false));
             }
 
             sw.Close();

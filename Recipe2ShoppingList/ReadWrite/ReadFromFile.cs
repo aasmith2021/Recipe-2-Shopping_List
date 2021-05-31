@@ -34,12 +34,11 @@ namespace Recipe2ShoppingList
             return recipeBookLibrary;
         }
 
-        private static string GetRecipeBookNameFromData(string recipeBookData)
+        private static string GetRecipeBookNameFromData(string recipeBookText)
         {
-            string recipeBookNameStartMarker = "RECIPE_BOOK_NAME:";
-            string endMarker = "-START_OF_RECIPE-";
+            string regexExpression = @"RECIPE_BOOK_NAME:(.*?)(-START_OF_RECIPE-|-END_OF_RECIPE_BOOK-)";
 
-            string recipeBookName = GetDataFromStartAndEndMarkers(recipeBookData, recipeBookNameStartMarker, endMarker);
+            string recipeBookName = Regex.Match(recipeBookText, regexExpression).Groups[1].Value.ToString();
 
             return recipeBookName;
         }

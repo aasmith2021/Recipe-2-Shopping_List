@@ -33,7 +33,7 @@ namespace Recipe2ShoppingList
 
                 foreach (Ingredient ingredient in this.AllIngredients)
                 {
-                    ingredientsText += $"{ingredient.Quantity} {ingredient.MeasurementUnit} {ingredient.Name}{Environment.NewLine}";
+                    ingredientsText += UserInterface.MakeStringConsoleLengthLines($"{ingredient.Quantity} {ingredient.MeasurementUnit} {ingredient.Name}{Environment.NewLine}");
                 }
 
                 ingredientsText += $"{Environment.NewLine}";
