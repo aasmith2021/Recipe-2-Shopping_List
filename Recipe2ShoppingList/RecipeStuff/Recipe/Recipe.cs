@@ -68,7 +68,7 @@ namespace Recipe2ShoppingList
                 switch (element.Key)
                 {
                     case "recipeId":
-                        recipeId = Int32.Parse(regexResult);
+                        recipeId = int.Parse(regexResult);
                         break;
                     
                     case "title":
@@ -88,19 +88,19 @@ namespace Recipe2ShoppingList
                         break;
 
                     case "prepTime":
-                        prepTime = Int32.Parse(regexResult);
+                        prepTime = int.Parse(regexResult);
                         break;
 
                     case "cookTime":
-                        cookTime = Int32.Parse(regexResult);
+                        cookTime = int.Parse(regexResult);
                         break;
 
                     case "lowServings":
-                        lowServings = Int32.Parse(regexResult);
+                        lowServings = int.Parse(regexResult);
                         break;
 
                     case "highServings":
-                        highServings = Int32.Parse(regexResult);
+                        highServings = int.Parse(regexResult);
                         break;
 
                     default:

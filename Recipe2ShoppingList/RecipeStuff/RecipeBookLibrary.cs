@@ -31,23 +31,23 @@ namespace Recipe2ShoppingList
         public void WriteRecipeBookLibraryToFile(string alternateFilePath = "")
         {
             RecipeBook[] allRecipeBooks = this.AllRecipeBooks;
-            StreamWriter sw;
 
-            if (alternateFilePath == "")
+            try
             {
-                sw = new StreamWriter(GetDatabaseFilePath());
+                using (StreamWriter sw = new StreamWriter(GetWriteDatabaseFilePath(alternateFilePath)))
+                {
+                    foreach (RecipeBook recipeBook in allRecipeBooks)
+                    {
+                        sw.Write(recipeBook.ProduceRecipeBookText(false));
+                    }
+                }
             }
-            else
+            catch (IOException exception)
             {
-                sw = new StreamWriter(GetDatabaseFilePath(alternateFilePath));
+                Console.WriteLine("Cannot open file to save data.");
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
             }
-
-            foreach (RecipeBook recipeBook in allRecipeBooks)
-            {
-                sw.Write(recipeBook.ProduceRecipeBookText(false));
-            }
-
-            sw.Close();
         }
     }
 }

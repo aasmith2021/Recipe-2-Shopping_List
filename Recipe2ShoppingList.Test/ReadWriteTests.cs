@@ -100,13 +100,13 @@ namespace Recipe2ShoppingList.Test
         public void WriteToFile_ReadFromFile_WriteToFile_produces_original_RecipeBookLibrary()
         {
             //Arrange
-            RecipeBookLibrary databaseRecipeBookLibraryToWrite = GetTestRecipeBookLibrary();
-            databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile("original_test_database");
-            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("original_test_database");
+            RecipeBookLibrary test1RecipeBookLibrary = GetTestRecipeBookLibrary();
+            test1RecipeBookLibrary.WriteRecipeBookLibraryToFile("test_database");
+            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("test_database");
             alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile("alternate_test_database");
 
             //Act
-            string allDatabaseText = ReadFromFile.GetAllDatabaseText("original_test_database");
+            string allDatabaseText = ReadFromFile.GetAllDatabaseText("test_database");
             string allAlternateText = ReadFromFile.GetAllDatabaseText("alternate_test_database");
 
             //Assert
@@ -118,13 +118,13 @@ namespace Recipe2ShoppingList.Test
         {
             //Arrange
             RecipeBookLibrary databaseRecipeBookLibraryToWrite = GetTestRecipeBookLibrary();
-            databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile("original_test_database");
-            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("original_test_database");
+            databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile("test_database");
+            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("test_database");
             alternateRecipeBookLibraryReadFromFile.AllRecipeBooks[0].Name = "My Other Cook Book";
             alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile("alternate_test_database");
 
             //Act
-            string allDatabaseText = ReadFromFile.GetAllDatabaseText("original_test_database");
+            string allDatabaseText = ReadFromFile.GetAllDatabaseText("test_database");
             string allAlternateText = ReadFromFile.GetAllDatabaseText("alternate_test_database");
 
             //Assert

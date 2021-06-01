@@ -11,15 +11,18 @@ namespace Recipe2ShoppingList
             exitProgram = false;
 
             //Load <recipeBookLibrary> into the program from the database file
-            RecipeBookLibrary recipeBookLibrary = ReadFromFile.GetRecipeBookLibraryFromFile("test_database_alt");
+            RecipeBookLibrary recipeBookLibrary = ReadFromFile.GetRecipeBookLibraryFromFile();
 
             while (!exitProgram)
             {
                 RunMainMenu(recipeBookLibrary, out exitProgram);
             }
 
-            //Save <recipeBookLibrary> to database file before closing program
-            recipeBookLibrary.WriteRecipeBookLibraryToFile("test_database_alt");
+            //Save <recipeBookLibrary> to the "write" database file before closing program
+            recipeBookLibrary.WriteRecipeBookLibraryToFile();
+
+            //Delete original database, then rename the "write" database file to become the new master database file
+            DataHelperMethods.DeleteOldDatabaseFileAndRenameNewDatabase(DataHelperMethods.GetReadDatabaseFilePath(), DataHelperMethods.GetWriteDatabaseFilePath());
         }
 
         

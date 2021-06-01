@@ -8,7 +8,7 @@ namespace Recipe2ShoppingList
 {
     public abstract class DataHelperMethods
     {
-        protected static string GetDatabaseFilePath(string alternateFilePath = "")
+        public static string GetReadDatabaseFilePath(string alternateFilePath = "")
         {
             string filePath = Directory.GetCurrentDirectory();
 
@@ -24,30 +24,52 @@ namespace Recipe2ShoppingList
             return filePath;
         }
 
+        public static string GetWriteDatabaseFilePath(string alternateFilePath = "")
+        {
+            string filePath = Directory.GetCurrentDirectory();
+
+            if (alternateFilePath == "")
+            {
+                filePath += "\\Recipe_Database_write.txt";
+            }
+            else
+            {
+                filePath += $"\\{alternateFilePath}.txt";
+            }
+
+            return filePath;
+        }
+
         protected static string GetAllDatabaseText(string alternateFilePath = "")
         {            
             string databaseText = "";
+            string currentLineOfText = "";
 
             //Try-Catch the exception for starting the program when the database file doesn't
             //exist yet.
             try
             {
-                StreamReader sr = new StreamReader(GetDatabaseFilePath(alternateFilePath));
-
-                string currentLineOfText = sr.ReadLine();
-
-                while (currentLineOfText != null)
+                using (StreamReader sr = new StreamReader(GetReadDatabaseFilePath(alternateFilePath)))
                 {
-                    databaseText += currentLineOfText;
-                    currentLineOfText = sr.ReadLine();
+
+                    while (!sr.EndOfStream)
+                    {
+                        currentLineOfText = sr.ReadLine();
+                        databaseText += currentLineOfText;
+                    }
                 }
-                sr.Close();
             }
-            catch (FileNotFoundException)
+            catch (FileNotFoundException exception)
             {
             }
 
             return databaseText;
+        }
+
+        public static void DeleteOldDatabaseFileAndRenameNewDatabase(string oldDatabasePath, string newDatabasePath)
+        {
+            File.Delete(oldDatabasePath);
+            File.Move(newDatabasePath, oldDatabasePath);
         }
 
         public static string GetDataFromStartAndEndMarkers(string data, string startMarker, string endMarker)

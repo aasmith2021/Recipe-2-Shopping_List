@@ -54,7 +54,7 @@ namespace Recipe2ShoppingList
             int result;
             string userInput = Console.ReadLine();
 
-            while (!Int32.TryParse(userInput, out result))
+            while (!int.TryParse(userInput, out result))
             {
                 Console.WriteLine();
 
