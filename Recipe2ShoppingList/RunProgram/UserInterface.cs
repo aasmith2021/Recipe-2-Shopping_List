@@ -6,7 +6,7 @@ namespace Recipe2ShoppingList
 {
     public class UserInterface
     {
-        private static void DisplayOptionsMenu(List<string[]> options)
+        public static void DisplayOptionsMenu(List<string[]> options)
         {
             foreach (string[] element in options)
             {
@@ -226,5 +226,24 @@ namespace Recipe2ShoppingList
             }
         }
 
+        public static void SuccessfulChange(bool changeConfirmed, string changeNoun, string changeVerb)
+        {
+            if (changeConfirmed)
+            {
+                Console.WriteLine();
+                Console.WriteLine($"Success! The {changeNoun} was {changeVerb}.");
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine($"No worries! The {changeNoun} was not {changeVerb}.");
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+            }
+        }
     }
 }

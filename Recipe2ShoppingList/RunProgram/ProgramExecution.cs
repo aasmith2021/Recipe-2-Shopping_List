@@ -47,10 +47,10 @@ namespace Recipe2ShoppingList
                         AddNewRecipeBook(recipeBookLibrary);
                         break;
                     case "R":
-                        //Rename recipe book
+                        RenameRecipeBook(recipeBookLibrary);
                         break;
                     case "D":
-                        //Delete recipe book
+                        DeleteRecipeBook(recipeBookLibrary);
                         break;
                     case "X":
                         exitProgram = true;
@@ -84,7 +84,7 @@ namespace Recipe2ShoppingList
                 switch (userOption)
                 {
                     case "A":
-                        //Add a new recipe
+                        AddNewRecipe(recipeBookToOpen);
                         break;
                     case "S":
                         //Add a recipe to the shopping list
@@ -93,7 +93,7 @@ namespace Recipe2ShoppingList
                         //Edit existing recipe
                         break;
                     case "D":
-                        //Delete existing recipe
+                        DeleteExistingRecipe(recipeBookToOpen);
                         break;
                     case "R":
                         exitRecipeBookSection = true;
@@ -126,7 +126,8 @@ namespace Recipe2ShoppingList
                     //Edit this recipe
                     break;
                 case "D":
-                    //Delete this recipe
+                    DeleteOpenRecipe(recipeBook, recipeToOpen);
+                    exitRecipeSection = true;
                     break;
                 case "R":
                     exitRecipeSection = true;
@@ -154,35 +155,164 @@ namespace Recipe2ShoppingList
             {
                 RecipeBook newRecipeBook = new RecipeBook(bookName);
                 recipeBookLibrary.AddRecipeBook(newRecipeBook);
-                GetUserInput.SuccessfulChange(true, $"new recipe book, {bookName},", "created");
+                UserInterface.SuccessfulChange(true, $"new recipe book, {bookName},", "created");
             }
             else
             {
-                GetUserInput.SuccessfulChange(false, "new recipe book", "created");
+                UserInterface.SuccessfulChange(false, "new recipe book", "created");
+            }
+        }
+
+        private static void RenameRecipeBook(RecipeBookLibrary recipeBookLibrary)
+        {
+            Console.Clear();
+            Console.WriteLine("---------- RENAME RECIPE BOOK ----------");
+            Console.WriteLine();
+
+            List<string[]> recipeBooksToDisplay = new List<string[]>();
+            List<string> recipeBookOptions = new List<string>();
+
+            for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Length; i++)
+            {
+                recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
+                recipeBookOptions.Add((i + 1).ToString());
+            }
+
+            UserInterface.DisplayOptionsMenu(recipeBooksToDisplay);
+            Console.WriteLine();
+            Console.Write("Enter the recipe book you would like to rename: ");
+            int userOption = Int32.Parse(GetUserInput.GetUserOption(recipeBookOptions));
+
+            RecipeBook recipeBookToRename = recipeBookLibrary.AllRecipeBooks[userOption - 1];
+            string oldName = recipeBookToRename.Name;
+
+            Console.WriteLine("");
+            Console.Write($"Enter the new name for the {oldName} recipe book: ");
+            string newName = GetUserInput.GetUserInputString(false);
+
+            GetUserInput.AreYouSure($"rename the {oldName} recipe book to \"{newName}\"", out bool isSure);
+
+            if (isSure)
+            {
+                recipeBookToRename.Name = newName;
+                UserInterface.SuccessfulChange(true, $"{oldName} recipe book", $"renamed {newName}");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "recipe book", "renamed");
             }
         }
 
         private static void DeleteRecipeBook(RecipeBookLibrary recipeBookLibrary)
         {
-            //TODO: Add delete recipe book functionality
-            //Console.Clear();
-            //Console.WriteLine("---------- DELETE RECIPE BOOK ----------");
-            //Console.WriteLine();
-            //Console.Write("Enter a name for the new recipe book: ");
-            //string bookName = GetUserInput.GetUserInputString(false);
+            Console.Clear();
+            Console.WriteLine("---------- DELETE RECIPE BOOK ----------");
+            Console.WriteLine();
 
-            //GetUserInput.AreYouSure($"create a new recipe book named {bookName}", out bool isSure);
+            List<string[]> recipeBooksToDisplay = new List<string[]>();
+            List<string> recipeBookOptions = new List<string>();
 
-            //if (isSure)
-            //{
-            //    RecipeBook newRecipeBook = new RecipeBook(bookName);
-            //    recipeBookLibrary.AddRecipeBook(newRecipeBook);
-            //    GetUserInput.SuccessfulChange(true, $"new recipe book, {bookName},", "created");
-            //}
-            //else
-            //{
-            //    GetUserInput.SuccessfulChange(false, "new recipe book", "created");
-            //}
+            for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Length; i++)
+            {
+                recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
+                recipeBookOptions.Add((i + 1).ToString());
+            }
+
+            UserInterface.DisplayOptionsMenu(recipeBooksToDisplay);
+            Console.WriteLine();
+            Console.Write("Enter the recipe book you would like to delete: ");
+            int userOption = Int32.Parse(GetUserInput.GetUserOption(recipeBookOptions));
+
+            RecipeBook recipeBookToDelete = recipeBookLibrary.AllRecipeBooks[userOption - 1];
+
+            GetUserInput.AreYouSure($"delete the {recipeBookToDelete.Name} recipe book", out bool isSure);
+
+            if (isSure)
+            {
+                recipeBookLibrary.DeleteRecipeBook(recipeBookToDelete);
+                UserInterface.SuccessfulChange(true, $"{recipeBookToDelete.Name} recipe book", "deleted");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "recipe book", "deleted");
+            }
+        }
+
+        private static void AddNewRecipe(RecipeBook recipeBook)
+        {
+            Metadata recipeMetadata = GetUserInput.GetMetadataFromUser();
+            IngredientList recipeIngredientList = GetUserInput.GetIngredientsFomUser();
+            CookingInstructions recipeCookingInstructions = GetUserInput.GetCookingInstructionsFromUser();
+
+            Recipe newRecipe = new Recipe(recipeMetadata, recipeCookingInstructions, recipeIngredientList);
+
+            GetUserInput.AreYouSure($"add this new recipe", out bool isSure);
+
+            if (isSure)
+            {
+                recipeBook.AddRecipe(newRecipe);
+                UserInterface.SuccessfulChange(true, $"new recipe", "added to the recipe book");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "new recipe", "added");
+            }
+        }
+
+        private static void DeleteOpenRecipe(RecipeBook recipeBook, Recipe recipeToDelete)
+        {
+            Console.Clear();
+            Console.WriteLine("---------- DELETE RECIPE ----------");
+            Console.WriteLine();
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"Recipe Title: {recipeToDelete.Metadata.Title}"));
+
+            GetUserInput.AreYouSure($"delete this recipe", out bool isSure);
+
+            if (isSure)
+            {
+                recipeBook.DeleteRecipe(recipeToDelete);
+                UserInterface.SuccessfulChange(true, $"recipe", "deleted");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "recipe", "deleted");
+            }
+        }
+
+        public static void DeleteExistingRecipe(RecipeBook recipeBook)
+        {
+            Console.Clear();
+            Console.WriteLine("---------- DELETE RECIPE ----------");
+            Console.WriteLine();
+
+            List<string[]> recipesToDisplay = new List<string[]>();
+            List<string> recipeOptions = new List<string>();
+
+            for (int i = 0; i < recipeBook.Recipes.Length; i++)
+            {
+                recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
+                recipeOptions.Add((i + 1).ToString());
+            }
+
+            UserInterface.DisplayOptionsMenu(recipesToDisplay);
+            Console.WriteLine();
+            Console.Write("Enter the recipe you would like to delete: ");
+            int userOption = Int32.Parse(GetUserInput.GetUserOption(recipeOptions));
+
+            Recipe recipeToDelete = recipeBook.Recipes[userOption - 1];
+            string recipeTitle = recipeToDelete.Metadata.Title;
+
+            GetUserInput.AreYouSure($"delete the {recipeTitle} recipe", out bool isSure);
+
+            if (isSure)
+            {
+                recipeBook.DeleteRecipe(recipeToDelete);
+                UserInterface.SuccessfulChange(true, $"recipe", "deleted");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "recipe", "deleted");
+            }
         }
     }
 }

@@ -23,6 +23,11 @@ namespace Recipe2ShoppingList
             allRecipeBooksList.Add(recipeBook);
         }
 
+        public void DeleteRecipeBook(RecipeBook recipeBook)
+        {
+            allRecipeBooksList.Remove(recipeBook);
+        }
+
         public void WriteRecipeBookLibraryToFile(string alternateFilePath = "")
         {
             RecipeBook[] allRecipeBooks = this.AllRecipeBooks;
