@@ -59,7 +59,7 @@ namespace Recipe2ShoppingList
                     }
                 }
             }
-            catch (FileNotFoundException exception)
+            catch (FileNotFoundException ex)
             {
             }
 

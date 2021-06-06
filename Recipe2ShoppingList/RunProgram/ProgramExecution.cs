@@ -25,7 +25,6 @@ namespace Recipe2ShoppingList
             DataHelperMethods.DeleteOldDatabaseFileAndRenameNewDatabase(DataHelperMethods.GetReadDatabaseFilePath(), DataHelperMethods.GetWriteDatabaseFilePath());
         }
 
-        
         private static void RunMainMenu(RecipeBookLibrary recipeBookLibrary, out bool exitProgram)
         {
             exitProgram = false;
@@ -73,13 +72,13 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayOpenRecipeBook(recipeBookToOpen, out List<string> recipeBookOptions);
             string userOption = GetUserInput.GetUserOption(recipeBookOptions);
 
-            if (Int32.TryParse(userOption, out int userOptionNumber))
+            if (int.TryParse(userOption, out int userOptionNumber))
             {
                 bool exitRecipeSection = false;
                 
                 while (!exitRecipeSection)
                 {
-                    RunRecipe(recipeBookToOpen, userOptionNumber, out exitRecipeSection, out exitProgram);
+                    RunRecipe(recipeBookLibrary, recipeBookToOpen, userOptionNumber, out exitRecipeSection, out exitRecipeBookSection, out exitProgram);
                 }
             }
             else
@@ -87,13 +86,10 @@ namespace Recipe2ShoppingList
                 switch (userOption)
                 {
                     case "A":
-                        AddNewRecipe(recipeBookToOpen);
+                        AddNewRecipe(recipeBookLibrary, recipeBookToOpen);
                         break;
                     case "S":
                         //Add a recipe to the shopping list
-                        break;
-                    case "E":
-                        //Edit existing recipe
                         break;
                     case "D":
                         DeleteExistingRecipe(recipeBookToOpen);
@@ -111,10 +107,11 @@ namespace Recipe2ShoppingList
             }
         }
 
-        private static void RunRecipe(RecipeBook recipeBook, int recipeOptionNumber, out bool exitRecipeSection, out bool exitProgram)
+        private static void RunRecipe(RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook, int recipeOptionNumber, out bool exitRecipeSection, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
             exitRecipeSection = false;
+            exitRecipeBookSection = false;
 
             Recipe recipeToOpen = recipeBook.Recipes[recipeOptionNumber - 1];
             UserInterface.DisplayOpenRecipe(recipeToOpen, recipeBook, out List<string> recipeEditOptions);
@@ -126,7 +123,7 @@ namespace Recipe2ShoppingList
                     //Add this recipe to the shopping list
                     break;
                 case "E":
-                    //Edit this recipe
+                    EditRecipe(recipeBookLibrary, recipeToOpen);
                     break;
                 case "D":
                     DeleteOpenRecipe(recipeBook, recipeToOpen);
@@ -137,6 +134,7 @@ namespace Recipe2ShoppingList
                     break;
                 case "X":
                     exitRecipeSection = true;
+                    exitRecipeBookSection = true;
                     exitProgram = true;
                     break;
                 default:
@@ -178,10 +176,9 @@ namespace Recipe2ShoppingList
             for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Length; i++)
             {
                 recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
-                recipeBookOptions.Add((i + 1).ToString());
             }
 
-            UserInterface.DisplayOptionsMenu(recipeBooksToDisplay);
+            UserInterface.DisplayOptionsMenu(recipeBooksToDisplay, out recipeBookOptions);
             Console.WriteLine();
             Console.Write("Enter the recipe book you would like to rename: ");
             int userOption = Int32.Parse(GetUserInput.GetUserOption(recipeBookOptions));
@@ -218,10 +215,9 @@ namespace Recipe2ShoppingList
             for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Length; i++)
             {
                 recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
-                recipeBookOptions.Add((i + 1).ToString());
             }
 
-            UserInterface.DisplayOptionsMenu(recipeBooksToDisplay);
+            UserInterface.DisplayOptionsMenu(recipeBooksToDisplay, out recipeBookOptions);
             Console.WriteLine();
             Console.Write("Enter the recipe book you would like to delete: ");
             int userOption = Int32.Parse(GetUserInput.GetUserOption(recipeBookOptions));
@@ -241,10 +237,10 @@ namespace Recipe2ShoppingList
             }
         }
 
-        private static void AddNewRecipe(RecipeBook recipeBook)
+        private static void AddNewRecipe(RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)
         {
             Metadata recipeMetadata = GetUserInput.GetMetadataFromUser();
-            IngredientList recipeIngredientList = GetUserInput.GetIngredientsFomUser();
+            IngredientList recipeIngredientList = GetUserInput.GetIngredientsFomUser(recipeBookLibrary);
             CookingInstructions recipeCookingInstructions = GetUserInput.GetCookingInstructionsFromUser();
 
             Recipe newRecipe = new Recipe(recipeMetadata, recipeCookingInstructions, recipeIngredientList);
@@ -259,6 +255,49 @@ namespace Recipe2ShoppingList
             else
             {
                 UserInterface.SuccessfulChange(false, "new recipe", "added");
+            }
+        }
+
+        private static void EditRecipe(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
+        {          
+            List<string[]> editRecipeOptions = new List<string[]>()
+            {
+                new string[] { "1", "Recipe Title" },
+                new string[] { "2", "Notes" },
+                new string[] { "3", "Preparation Times" },
+                new string[] { "4", "Estimated Servings" },
+                new string[] { "5", "Food Type & Genre"},
+                new string[] { "6", "Ingredients" },
+                new string[] { "7", "Instructions" }
+            };
+
+            string fieldToEdit = GetUserInput.GetTheFieldToEditFromUser(recipe, editRecipeOptions);
+
+            switch (fieldToEdit)
+            {
+                case "1":
+                    EditRecipeTitle(recipe);
+                    break;
+                case "2":
+                    EditRecipeNotes(recipe);
+                    break;
+                case "3":
+                    EditRecipePrepTimes(recipe);
+                    break;
+                case "4":
+                    EditRecipeEstimatedServings(recipe);
+                    break;
+                case "5":
+                    EditRecipeFoodTypeGenre(recipe);
+                    break;
+                case "6":
+                    EditRecipeIngredients(recipeBookLibrary, recipe);
+                    break;
+                case "7":
+                    EditRecipeInstructions(recipe);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -294,13 +333,12 @@ namespace Recipe2ShoppingList
             for (int i = 0; i < recipeBook.Recipes.Length; i++)
             {
                 recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
-                recipeOptions.Add((i + 1).ToString());
             }
 
-            UserInterface.DisplayOptionsMenu(recipesToDisplay);
+            UserInterface.DisplayOptionsMenu(recipesToDisplay, out recipeOptions);
             Console.WriteLine();
             Console.Write("Enter the recipe you would like to delete: ");
-            int userOption = Int32.Parse(GetUserInput.GetUserOption(recipeOptions));
+            int userOption = int.Parse(GetUserInput.GetUserOption(recipeOptions));
 
             Recipe recipeToDelete = recipeBook.Recipes[userOption - 1];
             string recipeTitle = recipeToDelete.Metadata.Title;
@@ -315,6 +353,417 @@ namespace Recipe2ShoppingList
             else
             {
                 UserInterface.SuccessfulChange(false, "recipe", "deleted");
+            }
+        }
+
+        public static void EditRecipeTitle(Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            Console.Write("Enter the new title for this recipe: ");
+            string newTitle = GetUserInput.GetUserInputString(false);
+
+            GetUserInput.AreYouSure($"change the name of this recipe to {newTitle}", out bool isSure);
+
+            if (isSure)
+            {
+                recipe.Metadata.Title = newTitle;
+                UserInterface.SuccessfulChange(true, "recipe", "renamed");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "recipe", "renamed");
+            }
+        }
+
+        public static void EditRecipeNotes(Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            string userInput = "";
+            if (recipe.Metadata.Notes != "")
+            {
+                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Do you want to add to the existing notes or delete the old notes and add a new note?"));
+                Console.WriteLine();
+                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"A\" to Add to the existing notes or \"D\" to Delete the old notes and add a new note:"));
+                List<string> options = new List<string>() { "A", "D" };
+                userInput = GetUserInput.GetUserOption(options);
+            }
+
+            string newNotes = GetUserInput.GetNewUserNotes();
+
+            GetUserInput.AreYouSure("add these new notes to the recipe", out bool isSure);
+
+            if (isSure)
+            {
+                if (userInput == "D")
+                {
+                    recipe.Metadata.Notes = "";
+                }
+                recipe.Metadata.Notes += " " + newNotes;
+                UserInterface.SuccessfulChange(true, "recipe notes", "updated", true);
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "recipe notes", "updated", true);
+            }
+        }
+
+        public static void EditRecipePrepTimes(Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Prep Time, the Cook Time, or Both?"));
+            Console.WriteLine();
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"P\" to change the Prep Time, \"C\" to change the Cook Time, or \"B\" to change both:"));
+            List<string> options = new List<string>() { "P", "C", "B" };
+            string userInput = GetUserInput.GetUserOption(options);
+
+            int changeStartIndex = 0;
+            int changeEndIndex = 0;
+
+            switch(userInput)
+            {
+                case "B":
+                    changeStartIndex = 0;
+                    changeEndIndex = 1;
+                    break;
+                case "P":
+                    changeStartIndex = 0;
+                    changeEndIndex = 0;
+                    break;
+                case "C":
+                    changeStartIndex = 1;
+                    changeEndIndex = 1;
+                    break;                    
+                default:
+                    break;
+            }
+
+            int newPrepTime = 0;
+            int newCookTime = 0;
+
+            for (int i = changeStartIndex; i <= changeEndIndex; i++)
+            {
+                if (i == 0)
+                {
+                    Console.WriteLine();
+                    Console.Write("Enter the new Prep Time: ");
+                    newPrepTime = GetUserInput.GetUserInputInt(1);
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.Write("Enter the new Cook Time: ");
+                    newCookTime = GetUserInput.GetUserInputInt(1);
+                }
+            }
+
+            GetUserInput.AreYouSure($"update the recipe preparation times", out bool isSure);
+
+            if (isSure)
+            {
+                if (userInput == "B" || userInput == "P")
+                {
+                    recipe.Metadata.PrepTimes.PrepTime = newPrepTime;
+                }
+
+                if (userInput == "B" || userInput == "C")
+                {
+                    recipe.Metadata.PrepTimes.CookTime = newCookTime;
+                }
+
+                UserInterface.SuccessfulChange(true, "recipe preparation times", "updated", true);
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "recipe preparation times", "updated", true);
+            }
+        }
+
+        public static void EditRecipeEstimatedServings(Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Low # of Servings, High # of Servings, or Both?"));
+            Console.WriteLine();
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"L\" to change the Low # of Servings, \"H\" to change the High # of Servings, or \"B\" to change both:"));
+            List<string> options = new List<string>() { "L", "H", "B" };
+            string userInput = GetUserInput.GetUserOption(options);
+
+            int changeStartIndex = 0;
+            int changeEndIndex = 0;
+
+            switch (userInput)
+            {
+                case "B":
+                    changeStartIndex = 0;
+                    changeEndIndex = 1;
+                    break;
+                case "L":
+                    changeStartIndex = 0;
+                    changeEndIndex = 0;
+                    break;
+                case "H":
+                    changeStartIndex = 1;
+                    changeEndIndex = 1;
+                    break;
+                default:
+                    break;
+            }
+
+            int newLowServings = 0;
+            int newHighServings = 0;
+
+            for (int i = changeStartIndex; i <= changeEndIndex; i++)
+            {
+                if (i == 0)
+                {
+                    Console.WriteLine();
+                    Console.Write("Enter the new Low # of Servings: ");
+                    newLowServings = GetUserInput.GetUserInputInt(1);
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.Write("Enter the new High # of Servings: ");
+                    newHighServings = GetUserInput.GetUserInputInt(1);
+                }
+            }
+
+            GetUserInput.AreYouSure($"update the recipe estimated servings", out bool isSure);
+
+            if (isSure)
+            {
+                if (userInput == "B" || userInput == "L")
+                {
+                    recipe.Metadata.Servings.LowNumberOfServings = newLowServings;
+                }
+
+                if (userInput == "B" || userInput == "H")
+                {
+                    recipe.Metadata.Servings.HighNumberOfServings = newHighServings;
+                }
+
+                UserInterface.SuccessfulChange(true, "recipe estimated servings", "updated", true);
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "recipe estimated servings", "updated", true);
+            }
+        }
+
+        public static void EditRecipeFoodTypeGenre(Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Food Type, Food Genre, or Both?"));
+            Console.WriteLine();
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"T\" to change the Low # of Servings, \"G\" to change the High # of Servings, or \"B\" to change both:"));
+            List<string> options = new List<string>() { "T", "G", "B" };
+            string userInput = GetUserInput.GetUserOption(options);
+
+            int changeStartIndex = 0;
+            int changeEndIndex = 0;
+
+            switch (userInput)
+            {
+                case "B":
+                    changeStartIndex = 0;
+                    changeEndIndex = 1;
+                    break;
+                case "T":
+                    changeStartIndex = 0;
+                    changeEndIndex = 0;
+                    break;
+                case "G":
+                    changeStartIndex = 1;
+                    changeEndIndex = 1;
+                    break;
+                default:
+                    break;
+            }
+
+            string newFoodType = "";
+            string newFoodGenre = "";
+
+            for (int i = changeStartIndex; i <= changeEndIndex; i++)
+            {
+                if (i == 0)
+                {
+                    Console.WriteLine();
+                    Console.Write("Enter the new Food Type: ");
+                    newFoodType = GetUserInput.GetUserInputString(true);
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.Write("Enter the new Food Genre: ");
+                    newFoodGenre = GetUserInput.GetUserInputString(true);
+                }
+            }
+
+            GetUserInput.AreYouSure($"update the recipe food type/genre", out bool isSure);
+
+            if (isSure)
+            {
+                if (userInput == "B" || userInput == "T")
+                {
+                    recipe.Metadata.Tags.FoodType = newFoodType;
+                }
+
+                if (userInput == "B" || userInput == "G")
+                {
+                    recipe.Metadata.Tags.FoodGenre = newFoodGenre;
+                }
+
+                UserInterface.SuccessfulChange(true, "recipe food type/genre", "updated", false);
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "recipe food type/genre", "updated", false);
+            }
+        }
+
+        public static void EditRecipeIngredients(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            Console.Write(recipe.Ingredients.ProduceIngredientsText(true, true));
+            Console.WriteLine("Select the ingredient line you would like to edit:");
+
+            Ingredient[] allRecipeIngredients = recipe.Ingredients.AllIngredients;
+            List<string> ingredientLineOptions = new List<string>();
+            for (int i = 0; i < allRecipeIngredients.Length; i++)
+            {
+                ingredientLineOptions.Add((i + 1).ToString());
+            }
+
+            string userOption = GetUserInput.GetUserOption(ingredientLineOptions);
+
+            Ingredient ingredientToEdit = allRecipeIngredients[int.Parse(userOption) - 1];
+
+            List<string[]> ingredientComponentsForMenu = new List<string[]>()
+            {
+                new string[] { "1", "Quantity" },
+                new string[] { "2", "Measurement Unit" },
+                new string[] { "3", "Ingredient Name" },
+                new string[] { "4", "Preparation Note" }
+            };
+            List<string> ingredientComponentOptions = new List<string>();
+
+            Console.WriteLine();
+            Console.WriteLine("Select the part of the ingredient you would like to edit:");
+            UserInterface.DisplayOptionsMenu(ingredientComponentsForMenu, out ingredientComponentOptions);
+            string ingredientComponentToEdit = GetUserInput.GetUserOption(ingredientComponentOptions);
+
+            Console.WriteLine();
+            string measurementUnit = "";
+            string newPrepNote;
+            switch (ingredientComponentToEdit)
+            {
+                case "1":
+                    Console.Write("Enter the new quantity of the ingredient (ex: 1.5): ");
+                    double newQuantity = GetUserInput.GetUserInputDouble(2);
+                    ingredientToEdit.Quantity = newQuantity;
+                    UserInterface.SuccessfulChange(true, "ingredient quantity", "updated");
+                    break;
+                case "2":
+                    List<string[]> measurementUnits = MeasurementUnits.AllMeasurementUnitsForUserInput(recipeBookLibrary);
+                    List<string> options = new List<string>();
+                    Console.WriteLine("Select the new ingredient measurement unit from the list of options:");
+                    UserInterface.DisplayOptionsMenu(measurementUnits, out options);
+
+                    int userOptionNumber = int.Parse(GetUserInput.GetUserOption(options));
+
+                    if (userOptionNumber == options.Count)
+                    {
+                        GetUserInput.GetNewMeasurementUnitFromUser(out measurementUnit);
+                        recipeBookLibrary.AddMeasurementUnit(measurementUnit);
+                        Console.WriteLine();
+                        Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient."));
+                    }
+                    else if (measurementUnits[userOptionNumber - 1][1] != "None")
+                    {
+                        measurementUnit = measurementUnits[userOptionNumber - 1][1];
+                    }
+                    ingredientToEdit.MeasurementUnit = measurementUnit;
+                    UserInterface.SuccessfulChange(true, "ingredient meaurement unit", "updated");
+                    break;
+                case "3":
+                    Console.WriteLine("Enter the new ingredient name:");
+                    string newName = GetUserInput.GetUserInputString(false);
+                    ingredientToEdit.Name = newName;
+                    UserInterface.SuccessfulChange(true, "ingredient name", "updated");
+                    break;
+                case "4":
+                    Console.WriteLine("Enter the new ingredient preparation note (or press \"Enter\" to leave blank):");
+                    newPrepNote = GetUserInput.GetUserInputString(true);
+                    ingredientToEdit.PreparationNote = newPrepNote;
+                    UserInterface.SuccessfulChange(true, "ingredient preparation note", "updated");
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public static void EditRecipeInstructions(Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            Console.Write(recipe.CookingInstructions.ProduceInstructionsText(true, true));
+            Console.WriteLine();
+            Console.WriteLine("Select the instruction block you would like to edit:");
+
+            int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Length;
+            List<string> instructionBlockOptions = new List<string>();
+            for (int i = 1; i <= numberOfInstructionBlocks; i++)
+            {
+                instructionBlockOptions.Add(i.ToString());
+            }
+
+            int instructionBlockIndex = int.Parse(GetUserInput.GetUserOption(instructionBlockOptions)) - 1;
+
+            InstructionBlock instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex];
+            int numberOfInstructionBlockLines = instructionBlockToEdit.InstructionLines.Length;
+            List<string> instructionBlockLineOptions = new List<string>();
+            for (int i = 0; i <= numberOfInstructionBlockLines; i++)
+            {
+                instructionBlockLineOptions.Add(i.ToString());
+            }
+            Console.WriteLine();
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Select the line of the instruction block to edit (or enter 0 to edit block heading):"));
+            int instructionBlockLineIndex = int.Parse(GetUserInput.GetUserOption(instructionBlockLineOptions));
+
+            if (instructionBlockLineIndex == 0)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Enter the new heading for the instruction block:");
+                string newInstructionBlockHeader = GetUserInput.GetUserInputString(false);
+                instructionBlockToEdit.BlockHeading = newInstructionBlockHeader;
+                UserInterface.SuccessfulChange(true, "instruction block heading", "updated");
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine("Enter the new text for the instruction line:");
+                string newInstructionLineText = GetUserInput.GetUserInputString(false);
+                instructionBlockToEdit.instructionLines[instructionBlockLineIndex - 1] = newInstructionLineText;
+                UserInterface.SuccessfulChange(true, "instruction line", "updated");
             }
         }
     }

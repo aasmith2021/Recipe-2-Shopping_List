@@ -6,11 +6,14 @@ namespace Recipe2ShoppingList
 {
     public class UserInterface
     {
-        public static void DisplayOptionsMenu(List<string[]> options)
+        public static void DisplayOptionsMenu(List<string[]> menuOptions, out List<string> optionChoices)
         {
-            foreach (string[] element in options)
+            optionChoices = new List<string>();
+            
+            foreach (string[] element in menuOptions)
             {
                 Console.WriteLine(MakeStringConsoleLengthLines($"[{element[0]}] {element[1]}"));
+                optionChoices.Add(element[0]);
             }
         }
 
@@ -87,6 +90,7 @@ namespace Recipe2ShoppingList
 
             List<string[]> recipeBooksToDisplay = new List<string[]>();
             List<string[]> mainMenuStandardOptions = new List<string[]>();
+            mainMenuOptions = new List<string>();
 
             if (recipeBookLibrary.AllRecipeBooks.Length == 0)
             {
@@ -95,13 +99,11 @@ namespace Recipe2ShoppingList
                 Console.WriteLine("Add a new recipe book using the options below:");
                 Console.WriteLine();
 
-                mainMenuStandardOptions.Add( new string[] { "A", "Add New Recipe Book"});
-                mainMenuStandardOptions.Add( new string[] { "X", "Exit Program" });
+                mainMenuStandardOptions.Add(new string[] { "A", "Add New Recipe Book"});
+                mainMenuStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
             else
             {
-                Console.WriteLine(MakeStringConsoleLengthLines("Open a recipe book by entering its number, or select an option from the menu:"));
-                Console.WriteLine();
                 Console.WriteLine("----- RECIPE BOOKS -----");
 
                 for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Length; i++)
@@ -109,31 +111,26 @@ namespace Recipe2ShoppingList
                     recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
                 }
 
-                DisplayOptionsMenu(recipeBooksToDisplay);
+                DisplayOptionsMenu(recipeBooksToDisplay, out mainMenuOptions);
                 Console.WriteLine();
 
                 mainMenuStandardOptions.Add(new string[] { "A", "Add New Recipe Book"} );
                 mainMenuStandardOptions.Add(new string[] { "R", "Rename Existing Recipe Book" });
                 mainMenuStandardOptions.Add(new string[] { "D", "Delete Existing Recipe Book" });
-                mainMenuStandardOptions.Add(new string[] { "X", "Exit Program" });
+                mainMenuStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
 
             Console.WriteLine();
             Console.WriteLine("----- OPTIONS -----");
-            DisplayOptionsMenu(mainMenuStandardOptions);
+            DisplayOptionsMenu(mainMenuStandardOptions, out List<string> standardOptionsToAdd);
             Console.WriteLine();
-
-            mainMenuOptions = new List<string>();
             
-            foreach (string[] element in recipeBooksToDisplay)
+            if (recipeBookLibrary.AllRecipeBooks.Length != 0)
             {
-                mainMenuOptions.Add(element[0]);
+                Console.WriteLine();
+                Console.WriteLine(MakeStringConsoleLengthLines("Open a recipe book by entering its number, or select an option from the menu:"));
             }
-
-            foreach (string[] element in mainMenuStandardOptions)
-            {
-                mainMenuOptions.Add(element[0]);
-            }
+            mainMenuOptions.AddRange(standardOptionsToAdd);
         }
 
         public static void DisplayOpenRecipeBook(RecipeBook recipeBook, out List<string> recipeBookOptions)
@@ -145,6 +142,7 @@ namespace Recipe2ShoppingList
 
             List<string[]> recipesToDisplay = new List<string[]>();
             List<string[]> recipeBookStandardOptions = new List<string[]>();
+            recipeBookOptions = new List<string>();
 
             if (recipeBook.Recipes.Length == 0)
             {
@@ -155,12 +153,10 @@ namespace Recipe2ShoppingList
 
                 recipeBookStandardOptions.Add(new string[] { "A", "Add New Recipe" });
                 recipeBookStandardOptions.Add(new string[] { "R", "Return to Previous Menu" });
-                recipeBookStandardOptions.Add(new string[] { "X", "Exit Program" });
+                recipeBookStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
             else
             {
-                Console.WriteLine(MakeStringConsoleLengthLines("Open a recipe by entering its number, or select an option from the menu:"));
-                Console.WriteLine();
                 Console.WriteLine("----- RECIPES -----");
 
                 for (int i = 0; i < recipeBook.Recipes.Length; i++)
@@ -168,33 +164,27 @@ namespace Recipe2ShoppingList
                     recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
                 }
 
-                DisplayOptionsMenu(recipesToDisplay);
+                DisplayOptionsMenu(recipesToDisplay, out recipeBookOptions);
                 Console.WriteLine();
 
                 recipeBookStandardOptions.Add(new string[] { "A", "Add New Recipe" });
                 recipeBookStandardOptions.Add(new string[] { "S", "Add a Recipe to the Shopping List" });
-                recipeBookStandardOptions.Add(new string[] { "E", "Edit Existing Recipe" });
                 recipeBookStandardOptions.Add(new string[] { "D", "Delete Existing Recipe" });
                 recipeBookStandardOptions.Add(new string[] { "R", "Return to Previous Menu" });
-                recipeBookStandardOptions.Add(new string[] { "X", "Exit Program" });
+                recipeBookStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
 
             Console.WriteLine();
             Console.WriteLine("----- OPTIONS -----");
-            DisplayOptionsMenu(recipeBookStandardOptions);
+            DisplayOptionsMenu(recipeBookStandardOptions, out List<string> standardOptionsToAdd);
             Console.WriteLine();
 
-            recipeBookOptions = new List<string>();
-
-            foreach (string[] element in recipesToDisplay)
+            if (recipeBook.Recipes.Length != 0)
             {
-                recipeBookOptions.Add(element[0]);
+                Console.WriteLine();
+                Console.WriteLine(MakeStringConsoleLengthLines("Open a recipe by entering its number, or select an option from the menu:"));
             }
-
-            foreach (string[] element in recipeBookStandardOptions)
-            {
-                recipeBookOptions.Add(element[0]);
-            }
+            recipeBookOptions.AddRange(standardOptionsToAdd);
         }
 
         public static void DisplayOpenRecipe(Recipe recipe, RecipeBook recipeBook, out List<string> recipeOptions)
@@ -213,36 +203,47 @@ namespace Recipe2ShoppingList
                 recipeStardardOptions.Add(new string[] { "E", "Edit This Recipe" });
                 recipeStardardOptions.Add(new string[] { "D", "Delete This Recipe" });
                 recipeStardardOptions.Add(new string[] { "R", "Return to Previous Menu" });
-                recipeStardardOptions.Add(new string[] { "X", "Exit Program" });
+                recipeStardardOptions.Add(new string[] { "X", "Save and Exit Program" });
 
-            DisplayOptionsMenu(recipeStardardOptions);
+            DisplayOptionsMenu(recipeStardardOptions, out recipeOptions);
             Console.WriteLine();
-
-            recipeOptions = new List<string>();
-
-            foreach (string[] element in recipeStardardOptions)
-            {
-                recipeOptions.Add(element[0]);
-            }
         }
 
-        public static void SuccessfulChange(bool changeConfirmed, string changeNoun, string changeVerb)
+        public static void SuccessfulChange(bool changeConfirmed, string changeNoun, string changeVerb, bool isPluralNoun = false)
         {
-            if (changeConfirmed)
+
+            Console.WriteLine();
+            if (changeConfirmed && !isPluralNoun)
             {
-                Console.WriteLine();
                 Console.WriteLine($"Success! The {changeNoun} was {changeVerb}.");
-                Console.WriteLine();
-                Console.WriteLine("Press \"Enter\" to continue...");
-                Console.ReadLine();
+            }
+            else if (!changeConfirmed && !isPluralNoun)
+            {
+                Console.WriteLine($"No worries! The {changeNoun} was not {changeVerb}.");
+            }
+            else if (changeConfirmed && isPluralNoun)
+            {
+                Console.WriteLine($"Success! The {changeNoun} were {changeVerb}.");
             }
             else
             {
+                Console.WriteLine($"No worries! The {changeNoun} were not {changeVerb}.");
+            }
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+        }
+
+        public static void DisplayMenuHeader(string header, string additionalMessage = "")
+        {
+            Console.Clear();
+            Console.WriteLine(header);
+            Console.WriteLine();
+
+            if (additionalMessage != "")
+            {
+                Console.WriteLine(additionalMessage);
                 Console.WriteLine();
-                Console.WriteLine($"No worries! The {changeNoun} was not {changeVerb}.");
-                Console.WriteLine();
-                Console.WriteLine("Press \"Enter\" to continue...");
-                Console.ReadLine();
             }
         }
     }

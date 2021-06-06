@@ -23,7 +23,7 @@ namespace Recipe2ShoppingList
             allIngredients.Remove(ingredientToDelete);
         }
 
-        public string ProduceIngredientsText(bool printVersion)
+        public string ProduceIngredientsText(bool printVersion, bool includeLineNumbers = false)
         {
             string ingredientsText = "";
 
@@ -31,9 +31,30 @@ namespace Recipe2ShoppingList
             {
                 ingredientsText += $"INGREDIENTS:{Environment.NewLine}";
 
-                foreach (Ingredient ingredient in this.AllIngredients)
+                for (int i = 0; i < this.AllIngredients.Length; i++)
                 {
-                    ingredientsText += UserInterface.MakeStringConsoleLengthLines($"{ingredient.Quantity} {ingredient.MeasurementUnit} {ingredient.Name}{Environment.NewLine}");
+                    string ingredientLine = "";
+
+                    if (includeLineNumbers)
+                    {
+                        ingredientLine += $"{i + 1}. ";
+                    }
+                        
+                    ingredientLine += $"{this.AllIngredients[i].Quantity}";
+
+                    if (this.AllIngredients[i].MeasurementUnit != "")
+                    {
+                        ingredientLine += $" {this.AllIngredients[i].MeasurementUnit}";
+                    }
+
+                    ingredientLine += $" {this.AllIngredients[i].Name}";
+
+                    if (this.AllIngredients[i].PreparationNote != "")
+                    {
+                        ingredientLine += $", {this.AllIngredients[i].PreparationNote}";
+                    }
+
+                    ingredientsText += UserInterface.MakeStringConsoleLengthLines($"{ingredientLine}{Environment.NewLine}");
                 }
 
                 ingredientsText += $"{Environment.NewLine}";
@@ -46,7 +67,24 @@ namespace Recipe2ShoppingList
                 {
                     ingredientsText += $"INGREDIENT_NAME:{ingredient.Name}{Environment.NewLine}";
                     ingredientsText += $"QTY:{ingredient.Quantity}{Environment.NewLine}";
-                    ingredientsText += $"UNIT:{ingredient.MeasurementUnit}{Environment.NewLine}";
+
+                    if (ingredient.MeasurementUnit == "")
+                    {
+                        ingredientsText += $"UNIT:NONE{Environment.NewLine}";
+                    }
+                    else
+                    {
+                        ingredientsText += $"UNIT:{ingredient.MeasurementUnit}{Environment.NewLine}";
+                    }
+
+                    if (ingredient.PreparationNote == "")
+                    {
+                        ingredientsText += $"PREP_NOTE:NONE{Environment.NewLine}";
+                    }
+                    else
+                    {
+                        ingredientsText += $"PREP_NOTE:{ingredient.PreparationNote}{Environment.NewLine}";
+                    }
                 }
             }
 

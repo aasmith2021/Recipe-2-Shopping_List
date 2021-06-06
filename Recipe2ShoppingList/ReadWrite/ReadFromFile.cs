@@ -13,10 +13,18 @@ namespace Recipe2ShoppingList
             RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
             string allTextFromFile = GetAllDatabaseText(alternateFilePath);
 
+            string[] allCustomMeasurementUnits = GetCustomMeasurementUnitsFromText(allTextFromFile);
+            for (int i = 0; i < allCustomMeasurementUnits.Length; i++)
+            {
+                recipeBookLibrary.AddMeasurementUnit(allCustomMeasurementUnits[i]);
+            }
+
+            string allRecipeBooksTextFromFile = allTextFromFile.Split("-END_OF_MEASUREMENT_UNITS-", StringSplitOptions.RemoveEmptyEntries)[1];
+
             //Only add recipe books if the database file has data in it
             if (allTextFromFile != "")
             {
-                string[] separateRecipeBooks = allTextFromFile.Split("-NEW_RECIPE_BOOK-", StringSplitOptions.RemoveEmptyEntries);
+                string[] separateRecipeBooks = allRecipeBooksTextFromFile.Split("-NEW_RECIPE_BOOK-", StringSplitOptions.RemoveEmptyEntries);
 
                 for (int i = 0; i < separateRecipeBooks.Length; i++)
                 {
@@ -41,6 +49,17 @@ namespace Recipe2ShoppingList
             string recipeBookName = Regex.Match(recipeBookText, regexExpression).Groups[1].Value.ToString();
 
             return recipeBookName;
+        }
+
+        private static string[] GetCustomMeasurementUnitsFromText(string allTextFromFile)
+        {
+            string startMaker = "-START_OF_MEASUREMENT_UNITS-";
+            string endMaker = "-END_OF_MEASUREMENT_UNITS-";
+            string allMeasurementUnitsText = GetDataFromStartAndEndMarkers(allTextFromFile, startMaker, endMaker);
+
+            string[] splitMeasurementUnits = allMeasurementUnitsText.Split("MU:", StringSplitOptions.RemoveEmptyEntries);
+
+            return splitMeasurementUnits;
         }
     }
 }

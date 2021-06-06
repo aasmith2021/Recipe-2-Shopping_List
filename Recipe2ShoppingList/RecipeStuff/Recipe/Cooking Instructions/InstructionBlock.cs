@@ -18,7 +18,7 @@ namespace Recipe2ShoppingList
         
         public string BlockHeading { get; set; }
         
-        private List<string> instructionLines = new List<string>();
+        public List<string> instructionLines = new List<string>();
 
         public string[] InstructionLines
         {

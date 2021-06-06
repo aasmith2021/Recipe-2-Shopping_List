@@ -22,28 +22,34 @@ namespace Recipe2ShoppingList
 
         public static string GetUserInputString(bool allowEmptyStringInput = true)
         {
-            string userInput = Console.ReadLine();
+            string userInput;
+            bool inputIsNull;
+            bool inputIsEmptyString;
+            bool userInputIsValid = false;
 
-            bool inputIsNull = userInput == null;
-            bool inputIsEmptyString = userInput == "";
-            bool userInputIsValid = true;
-
-            if (inputIsNull || (inputIsEmptyString && !allowEmptyStringInput))
+            do
             {
-                userInputIsValid = false;
-            }
-
-            while (!userInputIsValid)
-            {
-                Console.WriteLine();
-                Console.Write("Invalid entry. Please try again: ");
                 userInput = Console.ReadLine();
+
+                inputIsNull = userInput == null;
+                inputIsEmptyString = userInput == "";
+
+                if (inputIsNull || (inputIsEmptyString && !allowEmptyStringInput))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Invalid entry. Please try again:");
+                }
+                else
+                {
+                    userInputIsValid = true;
+                }
             }
+            while (!userInputIsValid);
 
             return userInput;
         }
 
-        public static int GetUserInputInt(int inputOption = 0)
+        public static int GetUserInputInt(int inputOption = 0, bool allowEmpyStringInput = false)
         {
             //Option -2: Get negative integer
             //Option -1: Get negative or zero integer
@@ -54,32 +60,94 @@ namespace Recipe2ShoppingList
             int result;
             string userInput = Console.ReadLine();
 
-            while (!int.TryParse(userInput, out result))
+            if (allowEmpyStringInput && userInput == "")
             {
-                Console.WriteLine();
-
-                switch (inputOption)
+                result = 0;
+            }
+            else
+            {
+                while (!int.TryParse(userInput, out result) || userInput == "" ||
+                            (inputOption == -2 && result >= 0) ||
+                            (inputOption == -1 && result > 0) ||
+                            (inputOption == 1 && result < 0) ||
+                            (inputOption == 2 && result <= 0))
                 {
-                    case -2:
-                        Console.Write("Invalid entry. Please enter a negative integer: ");
-                        break;
-                    case -1:
-                        Console.Write("Invalid entry. Please enter an integer that is zero or negative: ");
-                        break;
-                    case 0:
-                        Console.Write("Invalid entry. Please enter an integer: ");
-                        break;
-                    case 1:
-                        Console.Write("Invalid entry. Please enter an integer that is zero or positive: ");
-                        break;
-                    case 2:
-                        Console.Write("Invalid entry. Please enter an integer that is greater than zero: ");
-                        break;
-                    default:
-                        break;
-                }
+                    Console.WriteLine();
 
-                userInput = Console.ReadLine();
+                    switch (inputOption)
+                    {
+                        case -2:
+                            Console.Write("Invalid entry. Please enter a negative integer: ");
+                            break;
+                        case -1:
+                            Console.Write("Invalid entry. Please enter an integer that is zero or negative: ");
+                            break;
+                        case 0:
+                            Console.Write("Invalid entry. Please enter an integer: ");
+                            break;
+                        case 1:
+                            Console.Write("Invalid entry. Please enter an integer that is zero or positive: ");
+                            break;
+                        case 2:
+                            Console.Write("Invalid entry. Please enter an integer that is greater than zero: ");
+                            break;
+                        default:
+                            break;
+                    }
+
+                    userInput = Console.ReadLine();
+                }
+            }
+
+            return result;
+        }
+
+        public static double GetUserInputDouble(int inputOption = 0, bool allowEmpyStringInput = false)
+        {
+            //Option -2: Get negative double
+            //Option -1: Get negative or zero double
+            //Option 0: Get any double
+            //Option 1: Get positive or zero double
+            //Option 2: Get positive double
+
+            double result;
+            string userInput = Console.ReadLine();
+
+            if (allowEmpyStringInput && userInput == "")
+            {
+                result = 0;
+            }
+            else
+            {
+                while (!double.TryParse(userInput, out result) || ((result * 1000) - Math.Floor(result * 1000)) != 0 || userInput == "" ||
+                            (inputOption == -2 && result >= 0) || (inputOption == -1 && result > 0) || (inputOption == 1 && result < 0) ||
+                            (inputOption == 2 && result <= 0))
+                {
+                    Console.WriteLine();
+
+                    switch (inputOption)
+                    {
+                        case -2:
+                            Console.Write(UserInterface.MakeStringConsoleLengthLines("Invalid entry. Please enter a negative number that has no more than 3 decimal places (ex: -1.125): "));
+                            break;
+                        case -1:
+                            Console.Write(UserInterface.MakeStringConsoleLengthLines("Invalid entry. Please enter a number that is zero or negative and has no more than 3 decimal places (ex: -1.125): "));
+                            break;
+                        case 0:
+                            Console.Write(UserInterface.MakeStringConsoleLengthLines("Invalid entry. Please enter a number that has no more than 3 decimal places (ex: 1.125): "));
+                            break;
+                        case 1:
+                            Console.Write(UserInterface.MakeStringConsoleLengthLines("Invalid entry. Please enter a number that is zero or positive and has no more than 3 decimal places (ex: 1.125): "));
+                            break;
+                        case 2:
+                            Console.Write(UserInterface.MakeStringConsoleLengthLines("Invalid entry. Please enter a number that is greater than zero and has no more than 3 decimal places (ex: 1.125): "));
+                            break;
+                        default:
+                            break;
+                    }
+
+                    userInput = Console.ReadLine();
+                }
             }
 
             return result;
@@ -106,41 +174,40 @@ namespace Recipe2ShoppingList
 
         public static Metadata GetMetadataFromUser()
         {
-            Console.Clear();
-            Console.WriteLine("---------- ADD NEW RECIPE ----------");
-            Console.WriteLine();
-            Console.WriteLine("<<< RECIPE BASIC INFO >>>");
-            Console.WriteLine();
+            string header = "---------- ADD NEW RECIPE ----------";
+            string additionalMessage = "<<< RECIPE BASIC INFO >>>";
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            
             Console.Write("Enter the title of the new recipe: ");
-            string title = GetUserInput.GetUserInputString(false);
+            string title = GetUserInputString(false);
 
             Console.WriteLine();
             Console.WriteLine("Enter notes about the new recipe (or press \"Enter\" to leave blank):");
-            string userNotes = GetUserInput.GetUserInputString(true);
+            string userNotes = GetUserInputString(true);
 
             Console.WriteLine();
             Console.WriteLine("Enter the food type of the new recipe (or press \"Enter\" to leave blank): ");
-            string foodType = GetUserInput.GetUserInputString(true);
+            string foodType = GetUserInputString(true);
 
             Console.WriteLine();
             Console.WriteLine("Enter the food genre of the new recipe (or press \"Enter\" to leave blank): ");
-            string foodGenre = GetUserInput.GetUserInputString(true);
+            string foodGenre = GetUserInputString(true);
 
             Console.WriteLine();
             Console.Write("Enter the prep time of recipe in minutes: ");
-            int prepTime = GetUserInput.GetUserInputInt(1);
+            int prepTime = GetUserInputInt(1);
 
             Console.WriteLine();
             Console.Write("Enter the cook time of recipe in minutes: ");
-            int cookTime = GetUserInput.GetUserInputInt(1);
+            int cookTime = GetUserInputInt(1);
 
             Console.WriteLine();
             Console.Write("Enter the low number of estimated servings: ");
-            int lowServings = GetUserInput.GetUserInputInt(2);
+            int lowServings = GetUserInputInt(2);
 
             Console.WriteLine();
             Console.WriteLine("Enter the high number of estimated servings (or press \"Enter\" to leave blank): ");
-            int highServings = GetUserInput.GetUserInputInt(2);
+            int highServings = GetUserInputInt(2, true);
 
             Console.WriteLine();
             Console.WriteLine("Basic info complete! Now on to the ingredients!");
@@ -156,13 +223,11 @@ namespace Recipe2ShoppingList
             return recipeMetadata;
         }
 
-        public static IngredientList GetIngredientsFomUser()
+        public static IngredientList GetIngredientsFomUser(RecipeBookLibrary recipeBookLibrary)
         {
-            Console.Clear();
-            Console.WriteLine("---------- ADD NEW RECIPE ----------");
-            Console.WriteLine();
-            Console.WriteLine("<<< RECIPE INGREDIENTS >>>");
-            Console.WriteLine();
+            string header = "---------- ADD NEW RECIPE ----------";
+            string additionalMessage = "<<< RECIPE INGREDIENTS >>>";
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
 
             IngredientList recipeIngredientList = new IngredientList();
 
@@ -171,34 +236,43 @@ namespace Recipe2ShoppingList
 
             for (int i = 0; i < numberOfIngredients; i++)
             {
-                Console.Clear();
-                Console.WriteLine("---------- ADD NEW RECIPE ----------");
-                Console.WriteLine();
-                Console.WriteLine($"<<< INGREDIENT {i + 1} >>>");
+                header = "---------- ADD NEW RECIPE ----------";
+                additionalMessage = $"<<< INGREDIENT {i + 1} >>>";
+                UserInterface.DisplayMenuHeader(header, additionalMessage);
+                
+                Console.Write($"Enter the quantity of ingredient {i + 1} needed (ex: 1.5): ");
+                double qty = GetUserInputDouble(2);
 
-                Console.WriteLine();
-                Console.Write($"Enter the quantity of ingredient {i + 1} needed (ex: 1 1/2): ");
-                string qty = GetUserInput.GetUserInputString(false);
-
-                List<string[]> measurementUnits = MeasurementUnits.AllMeasurementUnits();
+                List<string[]> measurementUnits = MeasurementUnits.AllMeasurementUnitsForUserInput(recipeBookLibrary);
                 List<string> options = new List<string>();
-                foreach (string[] element in measurementUnits)
-                {
-                    options.Add(element[0]);
-                }
-
-                UserInterface.DisplayOptionsMenu(measurementUnits);
+                UserInterface.DisplayOptionsMenu(measurementUnits, out options);
                 
                 Console.WriteLine();
-                Console.Write("Select the ingredient measurement unit: ");
-                int userOptionNumber = Int32.Parse(GetUserInput.GetUserOption(options));
-                string measurementUnit = measurementUnits[userOptionNumber - 1][1];
+                Console.Write("Select the ingredient measurement unit from the list of options: ");
+                int userOptionNumber = int.Parse(GetUserOption(options));
+                string measurementUnit = "";
+
+                if (userOptionNumber == options.Count)
+                {
+                    GetNewMeasurementUnitFromUser(out measurementUnit);
+                    recipeBookLibrary.AddMeasurementUnit(measurementUnit);
+                    Console.WriteLine();
+                    Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient."));
+                }
+                else if (measurementUnits[userOptionNumber - 1][1] != "None")
+                {
+                    measurementUnit = measurementUnits[userOptionNumber - 1][1];
+                }
 
                 Console.WriteLine();
                 Console.Write("Enter the ingredient name: ");
-                string name = GetUserInput.GetUserInputString(false);
+                string name = GetUserInputString(false);
 
-                Ingredient ingredientToAdd = new Ingredient(qty, measurementUnit, name);
+                Console.WriteLine();
+                Console.WriteLine("Enter the ingredient preparation note (or press \"Enter\" to leave blank):");
+                string preparationNote = GetUserInputString(true);
+
+                Ingredient ingredientToAdd = new Ingredient(qty, measurementUnit, name, preparationNote);
                 recipeIngredientList.AddIngredient(ingredientToAdd);
 
                 if (numberOfIngredients > 1 && i < (numberOfIngredients - 1))
@@ -290,6 +364,37 @@ namespace Recipe2ShoppingList
             }
 
             return recipeCookingInstructions;
+        }
+
+        public static void GetNewMeasurementUnitFromUser(out string measurementUnit)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Enter the name of the new measurement unit:");
+            measurementUnit = GetUserInputString(false);
+        }
+
+        public static string GetTheFieldToEditFromUser(Recipe recipe, List<string[]> editOptions)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            List<string> userOptions = new List<string>();
+            UserInterface.DisplayOptionsMenu(editOptions, out userOptions);
+
+            Console.WriteLine();
+            Console.Write("Select the option for the information you would like to edit: ");
+            string userOption = GetUserOption(userOptions);
+
+            return userOption;
+        }
+
+        public static string GetNewUserNotes()
+        {
+            Console.WriteLine("Enter the notes you would like to add to this recipe:");
+            string newNotes = GetUserInput.GetUserInputString(false);
+
+            return newNotes;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Recipe2ShoppingList
             instructionBlocks.RemoveAt(indexOfBlockToDelete);
         }
 
-        public string ProduceInstructionsText(bool printVersion)
+        public string ProduceInstructionsText(bool printVersion, bool includeEditHeadings = false)
         {
             string instructionsText = "";
 
@@ -36,6 +36,11 @@ namespace Recipe2ShoppingList
                     InstructionBlock currentInstructionBlock = this.InstructionBlocks[i];
                     int lineNumber = 1;
                     string lineNumberString = $"{lineNumber}.";
+
+                    if (includeEditHeadings)
+                    {
+                        instructionsText += $"{Environment.NewLine}<<<INSTRUCTION BLOCK {i + 1}>>>{Environment.NewLine}";
+                    }
 
                     if (currentInstructionBlock.BlockHeading != "")
                     {
