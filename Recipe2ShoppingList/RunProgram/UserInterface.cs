@@ -100,6 +100,7 @@ namespace Recipe2ShoppingList
                 Console.WriteLine();
 
                 mainMenuStandardOptions.Add(new string[] { "A", "Add New Recipe Book"});
+                mainMenuStandardOptions.Add(new string[] { "M", "Manage Saved Measurement Units"});
                 mainMenuStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
             else
@@ -117,6 +118,7 @@ namespace Recipe2ShoppingList
                 mainMenuStandardOptions.Add(new string[] { "A", "Add New Recipe Book"} );
                 mainMenuStandardOptions.Add(new string[] { "R", "Rename Existing Recipe Book" });
                 mainMenuStandardOptions.Add(new string[] { "D", "Delete Existing Recipe Book" });
+                mainMenuStandardOptions.Add(new string[] { "M", "Manage Saved Measurement Units" });
                 mainMenuStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
 
@@ -263,6 +265,11 @@ namespace Recipe2ShoppingList
                 lineNumber++;
                 lineNumberString = $"{lineNumber}.";
             }
+        }
+
+        public static void DisplayMeasurementUnits(List<string> measurementUnits)
+        {
+            
         }
     }
 }

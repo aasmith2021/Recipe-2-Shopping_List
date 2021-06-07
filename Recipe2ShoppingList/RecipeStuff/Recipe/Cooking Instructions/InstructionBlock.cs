@@ -18,7 +18,7 @@ namespace Recipe2ShoppingList
         
         public string BlockHeading { get; set; }
         
-        public List<string> instructionLines = new List<string>();
+        private List<string> instructionLines = new List<string>();
 
         public string[] InstructionLines
         {
@@ -33,6 +33,11 @@ namespace Recipe2ShoppingList
         public void DeleteInstructionLine(int indexOfLineToDelete)
         {
             instructionLines.RemoveAt(indexOfLineToDelete);
+        }
+
+        public void EditInstructionLine(int indexOfLineToEdit, string newInstructionLine)
+        {
+            instructionLines[indexOfLineToEdit] = newInstructionLine;
         }
 
         public void GetInstructionBlockFromText(string instructionBlockText)

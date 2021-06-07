@@ -53,6 +53,11 @@ namespace Recipe2ShoppingList
             allMeasurementUnits.Remove(measurementUnit);
         }
 
+        public void EditMeasurementUnit (string measurementUnit, string newMeasurementUnit)
+        {
+            allMeasurementUnits[allMeasurementUnits.IndexOf(measurementUnit)] = newMeasurementUnit;
+        }
+
         public void WriteRecipeBookLibraryToFile(string alternateFilePath = "")
         {
             string[] allMeasurementUnits = this.AllMeasurementUnits;

@@ -28,7 +28,7 @@ namespace Recipe2ShoppingList
         private static void RunMainMenu(RecipeBookLibrary recipeBookLibrary, out bool exitProgram)
         {
             exitProgram = false;
-            
+
             UserInterface.DisplayMainMenu(recipeBookLibrary, out List<string> mainMenuOptions);
             string userOption = GetUserInput.GetUserOption(mainMenuOptions);
 
@@ -54,6 +54,9 @@ namespace Recipe2ShoppingList
                     case "D":
                         DeleteRecipeBook(recipeBookLibrary);
                         break;
+                    case "M":
+                        ManageSavedMeasurementUnits(recipeBookLibrary);
+                        break;
                     case "X":
                         exitProgram = true;
                         break;
@@ -62,12 +65,172 @@ namespace Recipe2ShoppingList
                 }
             }
         }
-        
+
+        public static void ManageSavedMeasurementUnits(RecipeBookLibrary recipeBookLibrary)
+        {
+            bool exitMeasurementUnits = false;
+
+            do
+            {
+                string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
+                UserInterface.DisplayMenuHeader(header);
+
+                int allStandardMeasurementUnitsLength = MeasurementUnits.AllStandardMeasurementUnits().Length;
+                string[] allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits;
+
+                List<string> userAddedMeasurementUnits = new List<string>();
+                userAddedMeasurementUnits.AddRange(allMeasurementUnits);
+                userAddedMeasurementUnits.RemoveRange(0, allStandardMeasurementUnitsLength);
+
+                List<string[]> editOptions = new List<string[]>()
+            {
+                new string[] { "A", "Add New Measurement Unit"},
+                new string[] { "E", "Edit Measurement Unit"},
+                new string[] { "D", "Delete Measurement Unit"},
+                new string[] { "R", "Return to Main Menu"},
+            };
+                List<string> options = new List<string>();
+
+                if (userAddedMeasurementUnits.Count == 0)
+                {
+                    editOptions.RemoveAt(1);
+                    editOptions.RemoveAt(1);
+                }
+
+                if (userAddedMeasurementUnits.Count == 0)
+                {
+                    Console.WriteLine("There are currently no user-added measurement units saved.");
+                    Console.WriteLine();
+                }
+                else
+                {
+                    Console.WriteLine("<<< Current Measurement Units >>>");
+                    for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                    }
+                    Console.WriteLine();
+                }
+
+                UserInterface.DisplayOptionsMenu(editOptions, out options);
+                Console.WriteLine();
+                Console.Write("Select an editing option: ");
+                string userOption = GetUserInput.GetUserOption(options);
+
+                Console.WriteLine();
+                switch (userOption)
+                {
+                    case "A":
+                        AddNewMeasurementUnit(recipeBookLibrary, userAddedMeasurementUnits);
+                        break;
+                    case "E":
+                        EditExistingMeasurementUnit(recipeBookLibrary, userAddedMeasurementUnits);
+                        break;
+                    case "D":
+                        DeleteExistingMeasurementUnit(recipeBookLibrary, userAddedMeasurementUnits);
+                        break;
+                    case "R":
+                        exitMeasurementUnits = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            while (!exitMeasurementUnits);
+        }
+
+        public static void AddNewMeasurementUnit(RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
+        {
+            string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
+            UserInterface.DisplayMenuHeader(header);
+
+            if (userAddedMeasurementUnits.Count != 0)
+            {
+                Console.WriteLine("<<< Current Measurement Units >>>");
+                for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                }
+            }
+
+            string measurementUnit = "";
+            GetUserInput.GetNewMeasurementUnitFromUser(out measurementUnit);
+
+            GetUserInput.AreYouSure("add this measurement unit", out bool isSure);
+
+            if (isSure)
+            {
+                recipeBookLibrary.AddMeasurementUnit(measurementUnit);
+                UserInterface.SuccessfulChange(true, "measurement unit", "added");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "measurement unit", "added");
+            }
+        }
+
+        public static void EditExistingMeasurementUnit(RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
+        {
+            string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
+            UserInterface.DisplayMenuHeader(header);
+
+            List<string> userOptions = new List<string>();
+
+            Console.WriteLine("<<< Current Measurement Units >>>");
+            for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                userOptions.Add((i + 1).ToString());
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine("Select the measurement unit to edit:");
+            string userOption = GetUserInput.GetUserOption(userOptions);
+
+            Console.WriteLine();
+            Console.WriteLine("Enter the new name for the measurement unit:");
+            string newName = GetUserInput.GetUserInputString(false);
+
+            recipeBookLibrary.EditMeasurementUnit(userAddedMeasurementUnits[int.Parse(userOption) - 1], newName);
+            UserInterface.SuccessfulChange(true, "measurement unit name", "updated");
+        }
+
+        public static void DeleteExistingMeasurementUnit(RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
+        {
+            string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
+            UserInterface.DisplayMenuHeader(header);
+
+            List<string> userOptions = new List<string>();
+
+            Console.WriteLine("<<< Current Measurement Units >>>");
+            for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                userOptions.Add((i + 1).ToString());
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Select the measurement unit to delete:");
+            string userOption = GetUserInput.GetUserOption(userOptions);
+
+            GetUserInput.AreYouSure("delete this measurement unit", out bool isSure);
+
+            if(isSure)
+            {
+                recipeBookLibrary.DeleteMeasurementUnit(userAddedMeasurementUnits[int.Parse(userOption) - 1]);
+                UserInterface.SuccessfulChange(true, "measurement unit", "deleted");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "measurement unit", "deleted");
+            }
+        }
+
         private static void RunRecipeBook(RecipeBookLibrary recipeBookLibrary, int recipeBookOptionNumber, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
             exitRecipeBookSection = false;
-            
+
             RecipeBook recipeBookToOpen = recipeBookLibrary.AllRecipeBooks[recipeBookOptionNumber - 1];
             UserInterface.DisplayOpenRecipeBook(recipeBookToOpen, out List<string> recipeBookOptions);
             string userOption = GetUserInput.GetUserOption(recipeBookOptions);
@@ -75,7 +238,7 @@ namespace Recipe2ShoppingList
             if (int.TryParse(userOption, out int userOptionNumber))
             {
                 bool exitRecipeSection = false;
-                
+
                 while (!exitRecipeSection)
                 {
                     RunRecipe(recipeBookLibrary, recipeBookToOpen, userOptionNumber, out exitRecipeSection, out exitRecipeBookSection, out exitProgram);
@@ -259,7 +422,7 @@ namespace Recipe2ShoppingList
         }
 
         private static void EditRecipe(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
-        {          
+        {
             List<string[]> editRecipeOptions = new List<string[]>()
             {
                 new string[] { "1", "Recipe Title" },
@@ -429,7 +592,7 @@ namespace Recipe2ShoppingList
             int changeStartIndex = 0;
             int changeEndIndex = 0;
 
-            switch(userInput)
+            switch (userInput)
             {
                 case "B":
                     changeStartIndex = 0;
@@ -442,7 +605,7 @@ namespace Recipe2ShoppingList
                 case "C":
                     changeStartIndex = 1;
                     changeEndIndex = 1;
-                    break;                    
+                    break;
                 default:
                     break;
             }
@@ -641,14 +804,30 @@ namespace Recipe2ShoppingList
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
             UserInterface.DisplayMenuHeader(header, additionalMessage);
-
             Console.Write(recipe.Ingredients.ProduceIngredientsText(true, true));
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"A\" to Add a new ingredient, \"E\" to edit an existing ingredient, or \"D\" to delete an ingredient:"));
-            List<string> options = new List<string>() { "A", "E", "D" };
+
+            List<string[]> menuOptions = new List<string[]>()
+            {
+                new string[] { "A", "Add a New Igredient" },
+                new string[] { "E", "Edit an Ingredient"},
+                new string[] { "D", "Delete an Ingredient"},
+            };
+            List<string> options = new List<string>();
+
+            if (recipe.Ingredients.AllIngredients.Length == 0)
+            {
+                menuOptions.RemoveAt(1);
+                menuOptions.RemoveAt(1);
+            }
+
+            Console.WriteLine();
+            UserInterface.DisplayOptionsMenu(menuOptions, out options);
+            Console.WriteLine();
+            Console.Write("Select an editing option: ");
             string userOption = GetUserInput.GetUserOption(options);
 
             Console.WriteLine();
-            switch(userOption)
+            switch (userOption)
             {
                 case "A":
                     AddNewIngredient(recipeBookLibrary, recipe);
@@ -792,8 +971,24 @@ namespace Recipe2ShoppingList
 
             Console.Write(recipe.CookingInstructions.ProduceInstructionsText(true));
             Console.WriteLine();
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"A\" to Add a new instruction block, \"E\" to edit an existing instruction block, or \"D\" to delete an instruction block:"));
-            List<string> options = new List<string>() { "A", "E", "D" };
+
+            List<string[]> menuOptions = new List<string[]>()
+            {
+                new string[] { "A", "Add New Instruction Block" },
+                new string[] { "E", "Edit an Instruction Block"},
+                new string[] { "D", "Delete an Instruction Block"},
+            };
+            List<string> options = new List<string>();
+
+            if (recipe.CookingInstructions.InstructionBlocks.Length == 0)
+            {
+                menuOptions.RemoveAt(1);
+                menuOptions.RemoveAt(1);
+            }
+
+            UserInterface.DisplayOptionsMenu(menuOptions, out options);
+            Console.WriteLine();
+            Console.Write("Select an editing option: ");
             string userOption = GetUserInput.GetUserOption(options);
 
             Console.WriteLine();
@@ -859,53 +1054,82 @@ namespace Recipe2ShoppingList
 
                 instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex - 1];
             }
-            else
+            else if (numberOfInstructionBlocks == 1)
             {
                 instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[0];
             }
-            
-            List<string[]> editBlockMenuOptions = new List<string[]>()
+            else
             {
-                new string[] { "1", "Add Instruction Line" },
-                new string[] { "2", "Edit Instruction Line" },
-                new string[] { "3", "Delete Instruction Line" },
-                new string[] { "4", "Add Block Heading" },
-                new string[] { "5", "Edit Block Heading" },
-                new string[] { "6", "Delete Block Heading" },
-            };
+                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("This recipe does not have any instruction blocks. Add a new instruction block in order to edit the recipe."));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
 
-            if (instructionBlockToEdit.BlockHeading == "")
-            {              
-                editBlockMenuOptions.RemoveAt(5);
-                editBlockMenuOptions.RemoveAt(4);
+                return;
             }
 
+            List<string[]> editBlockMenuOptions = new List<string[]>()
+            {
+                new string[] { "", "Add Instruction Line" },
+                new string[] { "", "Edit Instruction Line" },
+                new string[] { "", "Delete Instruction Line" },
+                new string[] { "", "Add Block Heading" },
+                new string[] { "", "Edit Block Heading" },
+                new string[] { "", "Delete Block Heading" },
+            };
             List<string> editBlockOptions = new List<string>();
+
+            bool instructionLinesAreBlank = instructionBlockToEdit.InstructionLines.Length == 0;
+            bool blockHeadingIsBlank = instructionBlockToEdit.BlockHeading == "";
+
+            if (instructionLinesAreBlank)
+            {
+                editBlockMenuOptions.RemoveAt(1);
+                editBlockMenuOptions.RemoveAt(1);
+            }
+
+            if (blockHeadingIsBlank)
+            {
+                editBlockMenuOptions.RemoveAt(editBlockMenuOptions.Count - 1);
+                editBlockMenuOptions.RemoveAt(editBlockMenuOptions.Count - 1);
+            }
+
+            if (!blockHeadingIsBlank)
+            {
+                editBlockMenuOptions.RemoveAt(editBlockMenuOptions.Count - 3);
+            }
+
+            for (int i = 0; i < editBlockMenuOptions.Count; i++)
+            {
+                editBlockMenuOptions[i][0] = (i + 1).ToString();
+            }
+
             Console.WriteLine();
             UserInterface.DisplayOptionsMenu(editBlockMenuOptions, out editBlockOptions);
             Console.WriteLine();
             Console.Write("Enter an editing option from the menu: ");
             string editBlockOption = GetUserInput.GetUserOption(editBlockOptions);
+            string menuSelection = editBlockMenuOptions[int.Parse(editBlockOption) - 1][1];
 
             Console.WriteLine();
-            switch (editBlockOption)
+            switch (menuSelection)
             {
-                case "1":
+                case "Add Instruction Line":
                     AddInstructionLine(instructionBlockToEdit, recipe);
                     break;
-                case "2":
+                case "Edit Instruction Line":
                     EditInstructionLine(instructionBlockToEdit, recipe);
                     break;
-                case "3":
+                case "Delete Instruction Line":
                     DeleteInstructionLine(instructionBlockToEdit, recipe);
                     break;
-                case "4":
+                case "Add Block Heading":
                     AddInstructionBlockHeading(instructionBlockToEdit, recipe);
                     break;
-                case "5":
+                case "Edit Block Heading":
                     EditInstructionBlockHeading(instructionBlockToEdit, recipe);
                     break;
-                case "6":
+                case "Delete Block Heading":
                     DeleteInstructionBlockHeading(instructionBlockToEdit, recipe);
                     break;
                 default:
@@ -952,7 +1176,7 @@ namespace Recipe2ShoppingList
             Console.WriteLine("Enter the new text for the instruction line:");
             string newInstructionLineText = GetUserInput.GetUserInputString(false);
 
-            instructionBlock.instructionLines[int.Parse(instructionLineSelected) - 1] = newInstructionLineText;
+            instructionBlock.EditInstructionLine(int.Parse(instructionLineSelected) - 1, newInstructionLineText);
             UserInterface.SuccessfulChange(true, "instruction line", "edited");
         }
 
@@ -985,7 +1209,7 @@ namespace Recipe2ShoppingList
             else
             {
                 UserInterface.SuccessfulChange(false, "instruction line", "deleted");
-            }            
+            }
         }
 
         public static void AddInstructionBlockHeading(InstructionBlock instructionBlock, Recipe recipe)

@@ -46,8 +46,8 @@ namespace Recipe2ShoppingList
         //    ckinst1.AddInstructionBlock(firstBlock);
         //    ckinst1.AddInstructionBlock(secondBlock);
 
-        //    Ingredient pasta = new Ingredient("1", "8 oz", "Box of macaroni pasta");
-        //    Ingredient cheese = new Ingredient("3", "Cups", "Shredded cheddar cheese");
+        //    Ingredient pasta = new Ingredient(1d, "8 oz", "Box of macaroni pasta");
+        //    Ingredient cheese = new Ingredient(1d, "Cups", "Shredded cheddar cheese");
 
         //    IngredientList macAndCheeseIngredients = new IngredientList();
         //    macAndCheeseIngredients.AddIngredient(pasta);
@@ -85,9 +85,9 @@ namespace Recipe2ShoppingList
         //    ckinst1.AddInstructionBlock(firstBlock);
         //    ckinst1.AddInstructionBlock(secondBlock);
 
-        //    Ingredient pasta = new Ingredient("1", "12 oz", "Box of penne pasta");
-        //    Ingredient tuna = new Ingredient("1", "can", "tuna");
-        //    Ingredient soup = new Ingredient("1", "10 oz can", "Cream of Mushroom soup");
+        //    Ingredient pasta = new Ingredient(1d, "12 oz", "Box of penne pasta");
+        //    Ingredient tuna = new Ingredient(1d, "can", "tuna");
+        //    Ingredient soup = new Ingredient(1d, "10 oz can", "Cream of Mushroom soup");
 
         //    IngredientList recipeIngredients = new IngredientList();
         //    recipeIngredients.AddIngredient(pasta);
