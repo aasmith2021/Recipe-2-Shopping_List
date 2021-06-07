@@ -666,8 +666,6 @@ namespace Recipe2ShoppingList
 
         public static void EditExistingIngredient(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
-            Console.WriteLine("Select the ingredient line you would like to edit:");
-
             Ingredient[] allRecipeIngredients = recipe.Ingredients.AllIngredients;
             List<string> ingredientLineOptions = new List<string>();
             for (int i = 0; i < allRecipeIngredients.Length; i++)
@@ -675,9 +673,19 @@ namespace Recipe2ShoppingList
                 ingredientLineOptions.Add((i + 1).ToString());
             }
 
-            string userOption = GetUserInput.GetUserOption(ingredientLineOptions);
+            Ingredient ingredientToEdit;
 
-            Ingredient ingredientToEdit = allRecipeIngredients[int.Parse(userOption) - 1];
+            if (allRecipeIngredients.Length > 1)
+            {
+                Console.WriteLine("Select the ingredient line you would like to edit:");
+                string userOption = GetUserInput.GetUserOption(ingredientLineOptions);
+                Console.WriteLine();
+                ingredientToEdit = allRecipeIngredients[int.Parse(userOption) - 1];
+            }
+            else
+            {
+                ingredientToEdit = allRecipeIngredients[0];
+            }
 
             List<string[]> ingredientComponentsForMenu = new List<string[]>()
             {
@@ -688,7 +696,6 @@ namespace Recipe2ShoppingList
             };
             List<string> ingredientComponentOptions = new List<string>();
 
-            Console.WriteLine();
             Console.WriteLine("Select the part of the ingredient you would like to edit:");
             UserInterface.DisplayOptionsMenu(ingredientComponentsForMenu, out ingredientComponentOptions);
             string ingredientComponentToEdit = GetUserInput.GetUserOption(ingredientComponentOptions);
@@ -834,9 +841,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayMenuHeader(header, additionalMessage);
 
             Console.Write(recipe.CookingInstructions.ProduceInstructionsText(true, true));
-            Console.WriteLine();
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter the instruction block you would like to edit:"));
-
+            InstructionBlock instructionBlockToEdit;
             int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Length;
             List<string> instructionBlockOptions = new List<string>();
             for (int i = 1; i <= numberOfInstructionBlocks; i++)
@@ -844,11 +849,21 @@ namespace Recipe2ShoppingList
                 instructionBlockOptions.Add(i.ToString());
             }
 
-            string userBlockSelection = GetUserInput.GetUserOption(instructionBlockOptions);
-            int instructionBlockIndex = int.Parse(userBlockSelection);
+            if (numberOfInstructionBlocks > 1)
+            {
+                Console.WriteLine();
+                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter the instruction block you would like to edit:"));
 
-            InstructionBlock instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex - 1];
+                string userBlockSelection = GetUserInput.GetUserOption(instructionBlockOptions);
+                int instructionBlockIndex = int.Parse(userBlockSelection);
 
+                instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex - 1];
+            }
+            else
+            {
+                instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[0];
+            }
+            
             List<string[]> editBlockMenuOptions = new List<string[]>()
             {
                 new string[] { "1", "Add Instruction Line" },
