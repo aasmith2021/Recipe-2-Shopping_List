@@ -240,7 +240,7 @@ namespace Recipe2ShoppingList
         private static void AddNewRecipe(RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)
         {
             Metadata recipeMetadata = GetUserInput.GetMetadataFromUser();
-            IngredientList recipeIngredientList = GetUserInput.GetIngredientsFomUser(recipeBookLibrary);
+            IngredientList recipeIngredientList = GetUserInput.GetIngredientsFromUser(recipeBookLibrary);
             CookingInstructions recipeCookingInstructions = GetUserInput.GetCookingInstructionsFromUser();
 
             Recipe newRecipe = new Recipe(recipeMetadata, recipeCookingInstructions, recipeIngredientList);
@@ -394,6 +394,7 @@ namespace Recipe2ShoppingList
                 userInput = GetUserInput.GetUserOption(options);
             }
 
+            Console.WriteLine();
             string newNotes = GetUserInput.GetNewUserNotes();
 
             GetUserInput.AreYouSure("add these new notes to the recipe", out bool isSure);
@@ -642,6 +643,29 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayMenuHeader(header, additionalMessage);
 
             Console.Write(recipe.Ingredients.ProduceIngredientsText(true, true));
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"A\" to Add a new ingredient, \"E\" to edit an existing ingredient, or \"D\" to delete an ingredient:"));
+            List<string> options = new List<string>() { "A", "E", "D" };
+            string userOption = GetUserInput.GetUserOption(options);
+
+            Console.WriteLine();
+            switch(userOption)
+            {
+                case "A":
+                    AddNewIngredient(recipeBookLibrary, recipe);
+                    break;
+                case "E":
+                    EditExistingIngredient(recipeBookLibrary, recipe);
+                    break;
+                case "D":
+                    DeleteExistingIngredient(recipe);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public static void EditExistingIngredient(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
+        {
             Console.WriteLine("Select the ingredient line you would like to edit:");
 
             Ingredient[] allRecipeIngredients = recipe.Ingredients.AllIngredients;
@@ -719,7 +743,91 @@ namespace Recipe2ShoppingList
             }
         }
 
+        public static void AddNewIngredient(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
+        {
+            Ingredient ingredientToAdd = GetUserInput.GetIngredientFromUser(recipeBookLibrary);
+            recipe.Ingredients.AddIngredient(ingredientToAdd);
+            UserInterface.SuccessfulChange(true, "ingredient", "added");
+        }
+
+        public static void DeleteExistingIngredient(Recipe recipe)
+        {
+            Console.WriteLine("Select the ingredient line you would like to delete:");
+
+            Ingredient[] allRecipeIngredients = recipe.Ingredients.AllIngredients;
+            List<string> ingredientLineOptions = new List<string>();
+            for (int i = 1; i <= allRecipeIngredients.Length; i++)
+            {
+                ingredientLineOptions.Add(i.ToString());
+            }
+
+            string userOption = GetUserInput.GetUserOption(ingredientLineOptions);
+            int indexOfIngredientToDelete = int.Parse(userOption) - 1;
+
+            GetUserInput.AreYouSure("delete this ingredient", out bool isSure);
+
+            if (isSure)
+            {
+                recipe.Ingredients.DeleteIngredient(recipe.Ingredients.AllIngredients[indexOfIngredientToDelete]);
+                UserInterface.SuccessfulChange(true, "ingredient", "deleted");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "ingredient", "deleted");
+            }
+        }
+
         public static void EditRecipeInstructions(Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            Console.Write(recipe.CookingInstructions.ProduceInstructionsText(true));
+            Console.WriteLine();
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"A\" to Add a new instruction block, \"E\" to edit an existing instruction block, or \"D\" to delete an instruction block:"));
+            List<string> options = new List<string>() { "A", "E", "D" };
+            string userOption = GetUserInput.GetUserOption(options);
+
+            Console.WriteLine();
+            switch (userOption)
+            {
+                case "A":
+                    AddNewInstructionBlock(recipe);
+                    break;
+                case "E":
+                    EditExistingInstructionBlock(recipe);
+                    break;
+                case "D":
+                    DeleteExistingInstructionBlock(recipe);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public static void AddNewInstructionBlock(Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            InstructionBlock newInstructionBlock = GetUserInput.GetInstructionBlockFromUser();
+
+            GetUserInput.AreYouSure("add this new instruction block", out bool isSure);
+
+            if (isSure)
+            {
+                recipe.CookingInstructions.AddInstructionBlock(newInstructionBlock);
+                UserInterface.SuccessfulChange(true, "new instruction block", "added");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "new instruction block", "added");
+            }
+        }
+
+        public static void EditExistingInstructionBlock(Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
@@ -727,7 +835,7 @@ namespace Recipe2ShoppingList
 
             Console.Write(recipe.CookingInstructions.ProduceInstructionsText(true, true));
             Console.WriteLine();
-            Console.WriteLine("Select the instruction block you would like to edit:");
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter the instruction block you would like to edit:"));
 
             int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Length;
             List<string> instructionBlockOptions = new List<string>();
@@ -736,34 +844,217 @@ namespace Recipe2ShoppingList
                 instructionBlockOptions.Add(i.ToString());
             }
 
-            int instructionBlockIndex = int.Parse(GetUserInput.GetUserOption(instructionBlockOptions)) - 1;
+            string userBlockSelection = GetUserInput.GetUserOption(instructionBlockOptions);
+            int instructionBlockIndex = int.Parse(userBlockSelection);
 
-            InstructionBlock instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex];
-            int numberOfInstructionBlockLines = instructionBlockToEdit.InstructionLines.Length;
-            List<string> instructionBlockLineOptions = new List<string>();
-            for (int i = 0; i <= numberOfInstructionBlockLines; i++)
+            InstructionBlock instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex - 1];
+
+            List<string[]> editBlockMenuOptions = new List<string[]>()
             {
-                instructionBlockLineOptions.Add(i.ToString());
+                new string[] { "1", "Add Instruction Line" },
+                new string[] { "2", "Edit Instruction Line" },
+                new string[] { "3", "Delete Instruction Line" },
+                new string[] { "4", "Add Block Heading" },
+                new string[] { "5", "Edit Block Heading" },
+                new string[] { "6", "Delete Block Heading" },
+            };
+
+            if (instructionBlockToEdit.BlockHeading == "")
+            {              
+                editBlockMenuOptions.RemoveAt(5);
+                editBlockMenuOptions.RemoveAt(4);
+            }
+
+            List<string> editBlockOptions = new List<string>();
+            Console.WriteLine();
+            UserInterface.DisplayOptionsMenu(editBlockMenuOptions, out editBlockOptions);
+            Console.WriteLine();
+            Console.Write("Enter an editing option from the menu: ");
+            string editBlockOption = GetUserInput.GetUserOption(editBlockOptions);
+
+            Console.WriteLine();
+            switch (editBlockOption)
+            {
+                case "1":
+                    AddInstructionLine(instructionBlockToEdit, recipe);
+                    break;
+                case "2":
+                    EditInstructionLine(instructionBlockToEdit, recipe);
+                    break;
+                case "3":
+                    DeleteInstructionLine(instructionBlockToEdit, recipe);
+                    break;
+                case "4":
+                    AddInstructionBlockHeading(instructionBlockToEdit, recipe);
+                    break;
+                case "5":
+                    EditInstructionBlockHeading(instructionBlockToEdit, recipe);
+                    break;
+                case "6":
+                    DeleteInstructionBlockHeading(instructionBlockToEdit, recipe);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public static void AddInstructionLine(InstructionBlock instructionBlock, Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            UserInterface.DisplayInstructionBlock(instructionBlock);
+
+            Console.WriteLine();
+            Console.WriteLine("Enter the new instruction line to add:");
+            string newInstructionLine = GetUserInput.GetUserInputString(false);
+
+            instructionBlock.AddInstructionLine(newInstructionLine);
+            UserInterface.SuccessfulChange(true, "new instruction line", "added");
+        }
+
+        public static void EditInstructionLine(InstructionBlock instructionBlock, Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            UserInterface.DisplayInstructionBlock(instructionBlock);
+
+            string[] allInstructionLines = instructionBlock.InstructionLines;
+            List<string> instructionLineOptions = new List<string>();
+
+            for (int i = 1; i <= allInstructionLines.Length; i++)
+            {
+                instructionLineOptions.Add(i.ToString());
             }
             Console.WriteLine();
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Select the line of the instruction block to edit (or enter 0 to edit block heading):"));
-            int instructionBlockLineIndex = int.Parse(GetUserInput.GetUserOption(instructionBlockLineOptions));
+            Console.Write("Select the instruction line to edit: ");
+            string instructionLineSelected = GetUserInput.GetUserOption(instructionLineOptions);
 
-            if (instructionBlockLineIndex == 0)
+            Console.WriteLine();
+            Console.WriteLine("Enter the new text for the instruction line:");
+            string newInstructionLineText = GetUserInput.GetUserInputString(false);
+
+            instructionBlock.instructionLines[int.Parse(instructionLineSelected) - 1] = newInstructionLineText;
+            UserInterface.SuccessfulChange(true, "instruction line", "edited");
+        }
+
+        public static void DeleteInstructionLine(InstructionBlock instructionBlock, Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            UserInterface.DisplayInstructionBlock(instructionBlock);
+
+            string[] allInstructionLines = instructionBlock.InstructionLines;
+            List<string> instructionLineOptions = new List<string>();
+
+            for (int i = 1; i <= allInstructionLines.Length; i++)
             {
-                Console.WriteLine();
-                Console.WriteLine("Enter the new heading for the instruction block:");
-                string newInstructionBlockHeader = GetUserInput.GetUserInputString(false);
-                instructionBlockToEdit.BlockHeading = newInstructionBlockHeader;
-                UserInterface.SuccessfulChange(true, "instruction block heading", "updated");
+                instructionLineOptions.Add(i.ToString());
+            }
+            Console.WriteLine();
+            Console.Write("Select the instruction line to delete: ");
+            string instructionLineSelected = GetUserInput.GetUserOption(instructionLineOptions);
+
+            GetUserInput.AreYouSure("delete this instruction line", out bool isSure);
+
+            if (isSure)
+            {
+                instructionBlock.DeleteInstructionLine(int.Parse(instructionLineSelected) - 1);
+                UserInterface.SuccessfulChange(true, "instruction line", "deleted");
             }
             else
             {
-                Console.WriteLine();
-                Console.WriteLine("Enter the new text for the instruction line:");
-                string newInstructionLineText = GetUserInput.GetUserInputString(false);
-                instructionBlockToEdit.instructionLines[instructionBlockLineIndex - 1] = newInstructionLineText;
-                UserInterface.SuccessfulChange(true, "instruction line", "updated");
+                UserInterface.SuccessfulChange(false, "instruction line", "deleted");
+            }            
+        }
+
+        public static void AddInstructionBlockHeading(InstructionBlock instructionBlock, Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            UserInterface.DisplayInstructionBlock(instructionBlock);
+
+            Console.WriteLine();
+            Console.WriteLine("Enter the new block heading to add:");
+            string newBlockHeading = GetUserInput.GetUserInputString(false);
+
+            instructionBlock.BlockHeading = newBlockHeading;
+            UserInterface.SuccessfulChange(true, "new block heading", "added");
+        }
+
+        public static void EditInstructionBlockHeading(InstructionBlock instructionBlock, Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            UserInterface.DisplayInstructionBlock(instructionBlock);
+
+            Console.WriteLine();
+            Console.WriteLine("Enter the new block heading:");
+            string newBlockHeading = GetUserInput.GetUserInputString(false);
+
+            instructionBlock.BlockHeading = newBlockHeading;
+            UserInterface.SuccessfulChange(true, "block heading", "edited");
+        }
+
+        public static void DeleteInstructionBlockHeading(InstructionBlock instructionBlock, Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            UserInterface.DisplayInstructionBlock(instructionBlock);
+
+            GetUserInput.AreYouSure("delete the block heading", out bool isSure);
+
+            if (isSure)
+            {
+                instructionBlock.BlockHeading = "";
+                UserInterface.SuccessfulChange(true, "block heading", "deleted");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "block heading", "deleted");
+            }
+        }
+
+        public static void DeleteExistingInstructionBlock(Recipe recipe)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
+            UserInterface.DisplayMenuHeader(header, additionalMessage);
+
+            Console.Write(recipe.CookingInstructions.ProduceInstructionsText(true, true));
+            Console.WriteLine();
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter the instruction block you would like to delete:"));
+
+            int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Length;
+            List<string> instructionBlockOptions = new List<string>();
+            for (int i = 1; i <= numberOfInstructionBlocks; i++)
+            {
+                instructionBlockOptions.Add(i.ToString());
+            }
+
+            string userBlockSelection = GetUserInput.GetUserOption(instructionBlockOptions);
+
+            GetUserInput.AreYouSure("delete this instruction block", out bool isSure);
+
+            if (isSure)
+            {
+                recipe.CookingInstructions.DeleteInstructionBlock(int.Parse(userBlockSelection) - 1);
+                UserInterface.SuccessfulChange(true, "instruction block", "deleted");
+            }
+            else
+            {
+                UserInterface.SuccessfulChange(false, "instruction block", "deleted");
             }
         }
     }

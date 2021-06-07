@@ -246,5 +246,23 @@ namespace Recipe2ShoppingList
                 Console.WriteLine();
             }
         }
+
+        public static void DisplayInstructionBlock(InstructionBlock instructionBlock)
+        {
+            int lineNumber = 1;
+            string lineNumberString = $"{lineNumber}.";
+
+            if (instructionBlock.BlockHeading != "")
+            {
+                Console.WriteLine($"<{instructionBlock.BlockHeading}>");
+            }
+
+            foreach (string instructionLine in instructionBlock.InstructionLines)
+            {
+                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"{lineNumberString,-2} {instructionLine}"));
+                lineNumber++;
+                lineNumberString = $"{lineNumber}.";
+            }
+        }
     }
 }

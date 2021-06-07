@@ -223,7 +223,7 @@ namespace Recipe2ShoppingList
             return recipeMetadata;
         }
 
-        public static IngredientList GetIngredientsFomUser(RecipeBookLibrary recipeBookLibrary)
+        public static IngredientList GetIngredientsFromUser(RecipeBookLibrary recipeBookLibrary)
         {
             string header = "---------- ADD NEW RECIPE ----------";
             string additionalMessage = "<<< RECIPE INGREDIENTS >>>";
@@ -245,6 +245,7 @@ namespace Recipe2ShoppingList
 
                 List<string[]> measurementUnits = MeasurementUnits.AllMeasurementUnitsForUserInput(recipeBookLibrary);
                 List<string> options = new List<string>();
+                Console.WriteLine();
                 UserInterface.DisplayOptionsMenu(measurementUnits, out options);
                 
                 Console.WriteLine();
@@ -296,6 +297,45 @@ namespace Recipe2ShoppingList
             return recipeIngredientList;
         }
 
+        public static Ingredient GetIngredientFromUser(RecipeBookLibrary recipeBookLibrary)
+        {
+            Console.Write($"Enter the quantity of ingredient needed (ex: 1.5): ");
+            double qty = GetUserInputDouble(2);
+
+            List<string[]> measurementUnits = MeasurementUnits.AllMeasurementUnitsForUserInput(recipeBookLibrary);
+            List<string> options = new List<string>();
+            Console.WriteLine();
+            UserInterface.DisplayOptionsMenu(measurementUnits, out options);
+
+            Console.WriteLine();
+            Console.Write("Select the ingredient measurement unit from the list of options: ");
+            int userOptionNumber = int.Parse(GetUserOption(options));
+            string measurementUnit = "";
+
+            if (userOptionNumber == options.Count)
+            {
+                GetNewMeasurementUnitFromUser(out measurementUnit);
+                recipeBookLibrary.AddMeasurementUnit(measurementUnit);
+                Console.WriteLine();
+                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient."));
+            }
+            else if (measurementUnits[userOptionNumber - 1][1] != "None")
+            {
+                measurementUnit = measurementUnits[userOptionNumber - 1][1];
+            }
+
+            Console.WriteLine();
+            Console.Write("Enter the ingredient name: ");
+            string name = GetUserInputString(false);
+
+            Console.WriteLine();
+            Console.WriteLine("Enter the ingredient preparation note (or press \"Enter\" to leave blank):");
+            string preparationNote = GetUserInputString(true);
+
+            Ingredient ingredientToAdd = new Ingredient(qty, measurementUnit, name, preparationNote);
+            return ingredientToAdd;
+        }
+
         public static CookingInstructions GetCookingInstructionsFromUser()
         {
             Console.Clear();
@@ -317,7 +357,7 @@ namespace Recipe2ShoppingList
                 Console.WriteLine($"<<< INSTRUCTION BLOCK {i + 1} >>>");
                 Console.WriteLine();
 
-                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"Enter the heading for instruction block {i + 1} (or press \"Enter\" to leave blank): "));
+                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"Enter the heading for instruction block {i + 1} (or press \"Enter\" to leave blank):"));
                 string blockHeading = GetUserInput.GetUserInputString(true);
 
                 InstructionBlock instructionBlockToAdd = new InstructionBlock(blockHeading);
@@ -364,6 +404,29 @@ namespace Recipe2ShoppingList
             }
 
             return recipeCookingInstructions;
+        }
+
+        public static InstructionBlock GetInstructionBlockFromUser()
+        {
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"Enter the heading for the new instruction block (or press \"Enter\" to leave blank):"));
+            string blockHeading = GetUserInput.GetUserInputString(true);
+
+            InstructionBlock newInstructionBlock = new InstructionBlock(blockHeading);
+
+            Console.WriteLine();
+            Console.Write($"Enter the number of instruction lines for the instruction block: ");
+            int numberOfLines = GetUserInput.GetUserInputInt(2);
+
+            for (int j = 0; j < numberOfLines; j++)
+            {
+                Console.WriteLine();
+                Console.WriteLine($"Enter the instructions for line #{j + 1}:");
+                string instructionLine = GetUserInput.GetUserInputString(false);
+
+                newInstructionBlock.AddInstructionLine(instructionLine);
+            }
+
+            return newInstructionBlock;
         }
 
         public static void GetNewMeasurementUnitFromUser(out string measurementUnit)
