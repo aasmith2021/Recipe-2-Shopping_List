@@ -99,7 +99,7 @@ namespace Recipe2ShoppingList
             allLocations["meat"] = this.Meat;
             allLocations["refrigerated"] = this.Refrigerated;
             allLocations["frozen"] = this.Frozen;
-            allLocations["nonGrocery"] = this.Produce;
+            allLocations["nonGrocery"] = this.NonGrocery;
 
             string key = "";
             string optionalHeader = $"---------- SHOPPING LIST ----------{Environment.NewLine}{Environment.NewLine}";
