@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    public class RecipeBookLibrary : DataHelperMethods
+    public class RecipeBookLibrary
     {
         private List<RecipeBook> allRecipeBooksList = new List<RecipeBook>();
         private List<string> allMeasurementUnits = new List<string>();
@@ -65,7 +65,7 @@ namespace Recipe2ShoppingList
 
             try
             {
-                using (StreamWriter sw = new StreamWriter(GetWriteDatabaseFilePath(alternateFilePath)))
+                using (StreamWriter sw = new StreamWriter(DataHelperMethods.GetWriteDatabaseFilePath(alternateFilePath)))
                 {
                     sw.WriteLine(MeasurementUnits.ProduceMeasurementUnitsText(this));
 
@@ -77,7 +77,7 @@ namespace Recipe2ShoppingList
             }
             catch (IOException exception)
             {
-                Console.WriteLine("Cannot open file to save data.");
+                Console.WriteLine("Cannot open Recipe Database file to save data.");
                 Console.WriteLine();
                 Console.WriteLine("Press \"Enter\" to continue...");
                 Console.ReadLine();

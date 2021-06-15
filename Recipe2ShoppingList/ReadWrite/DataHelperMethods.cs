@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
-    public abstract class DataHelperMethods
+    public static class DataHelperMethods
     {
         public static string GetReadDatabaseFilePath(string alternateFilePath = "")
         {
@@ -14,11 +14,11 @@ namespace Recipe2ShoppingList
 
             if(alternateFilePath == "")
             {
-                filePath += "\\Recipe_Database.txt";
+                filePath = Path.Combine(filePath, "Recipe_Database.txt");
             }
             else
             {
-                filePath += $"\\{alternateFilePath}.txt";
+                filePath = Path.Combine($"{alternateFilePath}.txt");
             }
 
             return filePath;
@@ -30,17 +30,49 @@ namespace Recipe2ShoppingList
 
             if (alternateFilePath == "")
             {
-                filePath += "\\Recipe_Database_write.txt";
+                filePath = Path.Combine(filePath, "Recipe_Database_write.txt");
             }
             else
             {
-                filePath += $"\\{alternateFilePath}.txt";
+                filePath = Path.Combine(filePath, $"{alternateFilePath}.txt");
             }
 
             return filePath;
         }
 
-        protected static string GetAllDatabaseText(string alternateFilePath = "")
+        public static string GetReadShoppingListFilePath(string alternateFilePath = "")
+        {
+            string filePath = Directory.GetCurrentDirectory();
+
+            if (alternateFilePath == "")
+            {
+                filePath = Path.Combine(filePath, "Shopping_List.txt");
+            }
+            else
+            {
+                filePath = Path.Combine(filePath, $"{alternateFilePath}.txt");
+            }
+
+            return filePath;
+        }
+
+        public static string GetWriteShoppingListFilePath(string alternateFilePath = "")
+        {
+            string filePath = Directory.GetCurrentDirectory();
+
+            if (alternateFilePath == "")
+            {
+                filePath = Path.Combine(filePath, "Shopping_List_write.txt");
+            }
+            else
+            {
+                filePath = Path.Combine(filePath, $"{alternateFilePath}.txt");
+            }
+
+            return filePath;
+        }
+
+        public static string GetAllDatabaseText(string alternateFilePath = "")
         {            
             string databaseText = "";
             string currentLineOfText = "";
@@ -66,10 +98,10 @@ namespace Recipe2ShoppingList
             return databaseText;
         }
 
-        public static void DeleteOldDatabaseFileAndRenameNewDatabase(string oldDatabasePath, string newDatabasePath)
+        public static void DeleteOldFileAndRenameNewFile(string oldFilePath, string newFilePath)
         {
-            File.Delete(oldDatabasePath);
-            File.Move(newDatabasePath, oldDatabasePath);
+            File.Delete(oldFilePath);
+            File.Move(newFilePath, oldFilePath);
         }
 
         public static string GetDataFromStartAndEndMarkers(string data, string startMarker, string endMarker)

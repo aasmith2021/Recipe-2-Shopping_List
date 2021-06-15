@@ -118,6 +118,7 @@ namespace Recipe2ShoppingList
                 mainMenuStandardOptions.Add(new string[] { "A", "Add New Recipe Book"} );
                 mainMenuStandardOptions.Add(new string[] { "R", "Rename Existing Recipe Book" });
                 mainMenuStandardOptions.Add(new string[] { "D", "Delete Existing Recipe Book" });
+                mainMenuStandardOptions.Add(new string[] { "V", "View Shopping List" });
                 mainMenuStandardOptions.Add(new string[] { "M", "Manage Saved Measurement Units" });
                 mainMenuStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
@@ -154,6 +155,7 @@ namespace Recipe2ShoppingList
                 Console.WriteLine();
 
                 recipeBookStandardOptions.Add(new string[] { "A", "Add New Recipe" });
+                recipeBookStandardOptions.Add(new string[] { "V", "View Shopping List" });
                 recipeBookStandardOptions.Add(new string[] { "R", "Return to Previous Menu" });
                 recipeBookStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
@@ -170,8 +172,10 @@ namespace Recipe2ShoppingList
                 Console.WriteLine();
 
                 recipeBookStandardOptions.Add(new string[] { "A", "Add New Recipe" });
-                recipeBookStandardOptions.Add(new string[] { "S", "Add a Recipe to the Shopping List" });
+                recipeBookStandardOptions.Add(new string[] { "E", "Edit Existing Recipe" });
                 recipeBookStandardOptions.Add(new string[] { "D", "Delete Existing Recipe" });
+                recipeBookStandardOptions.Add(new string[] { "S", "Add a Recipe to the Shopping List" });
+                recipeBookStandardOptions.Add(new string[] { "V", "View Shopping List" });
                 recipeBookStandardOptions.Add(new string[] { "R", "Return to Previous Menu" });
                 recipeBookStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
@@ -204,6 +208,7 @@ namespace Recipe2ShoppingList
                 recipeStardardOptions.Add(new string[] { "S", "Add This Recipe to the Shopping List" });
                 recipeStardardOptions.Add(new string[] { "E", "Edit This Recipe" });
                 recipeStardardOptions.Add(new string[] { "D", "Delete This Recipe" });
+                recipeStardardOptions.Add(new string[] { "V", "View Shopping List" });
                 recipeStardardOptions.Add(new string[] { "R", "Return to Previous Menu" });
                 recipeStardardOptions.Add(new string[] { "X", "Save and Exit Program" });
 
@@ -265,11 +270,6 @@ namespace Recipe2ShoppingList
                 lineNumber++;
                 lineNumberString = $"{lineNumber}.";
             }
-        }
-
-        public static void DisplayMeasurementUnits(List<string> measurementUnits)
-        {
-            
         }
     }
 }

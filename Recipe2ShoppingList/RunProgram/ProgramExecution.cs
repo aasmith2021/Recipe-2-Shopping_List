@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Recipe2ShoppingList
 {
@@ -13,19 +14,27 @@ namespace Recipe2ShoppingList
             //Load <recipeBookLibrary> into the program from the database file
             RecipeBookLibrary recipeBookLibrary = ReadFromFile.GetRecipeBookLibraryFromFile();
 
+            ShoppingList shoppingList = new ShoppingList();
+
             while (!exitProgram)
             {
-                RunMainMenu(recipeBookLibrary, out exitProgram);
+                RunMainMenu(recipeBookLibrary, shoppingList, out exitProgram);
             }
 
             //Save <recipeBookLibrary> to the "write" database file before closing program
             recipeBookLibrary.WriteRecipeBookLibraryToFile();
 
             //Delete original database, then rename the "write" database file to become the new master database file
-            DataHelperMethods.DeleteOldDatabaseFileAndRenameNewDatabase(DataHelperMethods.GetReadDatabaseFilePath(), DataHelperMethods.GetWriteDatabaseFilePath());
+            DataHelperMethods.DeleteOldFileAndRenameNewFile(DataHelperMethods.GetReadDatabaseFilePath(), DataHelperMethods.GetWriteDatabaseFilePath());
+
+            //Save the Shopping List to the Shopping List file before closing the program
+            shoppingList.WriteShoppingListToFile();
+
+            //Delete original Shopping List file, then rename the "write" Shopping List file to become the new master Shopping List
+            DataHelperMethods.DeleteOldFileAndRenameNewFile(DataHelperMethods.GetReadShoppingListFilePath(), DataHelperMethods.GetWriteShoppingListFilePath());
         }
 
-        private static void RunMainMenu(RecipeBookLibrary recipeBookLibrary, out bool exitProgram)
+        private static void RunMainMenu(RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, out bool exitProgram)
         {
             exitProgram = false;
 
@@ -38,7 +47,7 @@ namespace Recipe2ShoppingList
 
                 while (!exitRecipeBookSection)
                 {
-                    RunRecipeBook(recipeBookLibrary, userOptionNumber, out exitRecipeBookSection, out exitProgram);
+                    RunRecipeBook(recipeBookLibrary, shoppingList, userOptionNumber, out exitRecipeBookSection, out exitProgram);
                 }
             }
             else
@@ -53,6 +62,9 @@ namespace Recipe2ShoppingList
                         break;
                     case "D":
                         DeleteRecipeBook(recipeBookLibrary);
+                        break;
+                    case "V":
+                        ViewShoppingList(shoppingList);
                         break;
                     case "M":
                         ManageSavedMeasurementUnits(recipeBookLibrary);
@@ -182,7 +194,7 @@ namespace Recipe2ShoppingList
                 Console.WriteLine($"{i + 1}. {userAddedMeasurementUnits[i]}");
                 userOptions.Add((i + 1).ToString());
             }
-            
+
             Console.WriteLine();
             Console.WriteLine("Select the measurement unit to edit:");
             string userOption = GetUserInput.GetUserOption(userOptions);
@@ -215,7 +227,7 @@ namespace Recipe2ShoppingList
 
             GetUserInput.AreYouSure("delete this measurement unit", out bool isSure);
 
-            if(isSure)
+            if (isSure)
             {
                 recipeBookLibrary.DeleteMeasurementUnit(userAddedMeasurementUnits[int.Parse(userOption) - 1]);
                 UserInterface.SuccessfulChange(true, "measurement unit", "deleted");
@@ -226,7 +238,7 @@ namespace Recipe2ShoppingList
             }
         }
 
-        private static void RunRecipeBook(RecipeBookLibrary recipeBookLibrary, int recipeBookOptionNumber, out bool exitRecipeBookSection, out bool exitProgram)
+        private static void RunRecipeBook(RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, int recipeBookOptionNumber, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
             exitRecipeBookSection = false;
@@ -241,7 +253,7 @@ namespace Recipe2ShoppingList
 
                 while (!exitRecipeSection)
                 {
-                    RunRecipe(recipeBookLibrary, recipeBookToOpen, userOptionNumber, out exitRecipeSection, out exitRecipeBookSection, out exitProgram);
+                    RunRecipe(recipeBookLibrary, shoppingList, recipeBookToOpen, userOptionNumber, out exitRecipeSection, out exitRecipeBookSection, out exitProgram);
                 }
             }
             else
@@ -251,11 +263,17 @@ namespace Recipe2ShoppingList
                     case "A":
                         AddNewRecipe(recipeBookLibrary, recipeBookToOpen);
                         break;
-                    case "S":
-                        //Add a recipe to the shopping list
+                    case "E":
+                        EditExistingRecipe(recipeBookLibrary, recipeBookToOpen);
                         break;
                     case "D":
                         DeleteExistingRecipe(recipeBookToOpen);
+                        break;
+                    case "S":
+                        AddExistingRecipeToShoppingList(recipeBookToOpen, shoppingList);
+                        break;
+                    case "V":
+                        ViewShoppingList(shoppingList);
                         break;
                     case "R":
                         exitRecipeBookSection = true;
@@ -270,7 +288,7 @@ namespace Recipe2ShoppingList
             }
         }
 
-        private static void RunRecipe(RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook, int recipeOptionNumber, out bool exitRecipeSection, out bool exitRecipeBookSection, out bool exitProgram)
+        private static void RunRecipe(RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, RecipeBook recipeBook, int recipeOptionNumber, out bool exitRecipeSection, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
             exitRecipeSection = false;
@@ -283,7 +301,7 @@ namespace Recipe2ShoppingList
             switch (userOption)
             {
                 case "S":
-                    //Add this recipe to the shopping list
+                    AddRecipeToShoppingList(shoppingList, recipeToOpen);
                     break;
                 case "E":
                     EditRecipe(recipeBookLibrary, recipeToOpen);
@@ -291,6 +309,9 @@ namespace Recipe2ShoppingList
                 case "D":
                     DeleteOpenRecipe(recipeBook, recipeToOpen);
                     exitRecipeSection = true;
+                    break;
+                case "V":
+                    ViewShoppingList(shoppingList);
                     break;
                 case "R":
                     exitRecipeSection = true;
@@ -431,7 +452,8 @@ namespace Recipe2ShoppingList
                 new string[] { "4", "Estimated Servings" },
                 new string[] { "5", "Food Type & Genre"},
                 new string[] { "6", "Ingredients" },
-                new string[] { "7", "Instructions" }
+                new string[] { "7", "Instructions" },
+                new string[] { "R", "Return to Previous Menu" }
             };
 
             string fieldToEdit = GetUserInput.GetTheFieldToEditFromUser(recipe, editRecipeOptions);
@@ -459,9 +481,35 @@ namespace Recipe2ShoppingList
                 case "7":
                     EditRecipeInstructions(recipe);
                     break;
+                case "R":
+                    return;
+                    break;
                 default:
                     break;
             }
+        }
+
+        private static void EditExistingRecipe(RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)
+        {
+            string header = "---------- EDIT RECIPE ----------";
+            UserInterface.DisplayMenuHeader(header);
+
+            List<string[]> recipesToDisplay = new List<string[]>();
+            List<string> recipeOptions = new List<string>();
+
+            for (int i = 0; i < recipeBook.Recipes.Length; i++)
+            {
+                recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
+            }
+
+            UserInterface.DisplayOptionsMenu(recipesToDisplay, out recipeOptions);
+            Console.WriteLine();
+            Console.Write("Enter the recipe you would like to edit: ");
+            int userOption = int.Parse(GetUserInput.GetUserOption(recipeOptions));
+
+            Recipe recipeToEdit = recipeBook.Recipes[userOption - 1];
+
+            EditRecipe(recipeBookLibrary, recipeToEdit);
         }
 
         private static void DeleteOpenRecipe(RecipeBook recipeBook, Recipe recipeToDelete)
@@ -486,9 +534,8 @@ namespace Recipe2ShoppingList
 
         public static void DeleteExistingRecipe(RecipeBook recipeBook)
         {
-            Console.Clear();
-            Console.WriteLine("---------- DELETE RECIPE ----------");
-            Console.WriteLine();
+            string header = "---------- DELETE RECIPE ----------";
+            UserInterface.DisplayMenuHeader(header);
 
             List<string[]> recipesToDisplay = new List<string[]>();
             List<string> recipeOptions = new List<string>();
@@ -811,6 +858,7 @@ namespace Recipe2ShoppingList
                 new string[] { "A", "Add a New Igredient" },
                 new string[] { "E", "Edit an Ingredient"},
                 new string[] { "D", "Delete an Ingredient"},
+                new string[] { "R", "Return to Previous Menu"},
             };
             List<string> options = new List<string>();
 
@@ -837,6 +885,9 @@ namespace Recipe2ShoppingList
                     break;
                 case "D":
                     DeleteExistingIngredient(recipe);
+                    break;
+                case "R":
+                    return;
                     break;
                 default:
                     break;
@@ -977,6 +1028,7 @@ namespace Recipe2ShoppingList
                 new string[] { "A", "Add New Instruction Block" },
                 new string[] { "E", "Edit an Instruction Block"},
                 new string[] { "D", "Delete an Instruction Block"},
+                new string[] { "R", "Return to Previous Menu"},
             };
             List<string> options = new List<string>();
 
@@ -1002,6 +1054,9 @@ namespace Recipe2ShoppingList
                     break;
                 case "D":
                     DeleteExistingInstructionBlock(recipe);
+                    break;
+                case "R":
+                    return;
                     break;
                 default:
                     break;
@@ -1295,6 +1350,308 @@ namespace Recipe2ShoppingList
             {
                 UserInterface.SuccessfulChange(false, "instruction block", "deleted");
             }
+        }
+
+        public static void AddExistingRecipeToShoppingList(RecipeBook recipeBook, ShoppingList shoppingList)
+        {
+            string header = "---------- ADD RECIPE TO SHOPPING LIST ----------";
+            UserInterface.DisplayMenuHeader(header);
+
+            List<string[]> recipesToDisplay = new List<string[]>();
+            List<string> recipeOptions = new List<string>();
+
+            for (int i = 0; i < recipeBook.Recipes.Length; i++)
+            {
+                recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
+            }
+
+            UserInterface.DisplayOptionsMenu(recipesToDisplay, out recipeOptions);
+            Console.WriteLine();
+            Console.Write("Enter the recipe you would like to add to the shopping list: ");
+            int userOption = int.Parse(GetUserInput.GetUserOption(recipeOptions));
+
+            Recipe recipeToAdd = recipeBook.Recipes[userOption - 1];
+
+            AddRecipeToShoppingList(shoppingList, recipeToAdd);
+        }
+
+        public static void AddRecipeToShoppingList(ShoppingList shoppingList, Recipe recipe)
+        {
+            string header = "-------- ADD RECIPE TO SHOPPING LIST --------";
+            UserInterface.DisplayMenuHeader(header);
+
+            Ingredient[] recipeIngredients = recipe.Ingredients.AllIngredients;
+
+            foreach (Ingredient element in recipeIngredients)
+            {
+                if (element.StoreLocation == "")
+                {
+                    GetStoreLocationForIngredient(shoppingList, element);
+                }
+
+                AddIngredientToStoreLocation(shoppingList, element);
+            }
+
+            UserInterface.SuccessfulChange(true, "recipe", "added to the shopping list");
+        }
+
+        public static void GetStoreLocationForIngredient(ShoppingList shoppingList, Ingredient ingredient)
+        {
+            string header = "-------- SET STORE LOCATION FOR INGREDIENT --------";
+            string message = UserInterface.MakeStringConsoleLengthLines($"INGREDIENT: {ingredient.Name}");
+            UserInterface.DisplayMenuHeader(header, message);
+            Console.WriteLine("Which department is this ingredient generally found in at the store?");
+
+            List<string[]> menuOptions = new List<string[]>();
+            List<string> optionChoices = new List<string>();
+
+            for (int i = 0; i < shoppingList.StoreLocations.Length; i++)
+            {
+                menuOptions.Add(new string[] { $"{i + 1}", shoppingList.StoreLocations[i] });
+            }
+
+            UserInterface.DisplayOptionsMenu(menuOptions, out optionChoices);
+            Console.WriteLine();
+            Console.WriteLine("Select the store location of this ingredient:");
+            string userOption = GetUserInput.GetUserOption(optionChoices);
+            Console.WriteLine();
+
+            string storeLocation = shoppingList.StoreLocations[int.Parse(userOption) - 1];
+
+            ingredient.StoreLocation = storeLocation;
+        }
+
+        public static void AddIngredientToStoreLocation(ShoppingList shoppingList, Ingredient ingredient)
+        {
+            string storeLocation = ingredient.StoreLocation;
+
+            List<Ingredient> currentLocationIngredients = new List<Ingredient>();
+            Ingredient combinedIngredientToAdd = new Ingredient(0, "", "");
+
+            switch (storeLocation)
+            {
+                case "Produce":
+                    currentLocationIngredients.AddRange(shoppingList.Produce);
+                    break;
+                case "Bakery/Deli":
+                    currentLocationIngredients.AddRange(shoppingList.BakeryDeli);
+                    break;
+                case "Dry Goods":
+                    currentLocationIngredients.AddRange(shoppingList.DryGoods);
+                    break;
+                case "Meat":
+                    currentLocationIngredients.AddRange(shoppingList.Meat);
+                    break;
+                case "Refrigerated":
+                    currentLocationIngredients.AddRange(shoppingList.Refrigerated);
+                    break;
+                case "Frozen":
+                    currentLocationIngredients.AddRange(shoppingList.Frozen);
+                    break;
+                case "Non-Grocery":
+                    currentLocationIngredients.AddRange(shoppingList.NonGrocery);
+                    break;
+                default:
+                    break;
+            }
+
+            string currentIngredientName = "";
+            string newIngredientName = ingredient.Name;
+            int indexOfMatchingIngredient = 0;
+            bool ingredientsAreTheSame = false;
+
+            for (int i = 0; i < currentLocationIngredients.Count; i++)
+            {
+                indexOfMatchingIngredient = i;
+                currentIngredientName = currentLocationIngredients[i].Name;
+
+                double percentSimilar = GetSimilarityPercentage(currentIngredientName, newIngredientName);
+
+                if (percentSimilar >= .3)
+                {
+                    ingredientsAreTheSame = AreIngredientsTheSame(currentIngredientName, newIngredientName);
+                    break;
+                }
+            }
+
+            Ingredient ingredientToAdd;
+            bool combineIngredients = false;
+
+            //If the ingredient already matches an ingredient on the shopping list, remove the current
+            //ingredient to the shopping list and add a new ingredient (which is the ingredient
+            //that was already on the shopping list "added to" the new ingredient being added to the shopping list.)
+            if (ingredientsAreTheSame)
+            {
+                Ingredient ingredientAlreadyOnShoppingList = currentLocationIngredients[indexOfMatchingIngredient];
+                ingredientToAdd = ingredientAlreadyOnShoppingList.CombineIngredientsForShoppingList(ingredient);
+                combineIngredients = true;
+            }
+            else
+            {
+                ingredientToAdd = ingredient;
+            }
+
+            //Add the ingredient to the store location on the shopping list
+            switch (storeLocation)
+            {
+                case "Produce":
+                    if (combineIngredients)
+                    {
+                        shoppingList.UpdateProduce(ingredientToAdd, indexOfMatchingIngredient);
+                    }
+                    else
+                    {
+                        shoppingList.AddProduce(ingredientToAdd);
+                    }
+                    break;
+                case "Bakery/Deli":
+                    if (combineIngredients)
+                    {
+                        shoppingList.UpdateBakeryDeli(ingredientToAdd, indexOfMatchingIngredient);
+                    }
+                    else
+                    {
+                        shoppingList.AddBakeryDeli(ingredientToAdd);
+                    }
+                    break;
+                case "Dry Goods":
+                    if (combineIngredients)
+                    {
+                        shoppingList.UpdateDryGoods(ingredientToAdd, indexOfMatchingIngredient);
+                    }
+                    else
+                    {
+                        shoppingList.AddDryGoods(ingredientToAdd);
+                    }
+                    break;
+                case "Meat":
+                    if (combineIngredients)
+                    {
+                        shoppingList.UpdateMeat(ingredientToAdd, indexOfMatchingIngredient);
+                    }
+                    else
+                    {
+                        shoppingList.AddMeat(ingredientToAdd);
+                    }
+                    break;
+                case "Refrigerated":
+                    if (combineIngredients)
+                    {
+                        shoppingList.UpdateRefrigerated(ingredientToAdd, indexOfMatchingIngredient);
+                    }
+                    else
+                    {
+                        shoppingList.AddRefrigerated(ingredientToAdd);
+                    }
+                    break;
+                case "Frozen":
+                    if (combineIngredients)
+                    {
+                        shoppingList.UpdateFrozen(ingredientToAdd, indexOfMatchingIngredient);
+                    }
+                    else
+                    {
+                        shoppingList.AddFrozen(ingredientToAdd);
+                    }
+                    break;
+                case "Non-Grocery":
+                    if (combineIngredients)
+                    {
+                        shoppingList.UpdateNonGrocery(ingredientToAdd, indexOfMatchingIngredient);
+                    }
+                    else
+                    {
+                        shoppingList.AddNonGrocery(ingredientToAdd);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public static double GetSimilarityPercentage(string firstIngredientName, string secondIngredientName)
+        {
+            int countOfCharactersTheSame = 0;
+            double percentSimilar = 0;
+
+            string shorterPhrase;
+            string longerPhrase;
+
+            if (firstIngredientName.Length <= secondIngredientName.Length)
+            {
+                shorterPhrase = firstIngredientName;
+                longerPhrase = secondIngredientName;
+            }
+            else
+            {
+                shorterPhrase = secondIngredientName;
+                longerPhrase = firstIngredientName;
+            }
+
+            string testString = "";
+            string regexExpression = "";
+            bool matchFound = false;
+
+            for (int i = 0; i < shorterPhrase.Length; i++)
+            {
+                testString = shorterPhrase.Substring(0, i + 1);
+                regexExpression = $"{testString}.*?";
+                matchFound = Regex.Match(longerPhrase, regexExpression).Success;
+
+                if (matchFound)
+                {
+                    countOfCharactersTheSame++;
+                }
+            }
+
+            percentSimilar = (double)countOfCharactersTheSame / longerPhrase.Length;
+
+            return percentSimilar;
+        }
+
+        public static bool AreIngredientsTheSame(string currentIngredientName, string newIngredientName)
+        {
+            bool ingredientsAreTheSame = false;
+            string header = "-------- SIMILAR INGREDIENTS FOUND --------";
+            UserInterface.DisplayMenuHeader(header);
+            Console.WriteLine();
+            Console.WriteLine("The following ingredients might match:");
+            Console.WriteLine();
+            Console.WriteLine($"<<Ingredient Already On Shopping List>>{Environment.NewLine}{currentIngredientName}");
+            Console.WriteLine();
+            Console.WriteLine($"<<New Ingredient>>{Environment.NewLine}{newIngredientName}");
+            Console.WriteLine();
+            Console.WriteLine("Are these ingredients the same? Enter \"Y\" for Yes or \"N\" for No:");
+            List<string> userOptions = new List<string>() { "Y", "N" };
+            string userOption = GetUserInput.GetUserOption(userOptions);
+
+            if (userOption == "Y")
+            {
+                ingredientsAreTheSame = true;
+            }
+
+            return ingredientsAreTheSame;
+        }
+
+        public static void ViewShoppingList(ShoppingList shoppingList)
+        {
+            string header = "---------- SHOPPING LIST ----------";
+            UserInterface.DisplayMenuHeader(header);
+
+            string entireShoppingList = shoppingList.GetEntireShoppingList();
+
+            if (entireShoppingList.Length == 0)
+            {
+                Console.WriteLine("There are currently no items on the shopping list.");
+            }
+            else
+            {
+                Console.WriteLine(entireShoppingList);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to return to the main menu...");
+            Console.ReadLine();
         }
     }
 }

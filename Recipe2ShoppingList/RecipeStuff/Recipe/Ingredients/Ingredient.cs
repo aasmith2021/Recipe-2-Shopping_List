@@ -6,12 +6,13 @@ namespace Recipe2ShoppingList
 {
     public class Ingredient
     {
-        public Ingredient(double quantity, string measurementUnit, string name, string preparationNote = "")
+        public Ingredient(double quantity, string measurementUnit, string name, string preparationNote = "", string storeLocation = "")
         {
             this.Quantity = quantity;
             this.MeasurementUnit = measurementUnit;
             this.Name = name;
             this.PreparationNote = preparationNote;
+            this.StoreLocation = storeLocation;
         }
 
         public double Quantity { get; set; }
@@ -21,5 +22,20 @@ namespace Recipe2ShoppingList
         public string Name { get; set; }
 
         public string PreparationNote { get; set; }
+
+        public string StoreLocation { get; set; }
+
+        public Ingredient CombineIngredientsForShoppingList(Ingredient ingredient)
+        {
+            Ingredient combinedIngredient = new Ingredient(0, "", this.Name);
+
+            Tuple<double, string> combinedQuantityAndMeasurementUnit = MeasurementUnits.CombineMeasurementUnits(this.Quantity, this.MeasurementUnit, ingredient.Quantity, ingredient.MeasurementUnit);
+
+            combinedIngredient.Quantity = combinedQuantityAndMeasurementUnit.Item1;
+            combinedIngredient.MeasurementUnit = combinedQuantityAndMeasurementUnit.Item2;
+
+            return combinedIngredient;
+        }
+
     }
 }

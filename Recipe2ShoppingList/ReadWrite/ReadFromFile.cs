@@ -6,12 +6,12 @@ using System.Text.RegularExpressions;
 
 namespace Recipe2ShoppingList
 {
-    public class ReadFromFile : DataHelperMethods
+    public class ReadFromFile
     {
          public static RecipeBookLibrary GetRecipeBookLibraryFromFile(string alternateFilePath = "")
         {
             RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
-            string allTextFromFile = GetAllDatabaseText(alternateFilePath);
+            string allTextFromFile = DataHelperMethods.GetAllDatabaseText(alternateFilePath);
 
             string[] allCustomMeasurementUnits = GetCustomMeasurementUnitsFromText(allTextFromFile);
             for (int i = 0; i < allCustomMeasurementUnits.Length; i++)
@@ -55,7 +55,7 @@ namespace Recipe2ShoppingList
         {
             string startMaker = "-START_OF_MEASUREMENT_UNITS-";
             string endMaker = "-END_OF_MEASUREMENT_UNITS-";
-            string allMeasurementUnitsText = GetDataFromStartAndEndMarkers(allTextFromFile, startMaker, endMaker);
+            string allMeasurementUnitsText = DataHelperMethods.GetDataFromStartAndEndMarkers(allTextFromFile, startMaker, endMaker);
 
             string[] splitMeasurementUnits = allMeasurementUnitsText.Split("MU:", StringSplitOptions.RemoveEmptyEntries);
 

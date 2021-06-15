@@ -158,12 +158,12 @@ namespace Recipe2ShoppingList
 
         private Ingredient[] GetIngredientsFromText(string ingredientsText)
         {
-            string[] splitMarkers = new string[] { "INGREDIENT_NAME:", "QTY:", "UNIT:", "PREP_NOTE:" };
+            string[] splitMarkers = new string[] { "INGREDIENT_NAME:", "QTY:", "UNIT:", "PREP_NOTE:", "STORE_LOC:" };
             string[] ingredientsAsComponents = ingredientsText.Split(splitMarkers, StringSplitOptions.RemoveEmptyEntries);
 
             List<Ingredient> allIngredients = new List<Ingredient>();
 
-            for (int i = 0; i < ingredientsAsComponents.Length; i += 4)
+            for (int i = 0; i < ingredientsAsComponents.Length; i += 5)
             {
                 string ingredientName = ingredientsAsComponents[i];
 
@@ -177,7 +177,9 @@ namespace Recipe2ShoppingList
 
                 string ingredientPrepNote = ingredientsAsComponents[i + 3] == "NONE" ? "" : ingredientsAsComponents[i + 3];
 
-                Ingredient newIngredientToAdd = new Ingredient(ingredientQty, ingredientUnit, ingredientName, ingredientPrepNote);
+                string ingredientStoreLocation = ingredientsAsComponents[i + 4] == "NONE" ? "" : ingredientsAsComponents[i + 4];
+
+                Ingredient newIngredientToAdd = new Ingredient(ingredientQty, ingredientUnit, ingredientName, ingredientPrepNote, ingredientStoreLocation);
 
                 allIngredients.Add(newIngredientToAdd);
             }

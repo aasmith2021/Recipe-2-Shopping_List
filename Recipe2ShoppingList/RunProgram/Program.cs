@@ -7,7 +7,7 @@ namespace Recipe2ShoppingList
     class Program
     {
         static void Main(string[] args)
-        {
+        {            
             bool exitProgram = false;
 
             while (!exitProgram)
@@ -16,9 +16,7 @@ namespace Recipe2ShoppingList
             }
 
             //RecipeBookLibrary libraryToSaveToFile = GetTestRecipeBookLibrary();
-            //libraryToSaveToFile.WriteRecipeBookLibraryToFile("test_database");
-            //RecipeBookLibrary libraryAlternate = ReadFromFile.GetRecipeBookLibraryFromFile("test_database");
-            //libraryAlternate.WriteRecipeBookLibraryToFile("test_database_alt");
+            //libraryToSaveToFile.WriteRecipeBookLibraryToFile("Recipe_Database");
         }
 
         //private static Recipe GenerateTestRecipe1()

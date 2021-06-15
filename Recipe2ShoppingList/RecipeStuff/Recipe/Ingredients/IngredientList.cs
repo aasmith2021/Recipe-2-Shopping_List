@@ -85,6 +85,15 @@ namespace Recipe2ShoppingList
                     {
                         ingredientsText += $"PREP_NOTE:{ingredient.PreparationNote}{Environment.NewLine}";
                     }
+
+                    if (ingredient.StoreLocation == "")
+                    {
+                        ingredientsText += $"STORE_LOC:NONE{Environment.NewLine}";
+                    }
+                    else
+                    {
+                        ingredientsText += $"STORE_LOC:{ingredient.StoreLocation}{Environment.NewLine}";
+                    }
                 }
             }
 
