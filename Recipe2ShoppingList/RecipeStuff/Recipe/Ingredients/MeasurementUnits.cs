@@ -16,10 +16,9 @@ namespace Recipe2ShoppingList
         
         public static string[] AllStandardMeasurementUnits()
         {
-            string[] allStandardUnits = new string[]
-            { none, tsp, tbsp, cup, lb, oz, flOz };
+            string[] allStandardMeasurementUnits = new string[] { none, tsp, tbsp, cup, lb, oz, flOz };
 
-            return allStandardUnits;
+            return allStandardMeasurementUnits;
         }
         
         public static Tuple<double, string> CombineMeasurementUnits(double quantity1, string measurementUnit1, double quantity2, string measurementUnit2)
