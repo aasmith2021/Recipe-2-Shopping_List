@@ -13,6 +13,11 @@ namespace Recipe2ShoppingList
             RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
             string allTextFromFile = DataHelperMethods.GetAllDatabaseText(alternateFilePath);
 
+            if (allTextFromFile == "")
+            {
+                return recipeBookLibrary;
+            }
+
             string[] allCustomMeasurementUnits = GetCustomMeasurementUnitsFromText(allTextFromFile);
             for (int i = 0; i < allCustomMeasurementUnits.Length; i++)
             {
