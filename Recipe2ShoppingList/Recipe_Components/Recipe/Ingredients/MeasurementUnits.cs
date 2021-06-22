@@ -14,9 +14,9 @@ namespace Recipe2ShoppingList
         private const string oz = "oz.";
         private const string flOz = "fl. oz";
         
-        public static string[] AllStandardMeasurementUnits()
+        public static List<string> AllStandardMeasurementUnits()
         {
-            string[] allStandardMeasurementUnits = new string[] { none, tsp, tbsp, cup, lb, oz, flOz };
+            List<string> allStandardMeasurementUnits = new List<string>() { none, tsp, tbsp, cup, lb, oz, flOz };
 
             return allStandardMeasurementUnits;
         }
@@ -43,19 +43,20 @@ namespace Recipe2ShoppingList
         
         public static Tuple<double, string> CombineMeasurementUnits(double quantity1, string measurementUnit1, bool mu1IsVolumeMeasure, double quantity2, string measurementUnit2, bool mu2IsVolumeMeasure)
         {
+            List<string> allStandardMeasurementUnits = AllStandardMeasurementUnits();
             double combinedQuantity;
             string combinedMeasurementUnit;
             double[] quantities = new double[] { quantity1, quantity2 };
             string[] measurementUnits = new string[] { measurementUnit1, measurementUnit2 };
-            bool bothMeasurementUnitsAreBlank = measurementUnit1 == "" && measurementUnit2 == "";
+            bool bothMeasurementUnitsAreBlankOrCustom = (measurementUnit1 == "" && measurementUnit2 == "") || (!allStandardMeasurementUnits.Contains(measurementUnit1) && !allStandardMeasurementUnits.Contains(measurementUnit2));
 
-            if (bothMeasurementUnitsAreBlank)
+            if (bothMeasurementUnitsAreBlankOrCustom)
             {
-                Tuple<double, string> combinedBlankMeasurementUnit = CombineBlankMeasurementUnit(quantities);
+                Tuple<double, string> combinedBlankMeasurementUnit = CombineBlankOrCustomMeasurementUnit(quantities, measurementUnits);
                 combinedQuantity = combinedBlankMeasurementUnit.Item1;
-                combinedMeasurementUnit = "";
+                combinedMeasurementUnit = combinedBlankMeasurementUnit.Item2;
             }            
-            else if(mu1IsVolumeMeasure && mu2IsVolumeMeasure && !bothMeasurementUnitsAreBlank)
+            else if(mu1IsVolumeMeasure && mu2IsVolumeMeasure && !bothMeasurementUnitsAreBlankOrCustom)
             {               
                 Tuple<double, string> combinedVolumeUnit = CombineToCommonVolumeUnit(quantities, measurementUnits);
                 combinedQuantity = combinedVolumeUnit.Item1;
@@ -73,19 +74,19 @@ namespace Recipe2ShoppingList
             return result;
         }
 
-        private static Tuple<double, string> CombineBlankMeasurementUnit(double[] quantities)
+        private static Tuple<double, string> CombineBlankOrCustomMeasurementUnit(double[] quantities, string[] measurementUnits)
         {
             double combinedQuantity = 0;
-            string combinedMeasurementUnit = "";
+            string combinedMeasurementUnit = measurementUnits[0];
 
             for (int i = 0; i < quantities.Length; i++)
             {
                 combinedQuantity += quantities[i];
             }
 
-            Tuple<double, string> combinedBlankMeasurementUnit = new Tuple<double, string>(combinedQuantity, combinedMeasurementUnit);
+            Tuple<double, string> combinedBlankOrCustomMeasurementUnit = new Tuple<double, string>(combinedQuantity, combinedMeasurementUnit);
 
-            return combinedBlankMeasurementUnit;
+            return combinedBlankOrCustomMeasurementUnit;
         }
 
         private static Tuple<double, string> CombineToCommonVolumeUnit(double[] quantities, string[] measurementUnits)
@@ -309,7 +310,7 @@ namespace Recipe2ShoppingList
 
             measurementUnitsText += $"-START_OF_MEASUREMENT_UNITS-{Environment.NewLine}";
             
-            for (int i = AllStandardMeasurementUnits().Length; i < recipeBookLibrary.AllMeasurementUnits.Length; i++)
+            for (int i = AllStandardMeasurementUnits().Count; i < recipeBookLibrary.AllMeasurementUnits.Length; i++)
             {
                 
                 measurementUnitsText += $"MU:{recipeBookLibrary.AllMeasurementUnits[i]}{Environment.NewLine}";

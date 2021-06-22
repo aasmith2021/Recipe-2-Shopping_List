@@ -100,10 +100,11 @@ namespace Recipe2ShoppingList.Test
         public void WriteToFile_ReadFromFile_WriteToFile_produces_original_RecipeBookLibrary()
         {
             //Arrange
+            IUserIO userIO = new FakeUserIO("X");
             RecipeBookLibrary test1RecipeBookLibrary = GetTestRecipeBookLibrary();
-            test1RecipeBookLibrary.WriteRecipeBookLibraryToFile("test_database");
+            test1RecipeBookLibrary.WriteRecipeBookLibraryToFile(userIO, "test_database");
             RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("test_database");
-            alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile("alternate_test_database");
+            alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile(userIO, "alternate_test_database");
 
             //Act
             string allDatabaseText = DataHelperMethods.GetAllDatabaseText("test_database");
@@ -117,11 +118,12 @@ namespace Recipe2ShoppingList.Test
         public void WriteToFile_ReadFromFile_change_recipe_book_name_WriteToFile_produces_different_output()
         {
             //Arrange
+            IUserIO userIO = new FakeUserIO("X");
             RecipeBookLibrary databaseRecipeBookLibraryToWrite = GetTestRecipeBookLibrary();
-            databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile("test_database");
+            databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile(userIO, "test_database");
             RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("test_database");
             alternateRecipeBookLibraryReadFromFile.AllRecipeBooks[0].Name = "My Other Cook Book";
-            alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile("alternate_test_database");
+            alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile(userIO, "alternate_test_database");
 
             //Act
             string allDatabaseText = DataHelperMethods.GetAllDatabaseText("test_database");

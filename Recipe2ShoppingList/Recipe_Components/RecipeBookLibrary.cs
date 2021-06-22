@@ -58,7 +58,7 @@ namespace Recipe2ShoppingList
             allMeasurementUnits[allMeasurementUnits.IndexOf(measurementUnit)] = newMeasurementUnit;
         }
 
-        public void WriteRecipeBookLibraryToFile(string alternateFilePath = "")
+        public void WriteRecipeBookLibraryToFile(IUserIO userIO, string alternateFilePath = "")
         {
             string[] allMeasurementUnits = this.AllMeasurementUnits;
             RecipeBook[] allRecipeBooks = this.AllRecipeBooks;
@@ -77,10 +77,10 @@ namespace Recipe2ShoppingList
             }
             catch (IOException exception)
             {
-                Console.WriteLine("Cannot open Recipe Database file to save data.");
-                Console.WriteLine();
-                Console.WriteLine("Press \"Enter\" to continue...");
-                Console.ReadLine();
+                userIO.DisplayData("Cannot open Recipe Database file to save data.");
+                userIO.DisplayData();
+                userIO.DisplayData("Press \"Enter\" to continue...");
+                userIO.GetInput();
             }
         }
     }

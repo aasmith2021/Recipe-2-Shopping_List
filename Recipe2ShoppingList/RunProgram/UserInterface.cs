@@ -6,13 +6,13 @@ namespace Recipe2ShoppingList
 {
     public class UserInterface
     {
-        public static void DisplayOptionsMenu(List<string[]> menuOptions, out List<string> optionChoices)
+        public static void DisplayOptionsMenu(IUserIO userIO, List<string[]> menuOptions, out List<string> optionChoices)
         {
             optionChoices = new List<string>();
             
             foreach (string[] element in menuOptions)
             {
-                Console.WriteLine(MakeStringConsoleLengthLines($"[{element[0]}] {element[1]}"));
+                userIO.DisplayData(MakeStringConsoleLengthLines($"[{element[0]}] {element[1]}"));
                 optionChoices.Add(element[0]);
             }
         }
@@ -81,12 +81,12 @@ namespace Recipe2ShoppingList
             return convertedStatement;
         }
 
-        public static void DisplayMainMenu(RecipeBookLibrary recipeBookLibrary, out List<string> mainMenuOptions)
+        public static void DisplayMainMenu(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, out List<string> mainMenuOptions)
         {
-            Console.Clear();
-            Console.WriteLine("Welcome to the Recipe-2-Shopping List Program!".ToUpper());
-            Console.WriteLine("----------------------------------------------");
-            Console.WriteLine();
+            userIO.ClearDisplay();
+            userIO.DisplayData("Welcome to the Recipe-2-Shopping List Program!".ToUpper());
+            userIO.DisplayData("----------------------------------------------");
+            userIO.DisplayData();
 
             List<string[]> recipeBooksToDisplay = new List<string[]>();
             List<string[]> mainMenuStandardOptions = new List<string[]>();
@@ -94,10 +94,10 @@ namespace Recipe2ShoppingList
 
             if (recipeBookLibrary.AllRecipeBooks.Length == 0)
             {
-                Console.WriteLine("You currently don't have any recipe books saved.");
-                Console.WriteLine();
-                Console.WriteLine("Add a new recipe book using the options below:");
-                Console.WriteLine();
+                userIO.DisplayData("You currently don't have any recipe books saved.");
+                userIO.DisplayData();
+                userIO.DisplayData("Add a new recipe book using the options below:");
+                userIO.DisplayData();
 
                 mainMenuStandardOptions.Add(new string[] { "A", "Add New Recipe Book"});
                 mainMenuStandardOptions.Add(new string[] { "M", "Manage Saved Measurement Units"});
@@ -105,15 +105,15 @@ namespace Recipe2ShoppingList
             }
             else
             {
-                Console.WriteLine("----- RECIPE BOOKS -----");
+                userIO.DisplayData("----- RECIPE BOOKS -----");
 
                 for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Length; i++)
                 {
                     recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
                 }
 
-                DisplayOptionsMenu(recipeBooksToDisplay, out mainMenuOptions);
-                Console.WriteLine();
+                DisplayOptionsMenu(userIO, recipeBooksToDisplay, out mainMenuOptions);
+                userIO.DisplayData();
 
                 mainMenuStandardOptions.Add(new string[] { "A", "Add New Recipe Book"} );
                 mainMenuStandardOptions.Add(new string[] { "R", "Rename Existing Recipe Book" });
@@ -123,25 +123,25 @@ namespace Recipe2ShoppingList
                 mainMenuStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
 
-            Console.WriteLine();
-            Console.WriteLine("----- OPTIONS -----");
-            DisplayOptionsMenu(mainMenuStandardOptions, out List<string> standardOptionsToAdd);
-            Console.WriteLine();
+            userIO.DisplayData();
+            userIO.DisplayData("----- OPTIONS -----");
+            DisplayOptionsMenu(userIO, mainMenuStandardOptions, out List<string> standardOptionsToAdd);
+            userIO.DisplayData();
             
             if (recipeBookLibrary.AllRecipeBooks.Length != 0)
             {
-                Console.WriteLine();
-                Console.WriteLine(MakeStringConsoleLengthLines("Open a recipe book by entering its number, or select an option from the menu:"));
+                userIO.DisplayData();
+                userIO.DisplayData(MakeStringConsoleLengthLines("Open a recipe book by entering its number, or select an option from the menu:"));
             }
             mainMenuOptions.AddRange(standardOptionsToAdd);
         }
 
-        public static void DisplayOpenRecipeBook(RecipeBook recipeBook, out List<string> recipeBookOptions)
+        public static void DisplayOpenRecipeBook(IUserIO userIO, RecipeBook recipeBook, out List<string> recipeBookOptions)
         {
-            Console.Clear();
-            Console.WriteLine(MakeStringConsoleLengthLines($"Recipe Book: {recipeBook.Name}"));
-            Console.WriteLine("----------------------------------------------");
-            Console.WriteLine();
+            userIO.ClearDisplay();
+            userIO.DisplayData(MakeStringConsoleLengthLines($"Recipe Book: {recipeBook.Name}"));
+            userIO.DisplayData("----------------------------------------------");
+            userIO.DisplayData();
 
             List<string[]> recipesToDisplay = new List<string[]>();
             List<string[]> recipeBookStandardOptions = new List<string[]>();
@@ -149,10 +149,10 @@ namespace Recipe2ShoppingList
 
             if (recipeBook.Recipes.Length == 0)
             {
-                Console.WriteLine("You currently don't have any recipes in this recipe book.");
-                Console.WriteLine();
-                Console.WriteLine("Add a new recipe using the options below:");
-                Console.WriteLine();
+                userIO.DisplayData("You currently don't have any recipes in this recipe book.");
+                userIO.DisplayData();
+                userIO.DisplayData("Add a new recipe using the options below:");
+                userIO.DisplayData();
 
                 recipeBookStandardOptions.Add(new string[] { "A", "Add New Recipe" });
                 recipeBookStandardOptions.Add(new string[] { "V", "View Shopping List" });
@@ -161,15 +161,15 @@ namespace Recipe2ShoppingList
             }
             else
             {
-                Console.WriteLine("----- RECIPES -----");
+                userIO.DisplayData("----- RECIPES -----");
 
                 for (int i = 0; i < recipeBook.Recipes.Length; i++)
                 {
                     recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
                 }
 
-                DisplayOptionsMenu(recipesToDisplay, out recipeBookOptions);
-                Console.WriteLine();
+                DisplayOptionsMenu(userIO, recipesToDisplay, out recipeBookOptions);
+                userIO.DisplayData();
 
                 recipeBookStandardOptions.Add(new string[] { "A", "Add New Recipe" });
                 recipeBookStandardOptions.Add(new string[] { "E", "Edit Existing Recipe" });
@@ -180,28 +180,28 @@ namespace Recipe2ShoppingList
                 recipeBookStandardOptions.Add(new string[] { "X", "Save and Exit Program" });
             }
 
-            Console.WriteLine();
-            Console.WriteLine("----- OPTIONS -----");
-            DisplayOptionsMenu(recipeBookStandardOptions, out List<string> standardOptionsToAdd);
-            Console.WriteLine();
+            userIO.DisplayData();
+            userIO.DisplayData("----- OPTIONS -----");
+            DisplayOptionsMenu(userIO, recipeBookStandardOptions, out List<string> standardOptionsToAdd);
+            userIO.DisplayData();
 
             if (recipeBook.Recipes.Length != 0)
             {
-                Console.WriteLine();
-                Console.WriteLine(MakeStringConsoleLengthLines("Open a recipe by entering its number, or select an option from the menu:"));
+                userIO.DisplayData();
+                userIO.DisplayData(MakeStringConsoleLengthLines("Open a recipe by entering its number, or select an option from the menu:"));
             }
             recipeBookOptions.AddRange(standardOptionsToAdd);
         }
 
-        public static void DisplayOpenRecipe(Recipe recipe, RecipeBook recipeBook, out List<string> recipeOptions)
+        public static void DisplayOpenRecipe(IUserIO userIO, Recipe recipe, RecipeBook recipeBook, out List<string> recipeOptions)
         {
-            Console.Clear();
-            Console.WriteLine(MakeStringConsoleLengthLines($"Recipe Book: {recipeBook.Name}"));
-            Console.WriteLine("----------------------------------------------");
-            Console.WriteLine();
-            Console.WriteLine(recipe.ProduceRecipeText(true));
-            Console.WriteLine();
-            Console.WriteLine("----- OPTIONS -----");
+            userIO.ClearDisplay();
+            userIO.DisplayData(MakeStringConsoleLengthLines($"Recipe Book: {recipeBook.Name}"));
+            userIO.DisplayData("----------------------------------------------");
+            userIO.DisplayData();
+            userIO.DisplayData(recipe.ProduceRecipeText(true));
+            userIO.DisplayData();
+            userIO.DisplayData("----- OPTIONS -----");
 
             List<string[]> recipeStardardOptions = new List<string[]>();
 
@@ -212,85 +212,85 @@ namespace Recipe2ShoppingList
                 recipeStardardOptions.Add(new string[] { "R", "Return to Previous Menu" });
                 recipeStardardOptions.Add(new string[] { "X", "Save and Exit Program" });
 
-            DisplayOptionsMenu(recipeStardardOptions, out recipeOptions);
-            Console.WriteLine();
+            DisplayOptionsMenu(userIO, recipeStardardOptions, out recipeOptions);
+            userIO.DisplayData();
         }
 
-        public static void SuccessfulChange(bool changeConfirmed, string changeNoun, string changeVerb, bool isPluralNoun = false)
+        public static void SuccessfulChange(IUserIO userIO, bool changeConfirmed, string changeNoun, string changeVerb, bool isPluralNoun = false)
         {
 
-            Console.WriteLine();
+            userIO.DisplayData();
             if (changeConfirmed && !isPluralNoun)
             {
-                Console.WriteLine($"Success! The {changeNoun} was {changeVerb}.");
+                userIO.DisplayData($"Success! The {changeNoun} was {changeVerb}.");
             }
             else if (!changeConfirmed && !isPluralNoun)
             {
-                Console.WriteLine($"No worries! The {changeNoun} was not {changeVerb}.");
+                userIO.DisplayData($"No worries! The {changeNoun} was not {changeVerb}.");
             }
             else if (changeConfirmed && isPluralNoun)
             {
-                Console.WriteLine($"Success! The {changeNoun} were {changeVerb}.");
+                userIO.DisplayData($"Success! The {changeNoun} were {changeVerb}.");
             }
             else
             {
-                Console.WriteLine($"No worries! The {changeNoun} were not {changeVerb}.");
+                userIO.DisplayData($"No worries! The {changeNoun} were not {changeVerb}.");
             }
-            Console.WriteLine();
-            Console.WriteLine("Press \"Enter\" to continue...");
-            Console.ReadLine();
+            userIO.DisplayData();
+            userIO.DisplayData("Press \"Enter\" to continue...");
+            userIO.GetInput();
         }
 
-        public static void DisplayMenuHeader(string header, string additionalMessage = "")
+        public static void DisplayMenuHeader(IUserIO userIO, string header, string additionalMessage = "")
         {
-            Console.Clear();
-            Console.WriteLine(header);
-            Console.WriteLine();
+            userIO.ClearDisplay();
+            userIO.DisplayData(header);
+            userIO.DisplayData();
 
             if (additionalMessage != "")
             {
-                Console.WriteLine(additionalMessage);
-                Console.WriteLine();
+                userIO.DisplayData(additionalMessage);
+                userIO.DisplayData();
             }
         }
 
-        public static void DisplayInstructionBlock(InstructionBlock instructionBlock)
+        public static void DisplayInstructionBlock(IUserIO userIO, InstructionBlock instructionBlock)
         {
             int lineNumber = 1;
             string lineNumberString = $"{lineNumber}.";
 
             if (instructionBlock.BlockHeading != "")
             {
-                Console.WriteLine($"<{instructionBlock.BlockHeading}>");
+                userIO.DisplayData($"<{instructionBlock.BlockHeading}>");
             }
 
             foreach (string instructionLine in instructionBlock.InstructionLines)
             {
-                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"{lineNumberString,-2} {instructionLine}"));
+                userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines($"{lineNumberString,-2} {instructionLine}"));
                 lineNumber++;
                 lineNumberString = $"{lineNumber}.";
             }
         }
 
-        public static void DisplayShoppingList(ShoppingList shoppingList)
+        public static void DisplayShoppingList(IUserIO userIO, ShoppingList shoppingList)
         {
             string header = "---------- SHOPPING LIST ----------";
-            UserInterface.DisplayMenuHeader(header);
+            UserInterface.DisplayMenuHeader(userIO, header);
 
             string entireShoppingList = shoppingList.GetEntireShoppingList();
 
             if (entireShoppingList.Length == 0)
             {
-                Console.WriteLine("There are currently no items on the shopping list.");
+                userIO.DisplayData("There are currently no items on the shopping list.");
             }
             else
             {
-                Console.WriteLine(entireShoppingList);
+                userIO.DisplayData(entireShoppingList);
             }
 
-            Console.WriteLine();
-            Console.WriteLine("Press \"Enter\" to return to the main menu...");
-            Console.ReadLine();
+            userIO.DisplayData();
+            userIO.DisplayData("Press \"Enter\" to return to the main menu...");
+            userIO.GetInput();
         }
     }
 }

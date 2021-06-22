@@ -234,7 +234,7 @@ namespace Recipe2ShoppingList
             this.nonGrocery.Insert(indexOfItemToUpdate, updatedItem);
         }
 
-        public void WriteShoppingListToFile(bool includeHeader = true, string alternateFilePath = "")
+        public void WriteShoppingListToFile(IUserIO userIO, bool includeHeader = true, string alternateFilePath = "")
         {
             string entireShoppingList = this.GetEntireShoppingList(includeHeader);
 
@@ -247,10 +247,10 @@ namespace Recipe2ShoppingList
             }
             catch (IOException exception)
             {
-                Console.WriteLine("Cannot open Shopping List file to save data.");
-                Console.WriteLine();
-                Console.WriteLine("Press \"Enter\" to continue...");
-                Console.ReadLine();
+                userIO.DisplayData("Cannot open Shopping List file to save data.");
+                userIO.DisplayData();
+                userIO.DisplayData("Press \"Enter\" to continue...");
+                userIO.GetInput();
             }
         }
     }

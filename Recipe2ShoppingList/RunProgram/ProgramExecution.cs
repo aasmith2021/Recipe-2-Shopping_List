@@ -7,7 +7,7 @@ namespace Recipe2ShoppingList
 {
     public class ProgramExecution
     {
-        public static void RunProgram(out bool exitProgram)
+        public static void RunProgram(IUserIO userIO, out bool exitProgram)
         {
             exitProgram = false;
 
@@ -18,28 +18,28 @@ namespace Recipe2ShoppingList
 
             while (!exitProgram)
             {
-                RunMainMenu(recipeBookLibrary, shoppingList, out exitProgram);
+                RunMainMenu(userIO, recipeBookLibrary, shoppingList, out exitProgram);
             }
 
             //Save <recipeBookLibrary> to the "write" database file before closing program
-            recipeBookLibrary.WriteRecipeBookLibraryToFile();
+            recipeBookLibrary.WriteRecipeBookLibraryToFile(userIO);
 
             //Delete original database, then rename the "write" database file to become the new master database file
             DataHelperMethods.DeleteOldFileAndRenameNewFile(DataHelperMethods.GetReadDatabaseFilePath(), DataHelperMethods.GetWriteDatabaseFilePath());
 
             //Save the Shopping List to the Shopping List file before closing the program
-            shoppingList.WriteShoppingListToFile();
+            shoppingList.WriteShoppingListToFile(userIO);
 
             //Delete original Shopping List file, then rename the "write" Shopping List file to become the new master Shopping List
             DataHelperMethods.DeleteOldFileAndRenameNewFile(DataHelperMethods.GetReadShoppingListFilePath(), DataHelperMethods.GetWriteShoppingListFilePath());
         }
 
-        private static void RunMainMenu(RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, out bool exitProgram)
+        private static void RunMainMenu(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, out bool exitProgram)
         {
             exitProgram = false;
 
-            UserInterface.DisplayMainMenu(recipeBookLibrary, out List<string> mainMenuOptions);
-            string userOption = GetUserInput.GetUserOption(mainMenuOptions);
+            UserInterface.DisplayMainMenu(userIO, recipeBookLibrary, out List<string> mainMenuOptions);
+            string userOption = GetUserInput.GetUserOption(userIO, mainMenuOptions);
 
             if (Int32.TryParse(userOption, out int userOptionNumber))
             {
@@ -47,7 +47,7 @@ namespace Recipe2ShoppingList
 
                 while (!exitRecipeBookSection)
                 {
-                    RunRecipeBook(recipeBookLibrary, shoppingList, userOptionNumber, out exitRecipeBookSection, out exitProgram);
+                    RunRecipeBook(userIO, recipeBookLibrary, shoppingList, userOptionNumber, out exitRecipeBookSection, out exitProgram);
                 }
             }
             else
@@ -55,19 +55,19 @@ namespace Recipe2ShoppingList
                 switch (userOption)
                 {
                     case "A":
-                        AddNewRecipeBook(recipeBookLibrary);
+                        AddNewRecipeBook(userIO, recipeBookLibrary);
                         break;
                     case "R":
-                        RenameRecipeBook(recipeBookLibrary);
+                        RenameRecipeBook(userIO, recipeBookLibrary);
                         break;
                     case "D":
-                        DeleteRecipeBook(recipeBookLibrary);
+                        DeleteRecipeBook(userIO, recipeBookLibrary);
                         break;
                     case "V":
-                        UserInterface.DisplayShoppingList(shoppingList);
+                        UserInterface.DisplayShoppingList(userIO, shoppingList);
                         break;
                     case "M":
-                        ManageSavedMeasurementUnits(recipeBookLibrary);
+                        ManageSavedMeasurementUnits(userIO, recipeBookLibrary);
                         break;
                     case "X":
                         exitProgram = true;
@@ -78,16 +78,16 @@ namespace Recipe2ShoppingList
             }
         }
 
-        public static void ManageSavedMeasurementUnits(RecipeBookLibrary recipeBookLibrary)
+        public static void ManageSavedMeasurementUnits(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
             bool exitMeasurementUnits = false;
 
             do
             {
                 string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
-                UserInterface.DisplayMenuHeader(header);
+                UserInterface.DisplayMenuHeader(userIO, header);
 
-                int allStandardMeasurementUnitsLength = MeasurementUnits.AllStandardMeasurementUnits().Length;
+                int allStandardMeasurementUnitsLength = MeasurementUnits.AllStandardMeasurementUnits().Count;
                 string[] allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits;
 
                 List<string> userAddedMeasurementUnits = new List<string>();
@@ -111,35 +111,35 @@ namespace Recipe2ShoppingList
 
                 if (userAddedMeasurementUnits.Count == 0)
                 {
-                    Console.WriteLine("There are currently no user-added measurement units saved.");
-                    Console.WriteLine();
+                    userIO.DisplayData("There are currently no user-added measurement units saved.");
+                    userIO.DisplayData();
                 }
                 else
                 {
-                    Console.WriteLine("<<< Current Measurement Units >>>");
+                    userIO.DisplayData("<<< Current Measurement Units >>>");
                     for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
                     {
-                        Console.WriteLine($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                        userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
                     }
-                    Console.WriteLine();
+                    userIO.DisplayData();
                 }
 
-                UserInterface.DisplayOptionsMenu(editOptions, out options);
-                Console.WriteLine();
-                Console.Write("Select an editing option: ");
-                string userOption = GetUserInput.GetUserOption(options);
+                UserInterface.DisplayOptionsMenu(userIO, editOptions, out options);
+                userIO.DisplayData();
+                userIO.DisplayDataLite("Select an editing option: ");
+                string userOption = GetUserInput.GetUserOption(userIO, options);
 
-                Console.WriteLine();
+                userIO.DisplayData();
                 switch (userOption)
                 {
                     case "A":
-                        AddNewMeasurementUnit(recipeBookLibrary, userAddedMeasurementUnits);
+                        AddNewMeasurementUnit(userIO, recipeBookLibrary, userAddedMeasurementUnits);
                         break;
                     case "E":
-                        EditExistingMeasurementUnit(recipeBookLibrary, userAddedMeasurementUnits);
+                        EditExistingMeasurementUnit(userIO, recipeBookLibrary, userAddedMeasurementUnits);
                         break;
                     case "D":
-                        DeleteExistingMeasurementUnit(recipeBookLibrary, userAddedMeasurementUnits);
+                        DeleteExistingMeasurementUnit(userIO, recipeBookLibrary, userAddedMeasurementUnits);
                         break;
                     case "R":
                         exitMeasurementUnits = true;
@@ -151,101 +151,101 @@ namespace Recipe2ShoppingList
             while (!exitMeasurementUnits);
         }
 
-        public static void AddNewMeasurementUnit(RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
+        public static void AddNewMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
         {
             string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
-            UserInterface.DisplayMenuHeader(header);
+            UserInterface.DisplayMenuHeader(userIO, header);
 
             if (userAddedMeasurementUnits.Count != 0)
             {
-                Console.WriteLine("<<< Current Measurement Units >>>");
+                userIO.DisplayData("<<< Current Measurement Units >>>");
                 for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
                 {
-                    Console.WriteLine($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                    userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
                 }
             }
 
             string measurementUnit = "";
-            GetUserInput.GetNewMeasurementUnitFromUser(out measurementUnit);
+            GetUserInput.GetNewMeasurementUnitFromUser(userIO, out measurementUnit);
 
-            GetUserInput.AreYouSure("add this measurement unit", out bool isSure);
+            GetUserInput.AreYouSure(userIO, "add this measurement unit", out bool isSure);
 
             if (isSure)
             {
                 recipeBookLibrary.AddMeasurementUnit(measurementUnit);
-                UserInterface.SuccessfulChange(true, "measurement unit", "added");
+                UserInterface.SuccessfulChange(userIO, true, "measurement unit", "added");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "measurement unit", "added");
+                UserInterface.SuccessfulChange(userIO, false, "measurement unit", "added");
             }
         }
 
-        public static void EditExistingMeasurementUnit(RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
+        public static void EditExistingMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
         {
             string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
-            UserInterface.DisplayMenuHeader(header);
+            UserInterface.DisplayMenuHeader(userIO, header);
 
             List<string> userOptions = new List<string>();
 
-            Console.WriteLine("<<< Current Measurement Units >>>");
+            userIO.DisplayData("<<< Current Measurement Units >>>");
             for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
                 userOptions.Add((i + 1).ToString());
             }
 
-            Console.WriteLine();
-            Console.WriteLine("Select the measurement unit to edit:");
-            string userOption = GetUserInput.GetUserOption(userOptions);
+            userIO.DisplayData();
+            userIO.DisplayData("Select the measurement unit to edit:");
+            string userOption = GetUserInput.GetUserOption(userIO, userOptions);
 
-            Console.WriteLine();
-            Console.WriteLine("Enter the new name for the measurement unit:");
-            string newName = GetUserInput.GetUserInputString(false);
+            userIO.DisplayData();
+            userIO.DisplayData("Enter the new name for the measurement unit:");
+            string newName = GetUserInput.GetUserInputString(userIO, false);
 
             recipeBookLibrary.EditMeasurementUnit(userAddedMeasurementUnits[int.Parse(userOption) - 1], newName);
-            UserInterface.SuccessfulChange(true, "measurement unit name", "updated");
+            UserInterface.SuccessfulChange(userIO, true, "measurement unit name", "updated");
         }
 
-        public static void DeleteExistingMeasurementUnit(RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
+        public static void DeleteExistingMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
         {
             string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
-            UserInterface.DisplayMenuHeader(header);
+            UserInterface.DisplayMenuHeader(userIO, header);
 
             List<string> userOptions = new List<string>();
 
-            Console.WriteLine("<<< Current Measurement Units >>>");
+            userIO.DisplayData("<<< Current Measurement Units >>>");
             for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
                 userOptions.Add((i + 1).ToString());
             }
 
-            Console.WriteLine();
-            Console.WriteLine("Select the measurement unit to delete:");
-            string userOption = GetUserInput.GetUserOption(userOptions);
+            userIO.DisplayData();
+            userIO.DisplayData("Select the measurement unit to delete:");
+            string userOption = GetUserInput.GetUserOption(userIO, userOptions);
 
-            GetUserInput.AreYouSure("delete this measurement unit", out bool isSure);
+            GetUserInput.AreYouSure(userIO, "delete this measurement unit", out bool isSure);
 
             if (isSure)
             {
                 recipeBookLibrary.DeleteMeasurementUnit(userAddedMeasurementUnits[int.Parse(userOption) - 1]);
-                UserInterface.SuccessfulChange(true, "measurement unit", "deleted");
+                UserInterface.SuccessfulChange(userIO, true, "measurement unit", "deleted");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "measurement unit", "deleted");
+                UserInterface.SuccessfulChange(userIO, false, "measurement unit", "deleted");
             }
         }
 
-        private static void RunRecipeBook(RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, int recipeBookOptionNumber, out bool exitRecipeBookSection, out bool exitProgram)
+        private static void RunRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, int recipeBookOptionNumber, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
             exitRecipeBookSection = false;
 
             RecipeBook recipeBook = recipeBookLibrary.AllRecipeBooks[recipeBookOptionNumber - 1];
-            UserInterface.DisplayOpenRecipeBook(recipeBook, out List<string> recipeBookOptions);
-            string userOption = GetUserInput.GetUserOption(recipeBookOptions);
+            UserInterface.DisplayOpenRecipeBook(userIO, recipeBook, out List<string> recipeBookOptions);
+            string userOption = GetUserInput.GetUserOption(userIO, recipeBookOptions);
 
             if (int.TryParse(userOption, out int userOptionNumber))
             {
@@ -253,7 +253,7 @@ namespace Recipe2ShoppingList
 
                 while (!exitRecipeSection)
                 {
-                    RunRecipe(recipeBookLibrary, shoppingList, recipeBook, userOptionNumber, out exitRecipeSection, out exitRecipeBookSection, out exitProgram);
+                    RunRecipe(userIO, recipeBookLibrary, shoppingList, recipeBook, userOptionNumber, out exitRecipeSection, out exitRecipeBookSection, out exitProgram);
                 }
             }
             else
@@ -261,19 +261,19 @@ namespace Recipe2ShoppingList
                 switch (userOption)
                 {
                     case "A":
-                        AddNewRecipe(recipeBookLibrary, recipeBook);
+                        AddNewRecipe(userIO, recipeBookLibrary, recipeBook);
                         break;
                     case "E":
-                        EditExistingRecipe(recipeBookLibrary, recipeBook);
+                        EditExistingRecipe(userIO, recipeBookLibrary, recipeBook);
                         break;
                     case "D":
-                        DeleteExistingRecipe(recipeBook);
+                        DeleteExistingRecipe(userIO, recipeBook);
                         break;
                     case "S":
-                        AddExistingRecipeToShoppingList(recipeBook, shoppingList);
+                        AddExistingRecipeToShoppingList(userIO, recipeBook, shoppingList);
                         break;
                     case "V":
-                        UserInterface.DisplayShoppingList(shoppingList);
+                        UserInterface.DisplayShoppingList(userIO, shoppingList);
                         break;
                     case "R":
                         exitRecipeBookSection = true;
@@ -288,30 +288,30 @@ namespace Recipe2ShoppingList
             }
         }
 
-        private static void RunRecipe(RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, RecipeBook recipeBook, int recipeOptionNumber, out bool exitRecipeSection, out bool exitRecipeBookSection, out bool exitProgram)
+        private static void RunRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, RecipeBook recipeBook, int recipeOptionNumber, out bool exitRecipeSection, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
             exitRecipeSection = false;
             exitRecipeBookSection = false;
 
             Recipe recipe = recipeBook.Recipes[recipeOptionNumber - 1];
-            UserInterface.DisplayOpenRecipe(recipe, recipeBook, out List<string> recipeEditOptions);
-            string userOption = GetUserInput.GetUserOption(recipeEditOptions);
+            UserInterface.DisplayOpenRecipe(userIO, recipe, recipeBook, out List<string> recipeEditOptions);
+            string userOption = GetUserInput.GetUserOption(userIO, recipeEditOptions);
 
             switch (userOption)
             {
                 case "S":
-                    AddRecipeToShoppingList(shoppingList, recipe);
+                    AddRecipeToShoppingList(userIO, shoppingList, recipe);
                     break;
                 case "E":
-                    EditRecipe(recipeBookLibrary, recipe);
+                    EditRecipe(userIO, recipeBookLibrary, recipe);
                     break;
                 case "D":
-                    DeleteOpenRecipe(recipeBook, recipe);
+                    DeleteOpenRecipe(userIO, recipeBook, recipe);
                     exitRecipeSection = true;
                     break;
                 case "V":
-                    UserInterface.DisplayShoppingList(shoppingList);
+                    UserInterface.DisplayShoppingList(userIO, shoppingList);
                     break;
                 case "R":
                     exitRecipeSection = true;
@@ -326,33 +326,33 @@ namespace Recipe2ShoppingList
             }
         }
 
-        private static void AddNewRecipeBook(RecipeBookLibrary recipeBookLibrary)
+        private static void AddNewRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
-            Console.Clear();
-            Console.WriteLine("---------- ADD NEW RECIPE BOOK ----------");
-            Console.WriteLine();
-            Console.Write("Enter a name for the new recipe book: ");
-            string bookName = GetUserInput.GetUserInputString(false);
+            userIO.ClearDisplay();
+            userIO.DisplayData("---------- ADD NEW RECIPE BOOK ----------");
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Enter a name for the new recipe book: ");
+            string bookName = GetUserInput.GetUserInputString(userIO, false);
 
-            GetUserInput.AreYouSure($"create a new recipe book named {bookName}", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"create a new recipe book named {bookName}", out bool isSure);
 
             if (isSure)
             {
                 RecipeBook newRecipeBook = new RecipeBook(bookName);
                 recipeBookLibrary.AddRecipeBook(newRecipeBook);
-                UserInterface.SuccessfulChange(true, $"new recipe book, {bookName},", "created");
+                UserInterface.SuccessfulChange(userIO, true, $"new recipe book, {bookName},", "created");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "new recipe book", "created");
+                UserInterface.SuccessfulChange(userIO, false, "new recipe book", "created");
             }
         }
 
-        private static void RenameRecipeBook(RecipeBookLibrary recipeBookLibrary)
+        private static void RenameRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
-            Console.Clear();
-            Console.WriteLine("---------- RENAME RECIPE BOOK ----------");
-            Console.WriteLine();
+            userIO.ClearDisplay();
+            userIO.DisplayData("---------- RENAME RECIPE BOOK ----------");
+            userIO.DisplayData();
 
             List<string[]> recipeBooksToDisplay = new List<string[]>();
             List<string> recipeBookOptions = new List<string>();
@@ -362,36 +362,36 @@ namespace Recipe2ShoppingList
                 recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
             }
 
-            UserInterface.DisplayOptionsMenu(recipeBooksToDisplay, out recipeBookOptions);
-            Console.WriteLine();
-            Console.Write("Enter the recipe book you would like to rename: ");
-            int userOption = Int32.Parse(GetUserInput.GetUserOption(recipeBookOptions));
+            UserInterface.DisplayOptionsMenu(userIO, recipeBooksToDisplay, out recipeBookOptions);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Enter the recipe book you would like to rename: ");
+            int userOption = Int32.Parse(GetUserInput.GetUserOption(userIO, recipeBookOptions));
 
             RecipeBook recipeBookToRename = recipeBookLibrary.AllRecipeBooks[userOption - 1];
             string oldName = recipeBookToRename.Name;
 
-            Console.WriteLine("");
-            Console.Write($"Enter the new name for the {oldName} recipe book: ");
-            string newName = GetUserInput.GetUserInputString(false);
+            userIO.DisplayData("");
+            userIO.DisplayDataLite($"Enter the new name for the {oldName} recipe book: ");
+            string newName = GetUserInput.GetUserInputString(userIO, false);
 
-            GetUserInput.AreYouSure($"rename the {oldName} recipe book to \"{newName}\"", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"rename the {oldName} recipe book to \"{newName}\"", out bool isSure);
 
             if (isSure)
             {
                 recipeBookToRename.Name = newName;
-                UserInterface.SuccessfulChange(true, $"{oldName} recipe book", $"renamed {newName}");
+                UserInterface.SuccessfulChange(userIO, true, $"{oldName} recipe book", $"renamed {newName}");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "recipe book", "renamed");
+                UserInterface.SuccessfulChange(userIO, false, "recipe book", "renamed");
             }
         }
 
-        private static void DeleteRecipeBook(RecipeBookLibrary recipeBookLibrary)
+        private static void DeleteRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
-            Console.Clear();
-            Console.WriteLine("---------- DELETE RECIPE BOOK ----------");
-            Console.WriteLine();
+            userIO.ClearDisplay();
+            userIO.DisplayData("---------- DELETE RECIPE BOOK ----------");
+            userIO.DisplayData();
 
             List<string[]> recipeBooksToDisplay = new List<string[]>();
             List<string> recipeBookOptions = new List<string>();
@@ -401,48 +401,48 @@ namespace Recipe2ShoppingList
                 recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
             }
 
-            UserInterface.DisplayOptionsMenu(recipeBooksToDisplay, out recipeBookOptions);
-            Console.WriteLine();
-            Console.Write("Enter the recipe book you would like to delete: ");
-            int userOption = Int32.Parse(GetUserInput.GetUserOption(recipeBookOptions));
+            UserInterface.DisplayOptionsMenu(userIO, recipeBooksToDisplay, out recipeBookOptions);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Enter the recipe book you would like to delete: ");
+            int userOption = Int32.Parse(GetUserInput.GetUserOption(userIO, recipeBookOptions));
 
             RecipeBook recipeBookToDelete = recipeBookLibrary.AllRecipeBooks[userOption - 1];
 
-            GetUserInput.AreYouSure($"delete the {recipeBookToDelete.Name} recipe book", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"delete the {recipeBookToDelete.Name} recipe book", out bool isSure);
 
             if (isSure)
             {
                 recipeBookLibrary.DeleteRecipeBook(recipeBookToDelete);
-                UserInterface.SuccessfulChange(true, $"{recipeBookToDelete.Name} recipe book", "deleted");
+                UserInterface.SuccessfulChange(userIO, true, $"{recipeBookToDelete.Name} recipe book", "deleted");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "recipe book", "deleted");
+                UserInterface.SuccessfulChange(userIO, false, "recipe book", "deleted");
             }
         }
 
-        private static void AddNewRecipe(RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)
+        private static void AddNewRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)
         {
-            Metadata recipeMetadata = GetUserInput.GetMetadataFromUser();
-            IngredientList recipeIngredientList = GetUserInput.GetIngredientsFromUser(recipeBookLibrary);
-            CookingInstructions recipeCookingInstructions = GetUserInput.GetCookingInstructionsFromUser();
+            Metadata recipeMetadata = GetUserInput.GetMetadataFromUser(userIO);
+            IngredientList recipeIngredientList = GetUserInput.GetIngredientsFromUser(userIO, recipeBookLibrary);
+            CookingInstructions recipeCookingInstructions = GetUserInput.GetCookingInstructionsFromUser(userIO);
 
             Recipe newRecipe = new Recipe(recipeMetadata, recipeCookingInstructions, recipeIngredientList);
 
-            GetUserInput.AreYouSure($"add this new recipe", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"add this new recipe", out bool isSure);
 
             if (isSure)
             {
                 recipeBook.AddRecipe(newRecipe);
-                UserInterface.SuccessfulChange(true, $"new recipe", "added to the recipe book");
+                UserInterface.SuccessfulChange(userIO, true, $"new recipe", "added to the recipe book");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "new recipe", "added");
+                UserInterface.SuccessfulChange(userIO, false, "new recipe", "added");
             }
         }
 
-        private static void EditRecipe(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
+        private static void EditRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
             List<string[]> editRecipeOptions = new List<string[]>()
             {
@@ -456,40 +456,40 @@ namespace Recipe2ShoppingList
                 new string[] { "R", "Return to Previous Menu" }
             };
 
-            string fieldToEdit = GetUserInput.GetTheFieldToEditFromUser(recipe, editRecipeOptions);
+            string fieldToEdit = GetUserInput.GetTheFieldToEditFromUser(userIO, recipe, editRecipeOptions);
 
             switch (fieldToEdit)
             {
                 case "1":
-                    EditRecipeTitle(recipe);
+                    EditRecipeTitle(userIO, recipe);
                     break;
                 case "2":
-                    EditRecipeNotes(recipe);
+                    EditRecipeNotes(userIO, recipe);
                     break;
                 case "3":
-                    EditRecipePrepTimes(recipe);
+                    EditRecipePrepTimes(userIO, recipe);
                     break;
                 case "4":
-                    EditRecipeEstimatedServings(recipe);
+                    EditRecipeEstimatedServings(userIO, recipe);
                     break;
                 case "5":
-                    EditRecipeFoodTypeGenre(recipe);
+                    EditRecipeFoodTypeGenre(userIO, recipe);
                     break;
                 case "6":
-                    EditRecipeIngredients(recipeBookLibrary, recipe);
+                    EditRecipeIngredients(userIO, recipeBookLibrary, recipe);
                     break;
                 case "7":
-                    EditRecipeInstructions(recipe);
+                    EditRecipeInstructions(userIO, recipe);
                     break;
                 case "R":
                     return;
             }
         }
 
-        private static void EditExistingRecipe(RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)
+        private static void EditExistingRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)
         {
             string header = "---------- EDIT RECIPE ----------";
-            UserInterface.DisplayMenuHeader(header);
+            UserInterface.DisplayMenuHeader(userIO, header);
 
             List<string[]> recipesToDisplay = new List<string[]>();
             List<string> recipeOptions = new List<string>();
@@ -499,40 +499,40 @@ namespace Recipe2ShoppingList
                 recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
             }
 
-            UserInterface.DisplayOptionsMenu(recipesToDisplay, out recipeOptions);
-            Console.WriteLine();
-            Console.Write("Enter the recipe you would like to edit: ");
-            int userOption = int.Parse(GetUserInput.GetUserOption(recipeOptions));
+            UserInterface.DisplayOptionsMenu(userIO, recipesToDisplay, out recipeOptions);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Enter the recipe you would like to edit: ");
+            int userOption = int.Parse(GetUserInput.GetUserOption(userIO, recipeOptions));
 
             Recipe recipeToEdit = recipeBook.Recipes[userOption - 1];
 
-            EditRecipe(recipeBookLibrary, recipeToEdit);
+            EditRecipe(userIO, recipeBookLibrary, recipeToEdit);
         }
 
-        private static void DeleteOpenRecipe(RecipeBook recipeBook, Recipe recipeToDelete)
+        private static void DeleteOpenRecipe(IUserIO userIO, RecipeBook recipeBook, Recipe recipeToDelete)
         {
-            Console.Clear();
-            Console.WriteLine("---------- DELETE RECIPE ----------");
-            Console.WriteLine();
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"Recipe Title: {recipeToDelete.Metadata.Title}"));
+            userIO.ClearDisplay();
+            userIO.DisplayData("---------- DELETE RECIPE ----------");
+            userIO.DisplayData();
+            userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines($"Recipe Title: {recipeToDelete.Metadata.Title}"));
 
-            GetUserInput.AreYouSure($"delete this recipe", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"delete this recipe", out bool isSure);
 
             if (isSure)
             {
                 recipeBook.DeleteRecipe(recipeToDelete);
-                UserInterface.SuccessfulChange(true, $"recipe", "deleted");
+                UserInterface.SuccessfulChange(userIO, true, $"recipe", "deleted");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "recipe", "deleted");
+                UserInterface.SuccessfulChange(userIO, false, "recipe", "deleted");
             }
         }
 
-        public static void DeleteExistingRecipe(RecipeBook recipeBook)
+        public static void DeleteExistingRecipe(IUserIO userIO, RecipeBook recipeBook)
         {
             string header = "---------- DELETE RECIPE ----------";
-            UserInterface.DisplayMenuHeader(header);
+            UserInterface.DisplayMenuHeader(userIO, header);
 
             List<string[]> recipesToDisplay = new List<string[]>();
             List<string> recipeOptions = new List<string>();
@@ -542,69 +542,69 @@ namespace Recipe2ShoppingList
                 recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
             }
 
-            UserInterface.DisplayOptionsMenu(recipesToDisplay, out recipeOptions);
-            Console.WriteLine();
-            Console.Write("Enter the recipe you would like to delete: ");
-            int userOption = int.Parse(GetUserInput.GetUserOption(recipeOptions));
+            UserInterface.DisplayOptionsMenu(userIO, recipesToDisplay, out recipeOptions);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Enter the recipe you would like to delete: ");
+            int userOption = int.Parse(GetUserInput.GetUserOption(userIO, recipeOptions));
 
             Recipe recipeToDelete = recipeBook.Recipes[userOption - 1];
             string recipeTitle = recipeToDelete.Metadata.Title;
 
-            GetUserInput.AreYouSure($"delete the {recipeTitle} recipe", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"delete the {recipeTitle} recipe", out bool isSure);
 
             if (isSure)
             {
                 recipeBook.DeleteRecipe(recipeToDelete);
-                UserInterface.SuccessfulChange(true, $"recipe", "deleted");
+                UserInterface.SuccessfulChange(userIO, true, $"recipe", "deleted");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "recipe", "deleted");
+                UserInterface.SuccessfulChange(userIO, false, "recipe", "deleted");
             }
         }
 
-        public static void EditRecipeTitle(Recipe recipe)
+        public static void EditRecipeTitle(IUserIO userIO, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            Console.Write("Enter the new title for this recipe: ");
-            string newTitle = GetUserInput.GetUserInputString(false);
+            userIO.DisplayDataLite("Enter the new title for this recipe: ");
+            string newTitle = GetUserInput.GetUserInputString(userIO, false);
 
-            GetUserInput.AreYouSure($"change the name of this recipe to {newTitle}", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"change the name of this recipe to {newTitle}", out bool isSure);
 
             if (isSure)
             {
                 recipe.Metadata.Title = newTitle;
-                UserInterface.SuccessfulChange(true, "recipe", "renamed");
+                UserInterface.SuccessfulChange(userIO, true, "recipe", "renamed");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "recipe", "renamed");
+                UserInterface.SuccessfulChange(userIO, false, "recipe", "renamed");
             }
         }
 
-        public static void EditRecipeNotes(Recipe recipe)
+        public static void EditRecipeNotes(IUserIO userIO, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
             string userInput = "";
             if (recipe.Metadata.Notes != "")
             {
-                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Do you want to add to the existing notes or delete the old notes and add a new note?"));
-                Console.WriteLine();
-                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"A\" to Add to the existing notes or \"D\" to Delete the old notes and add a new note:"));
+                userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Do you want to add to the existing notes or delete the old notes and add a new note?"));
+                userIO.DisplayData();
+                userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Enter \"A\" to Add to the existing notes or \"D\" to Delete the old notes and add a new note:"));
                 List<string> options = new List<string>() { "A", "D" };
-                userInput = GetUserInput.GetUserOption(options);
+                userInput = GetUserInput.GetUserOption(userIO, options);
             }
 
-            Console.WriteLine();
-            string newNotes = GetUserInput.GetNewUserNotes();
+            userIO.DisplayData();
+            string newNotes = GetUserInput.GetNewUserNotes(userIO);
 
-            GetUserInput.AreYouSure("add these new notes to the recipe", out bool isSure);
+            GetUserInput.AreYouSure(userIO, "add these new notes to the recipe", out bool isSure);
 
             if (isSure)
             {
@@ -613,25 +613,25 @@ namespace Recipe2ShoppingList
                     recipe.Metadata.Notes = "";
                 }
                 recipe.Metadata.Notes += " " + newNotes;
-                UserInterface.SuccessfulChange(true, "recipe notes", "updated", true);
+                UserInterface.SuccessfulChange(userIO, true, "recipe notes", "updated", true);
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "recipe notes", "updated", true);
+                UserInterface.SuccessfulChange(userIO, false, "recipe notes", "updated", true);
             }
         }
 
-        public static void EditRecipePrepTimes(Recipe recipe)
+        public static void EditRecipePrepTimes(IUserIO userIO, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Prep Time, the Cook Time, or Both?"));
-            Console.WriteLine();
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"P\" to change the Prep Time, \"C\" to change the Cook Time, or \"B\" to change both:"));
+            userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Prep Time, the Cook Time, or Both?"));
+            userIO.DisplayData();
+            userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Enter \"P\" to change the Prep Time, \"C\" to change the Cook Time, or \"B\" to change both:"));
             List<string> options = new List<string>() { "P", "C", "B" };
-            string userInput = GetUserInput.GetUserOption(options);
+            string userInput = GetUserInput.GetUserOption(userIO, options);
 
             int changeStartIndex = 0;
             int changeEndIndex = 0;
@@ -661,19 +661,19 @@ namespace Recipe2ShoppingList
             {
                 if (i == 0)
                 {
-                    Console.WriteLine();
-                    Console.Write("Enter the new Prep Time: ");
-                    newPrepTime = GetUserInput.GetUserInputInt(1);
+                    userIO.DisplayData();
+                    userIO.DisplayDataLite("Enter the new Prep Time: ");
+                    newPrepTime = GetUserInput.GetUserInputInt(userIO, 1);
                 }
                 else
                 {
-                    Console.WriteLine();
-                    Console.Write("Enter the new Cook Time: ");
-                    newCookTime = GetUserInput.GetUserInputInt(1);
+                    userIO.DisplayData();
+                    userIO.DisplayDataLite("Enter the new Cook Time: ");
+                    newCookTime = GetUserInput.GetUserInputInt(userIO, 1);
                 }
             }
 
-            GetUserInput.AreYouSure($"update the recipe preparation times", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"update the recipe preparation times", out bool isSure);
 
             if (isSure)
             {
@@ -687,25 +687,25 @@ namespace Recipe2ShoppingList
                     recipe.Metadata.PrepTimes.CookTime = newCookTime;
                 }
 
-                UserInterface.SuccessfulChange(true, "recipe preparation times", "updated", true);
+                UserInterface.SuccessfulChange(userIO, true, "recipe preparation times", "updated", true);
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "recipe preparation times", "updated", true);
+                UserInterface.SuccessfulChange(userIO, false, "recipe preparation times", "updated", true);
             }
         }
 
-        public static void EditRecipeEstimatedServings(Recipe recipe)
+        public static void EditRecipeEstimatedServings(IUserIO userIO, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Low # of Servings, High # of Servings, or Both?"));
-            Console.WriteLine();
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"L\" to change the Low # of Servings, \"H\" to change the High # of Servings, or \"B\" to change both:"));
+            userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Low # of Servings, High # of Servings, or Both?"));
+            userIO.DisplayData();
+            userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Enter \"L\" to change the Low # of Servings, \"H\" to change the High # of Servings, or \"B\" to change both:"));
             List<string> options = new List<string>() { "L", "H", "B" };
-            string userInput = GetUserInput.GetUserOption(options);
+            string userInput = GetUserInput.GetUserOption(userIO, options);
 
             int changeStartIndex = 0;
             int changeEndIndex = 0;
@@ -735,19 +735,19 @@ namespace Recipe2ShoppingList
             {
                 if (i == 0)
                 {
-                    Console.WriteLine();
-                    Console.Write("Enter the new Low # of Servings: ");
-                    newLowServings = GetUserInput.GetUserInputInt(1);
+                    userIO.DisplayData();
+                    userIO.DisplayDataLite("Enter the new Low # of Servings: ");
+                    newLowServings = GetUserInput.GetUserInputInt(userIO, 1);
                 }
                 else
                 {
-                    Console.WriteLine();
-                    Console.Write("Enter the new High # of Servings: ");
-                    newHighServings = GetUserInput.GetUserInputInt(1);
+                    userIO.DisplayData();
+                    userIO.DisplayDataLite("Enter the new High # of Servings: ");
+                    newHighServings = GetUserInput.GetUserInputInt(userIO, 1);
                 }
             }
 
-            GetUserInput.AreYouSure($"update the recipe estimated servings", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"update the recipe estimated servings", out bool isSure);
 
             if (isSure)
             {
@@ -761,25 +761,25 @@ namespace Recipe2ShoppingList
                     recipe.Metadata.Servings.HighNumberOfServings = newHighServings;
                 }
 
-                UserInterface.SuccessfulChange(true, "recipe estimated servings", "updated", true);
+                UserInterface.SuccessfulChange(userIO, true, "recipe estimated servings", "updated", true);
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "recipe estimated servings", "updated", true);
+                UserInterface.SuccessfulChange(userIO, false, "recipe estimated servings", "updated", true);
             }
         }
 
-        public static void EditRecipeFoodTypeGenre(Recipe recipe)
+        public static void EditRecipeFoodTypeGenre(IUserIO userIO, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Food Type, Food Genre, or Both?"));
-            Console.WriteLine();
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"T\" to change the Food Type, \"G\" to change the Food Genre, or \"B\" to change both:"));
+            userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Food Type, Food Genre, or Both?"));
+            userIO.DisplayData();
+            userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Enter \"T\" to change the Food Type, \"G\" to change the Food Genre, or \"B\" to change both:"));
             List<string> options = new List<string>() { "T", "G", "B" };
-            string userInput = GetUserInput.GetUserOption(options);
+            string userInput = GetUserInput.GetUserOption(userIO, options);
 
             int changeStartIndex = 0;
             int changeEndIndex = 0;
@@ -809,19 +809,19 @@ namespace Recipe2ShoppingList
             {
                 if (i == 0)
                 {
-                    Console.WriteLine();
-                    Console.Write("Enter the new Food Type: ");
-                    newFoodType = GetUserInput.GetUserInputString(true);
+                    userIO.DisplayData();
+                    userIO.DisplayDataLite("Enter the new Food Type: ");
+                    newFoodType = GetUserInput.GetUserInputString(userIO, true);
                 }
                 else
                 {
-                    Console.WriteLine();
-                    Console.Write("Enter the new Food Genre: ");
-                    newFoodGenre = GetUserInput.GetUserInputString(true);
+                    userIO.DisplayData();
+                    userIO.DisplayDataLite("Enter the new Food Genre: ");
+                    newFoodGenre = GetUserInput.GetUserInputString(userIO, true);
                 }
             }
 
-            GetUserInput.AreYouSure($"update the recipe food type/genre", out bool isSure);
+            GetUserInput.AreYouSure(userIO, $"update the recipe food type/genre", out bool isSure);
 
             if (isSure)
             {
@@ -835,20 +835,20 @@ namespace Recipe2ShoppingList
                     recipe.Metadata.Tags.FoodGenre = newFoodGenre;
                 }
 
-                UserInterface.SuccessfulChange(true, "recipe food type/genre", "updated", false);
+                UserInterface.SuccessfulChange(userIO, true, "recipe food type/genre", "updated", false);
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "recipe food type/genre", "updated", false);
+                UserInterface.SuccessfulChange(userIO, false, "recipe food type/genre", "updated", false);
             }
         }
 
-        public static void EditRecipeIngredients(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
+        public static void EditRecipeIngredients(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
-            Console.Write(recipe.Ingredients.ProduceIngredientsText(true, true));
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
+            userIO.DisplayDataLite(recipe.Ingredients.ProduceIngredientsText(true, true));
 
             List<string[]> menuOptions = new List<string[]>()
             {
@@ -865,30 +865,30 @@ namespace Recipe2ShoppingList
                 menuOptions.RemoveAt(1);
             }
 
-            Console.WriteLine();
-            UserInterface.DisplayOptionsMenu(menuOptions, out options);
-            Console.WriteLine();
-            Console.Write("Select an editing option: ");
-            string userOption = GetUserInput.GetUserOption(options);
+            userIO.DisplayData();
+            UserInterface.DisplayOptionsMenu(userIO, menuOptions, out options);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Select an editing option: ");
+            string userOption = GetUserInput.GetUserOption(userIO, options);
 
-            Console.WriteLine();
+            userIO.DisplayData();
             switch (userOption)
             {
                 case "A":
-                    AddNewIngredient(recipeBookLibrary, recipe);
+                    AddNewIngredient(userIO, recipeBookLibrary, recipe);
                     break;
                 case "E":
-                    EditExistingIngredient(recipeBookLibrary, recipe);
+                    EditExistingIngredient(userIO, recipeBookLibrary, recipe);
                     break;
                 case "D":
-                    DeleteExistingIngredient(recipe);
+                    DeleteExistingIngredient(userIO, recipe);
                     break;
                 case "R":
                     return;
             }
         }
 
-        public static void EditExistingIngredient(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
+        public static void EditExistingIngredient(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
             Ingredient[] allRecipeIngredients = recipe.Ingredients.AllIngredients;
             List<string> ingredientLineOptions = new List<string>();
@@ -901,9 +901,9 @@ namespace Recipe2ShoppingList
 
             if (allRecipeIngredients.Length > 1)
             {
-                Console.WriteLine("Select the ingredient line you would like to edit:");
-                string userOption = GetUserInput.GetUserOption(ingredientLineOptions);
-                Console.WriteLine();
+                userIO.DisplayData("Select the ingredient line you would like to edit:");
+                string userOption = GetUserInput.GetUserOption(userIO, ingredientLineOptions);
+                userIO.DisplayData();
                 ingredientToEdit = allRecipeIngredients[int.Parse(userOption) - 1];
             }
             else
@@ -920,70 +920,70 @@ namespace Recipe2ShoppingList
             };
             List<string> ingredientComponentOptions = new List<string>();
 
-            Console.WriteLine("Select the part of the ingredient you would like to edit:");
-            UserInterface.DisplayOptionsMenu(ingredientComponentsForMenu, out ingredientComponentOptions);
-            string ingredientComponentToEdit = GetUserInput.GetUserOption(ingredientComponentOptions);
+            userIO.DisplayData("Select the part of the ingredient you would like to edit:");
+            UserInterface.DisplayOptionsMenu(userIO, ingredientComponentsForMenu, out ingredientComponentOptions);
+            string ingredientComponentToEdit = GetUserInput.GetUserOption(userIO, ingredientComponentOptions);
 
-            Console.WriteLine();
+            userIO.DisplayData();
             string measurementUnit = "";
             string newPrepNote;
             switch (ingredientComponentToEdit)
             {
                 case "1":
-                    Console.Write("Enter the new quantity of the ingredient (ex: 1.5): ");
-                    double newQuantity = GetUserInput.GetUserInputDouble(2);
+                    userIO.DisplayDataLite("Enter the new quantity of the ingredient (ex: 1.5): ");
+                    double newQuantity = GetUserInput.GetUserInputDouble(userIO, 2);
                     ingredientToEdit.Quantity = newQuantity;
-                    UserInterface.SuccessfulChange(true, "ingredient quantity", "updated");
+                    UserInterface.SuccessfulChange(userIO, true, "ingredient quantity", "updated");
                     break;
                 case "2":
                     List<string[]> measurementUnits = MeasurementUnits.AllMeasurementUnitsForUserInput(recipeBookLibrary);
                     List<string> options = new List<string>();
-                    Console.WriteLine("Select the new ingredient measurement unit from the list of options:");
-                    UserInterface.DisplayOptionsMenu(measurementUnits, out options);
+                    userIO.DisplayData("Select the new ingredient measurement unit from the list of options:");
+                    UserInterface.DisplayOptionsMenu(userIO, measurementUnits, out options);
 
-                    int userOptionNumber = int.Parse(GetUserInput.GetUserOption(options));
+                    int userOptionNumber = int.Parse(GetUserInput.GetUserOption(userIO, options));
 
                     if (userOptionNumber == options.Count)
                     {
-                        GetUserInput.GetNewMeasurementUnitFromUser(out measurementUnit);
+                        GetUserInput.GetNewMeasurementUnitFromUser(userIO, out measurementUnit);
                         recipeBookLibrary.AddMeasurementUnit(measurementUnit);
-                        Console.WriteLine();
-                        Console.WriteLine(UserInterface.MakeStringConsoleLengthLines($"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient."));
+                        userIO.DisplayData();
+                        userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines($"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient."));
                     }
                     else if (measurementUnits[userOptionNumber - 1][1] != "None")
                     {
                         measurementUnit = measurementUnits[userOptionNumber - 1][1];
                     }
                     ingredientToEdit.MeasurementUnit = measurementUnit;
-                    UserInterface.SuccessfulChange(true, "ingredient meaurement unit", "updated");
+                    UserInterface.SuccessfulChange(userIO, true, "ingredient meaurement unit", "updated");
                     break;
                 case "3":
-                    Console.WriteLine("Enter the new ingredient name:");
-                    string newName = GetUserInput.GetUserInputString(false);
+                    userIO.DisplayData("Enter the new ingredient name:");
+                    string newName = GetUserInput.GetUserInputString(userIO, false);
                     ingredientToEdit.Name = newName;
-                    UserInterface.SuccessfulChange(true, "ingredient name", "updated");
+                    UserInterface.SuccessfulChange(userIO, true, "ingredient name", "updated");
                     break;
                 case "4":
-                    Console.WriteLine("Enter the new ingredient preparation note (or press \"Enter\" to leave blank):");
-                    newPrepNote = GetUserInput.GetUserInputString(true);
+                    userIO.DisplayData("Enter the new ingredient preparation note (or press \"Enter\" to leave blank):");
+                    newPrepNote = GetUserInput.GetUserInputString(userIO, true);
                     ingredientToEdit.PreparationNote = newPrepNote;
-                    UserInterface.SuccessfulChange(true, "ingredient preparation note", "updated");
+                    UserInterface.SuccessfulChange(userIO, true, "ingredient preparation note", "updated");
                     break;
                 default:
                     break;
             }
         }
 
-        public static void AddNewIngredient(RecipeBookLibrary recipeBookLibrary, Recipe recipe)
+        public static void AddNewIngredient(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
-            Ingredient ingredientToAdd = GetUserInput.GetIngredientFromUser(recipeBookLibrary);
+            Ingredient ingredientToAdd = GetUserInput.GetIngredientFromUser(userIO, recipeBookLibrary);
             recipe.Ingredients.AddIngredient(ingredientToAdd);
-            UserInterface.SuccessfulChange(true, "ingredient", "added");
+            UserInterface.SuccessfulChange(userIO, true, "ingredient", "added");
         }
 
-        public static void DeleteExistingIngredient(Recipe recipe)
+        public static void DeleteExistingIngredient(IUserIO userIO, Recipe recipe)
         {
-            Console.WriteLine("Select the ingredient line you would like to delete:");
+            userIO.DisplayData("Select the ingredient line you would like to delete:");
 
             Ingredient[] allRecipeIngredients = recipe.Ingredients.AllIngredients;
             List<string> ingredientLineOptions = new List<string>();
@@ -992,30 +992,30 @@ namespace Recipe2ShoppingList
                 ingredientLineOptions.Add(i.ToString());
             }
 
-            string userOption = GetUserInput.GetUserOption(ingredientLineOptions);
+            string userOption = GetUserInput.GetUserOption(userIO, ingredientLineOptions);
             int indexOfIngredientToDelete = int.Parse(userOption) - 1;
 
-            GetUserInput.AreYouSure("delete this ingredient", out bool isSure);
+            GetUserInput.AreYouSure(userIO, "delete this ingredient", out bool isSure);
 
             if (isSure)
             {
                 recipe.Ingredients.DeleteIngredient(recipe.Ingredients.AllIngredients[indexOfIngredientToDelete]);
-                UserInterface.SuccessfulChange(true, "ingredient", "deleted");
+                UserInterface.SuccessfulChange(userIO, true, "ingredient", "deleted");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "ingredient", "deleted");
+                UserInterface.SuccessfulChange(userIO, false, "ingredient", "deleted");
             }
         }
 
-        public static void EditRecipeInstructions(Recipe recipe)
+        public static void EditRecipeInstructions(IUserIO userIO, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            Console.Write(recipe.CookingInstructions.ProduceInstructionsText(true));
-            Console.WriteLine();
+            userIO.DisplayDataLite(recipe.CookingInstructions.ProduceInstructionsText(true));
+            userIO.DisplayData();
 
             List<string[]> menuOptions = new List<string[]>()
             {
@@ -1032,56 +1032,56 @@ namespace Recipe2ShoppingList
                 menuOptions.RemoveAt(1);
             }
 
-            UserInterface.DisplayOptionsMenu(menuOptions, out options);
-            Console.WriteLine();
-            Console.Write("Select an editing option: ");
-            string userOption = GetUserInput.GetUserOption(options);
+            UserInterface.DisplayOptionsMenu(userIO, menuOptions, out options);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Select an editing option: ");
+            string userOption = GetUserInput.GetUserOption(userIO, options);
 
-            Console.WriteLine();
+            userIO.DisplayData();
             switch (userOption)
             {
                 case "A":
-                    AddNewInstructionBlock(recipe);
+                    AddNewInstructionBlock(userIO, recipe);
                     break;
                 case "E":
-                    EditExistingInstructionBlock(recipe);
+                    EditExistingInstructionBlock(userIO, recipe);
                     break;
                 case "D":
-                    DeleteExistingInstructionBlock(recipe);
+                    DeleteExistingInstructionBlock(userIO, recipe);
                     break;
                 case "R":
                     return;
             }
         }
 
-        public static void AddNewInstructionBlock(Recipe recipe)
+        public static void AddNewInstructionBlock(IUserIO userIO, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            InstructionBlock newInstructionBlock = GetUserInput.GetInstructionBlockFromUser();
+            InstructionBlock newInstructionBlock = GetUserInput.GetInstructionBlockFromUser(userIO);
 
-            GetUserInput.AreYouSure("add this new instruction block", out bool isSure);
+            GetUserInput.AreYouSure(userIO, "add this new instruction block", out bool isSure);
 
             if (isSure)
             {
                 recipe.CookingInstructions.AddInstructionBlock(newInstructionBlock);
-                UserInterface.SuccessfulChange(true, "new instruction block", "added");
+                UserInterface.SuccessfulChange(userIO, true, "new instruction block", "added");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "new instruction block", "added");
+                UserInterface.SuccessfulChange(userIO, false, "new instruction block", "added");
             }
         }
 
-        public static void EditExistingInstructionBlock(Recipe recipe)
+        public static void EditExistingInstructionBlock(IUserIO userIO, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            Console.Write(recipe.CookingInstructions.ProduceInstructionsText(true, true));
+            userIO.DisplayDataLite(recipe.CookingInstructions.ProduceInstructionsText(true, true));
             InstructionBlock instructionBlockToEdit;
             int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Length;
             List<string> instructionBlockOptions = new List<string>();
@@ -1092,10 +1092,10 @@ namespace Recipe2ShoppingList
 
             if (numberOfInstructionBlocks > 1)
             {
-                Console.WriteLine();
-                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter the instruction block you would like to edit:"));
+                userIO.DisplayData();
+                userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Enter the instruction block you would like to edit:"));
 
-                string userBlockSelection = GetUserInput.GetUserOption(instructionBlockOptions);
+                string userBlockSelection = GetUserInput.GetUserOption(userIO, instructionBlockOptions);
                 int instructionBlockIndex = int.Parse(userBlockSelection);
 
                 instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex - 1];
@@ -1106,10 +1106,10 @@ namespace Recipe2ShoppingList
             }
             else
             {
-                Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("This recipe does not have any instruction blocks. Add a new instruction block in order to edit the recipe."));
-                Console.WriteLine();
-                Console.WriteLine("Press \"Enter\" to continue...");
-                Console.ReadLine();
+                userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("This recipe does not have any instruction blocks. Add a new instruction block in order to edit the recipe."));
+                userIO.DisplayData();
+                userIO.DisplayData("Press \"Enter\" to continue...");
+                userIO.GetInput();
 
                 return;
             }
@@ -1150,62 +1150,62 @@ namespace Recipe2ShoppingList
                 editBlockMenuOptions[i][0] = (i + 1).ToString();
             }
 
-            Console.WriteLine();
-            UserInterface.DisplayOptionsMenu(editBlockMenuOptions, out editBlockOptions);
-            Console.WriteLine();
-            Console.Write("Enter an editing option from the menu: ");
-            string editBlockOption = GetUserInput.GetUserOption(editBlockOptions);
+            userIO.DisplayData();
+            UserInterface.DisplayOptionsMenu(userIO, editBlockMenuOptions, out editBlockOptions);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Enter an editing option from the menu: ");
+            string editBlockOption = GetUserInput.GetUserOption(userIO, editBlockOptions);
             string menuSelection = editBlockMenuOptions[int.Parse(editBlockOption) - 1][1];
 
-            Console.WriteLine();
+            userIO.DisplayData();
             switch (menuSelection)
             {
                 case "Add Instruction Line":
-                    AddInstructionLine(instructionBlockToEdit, recipe);
+                    AddInstructionLine(userIO, instructionBlockToEdit, recipe);
                     break;
                 case "Edit Instruction Line":
-                    EditInstructionLine(instructionBlockToEdit, recipe);
+                    EditInstructionLine(userIO, instructionBlockToEdit, recipe);
                     break;
                 case "Delete Instruction Line":
-                    DeleteInstructionLine(instructionBlockToEdit, recipe);
+                    DeleteInstructionLine(userIO, instructionBlockToEdit, recipe);
                     break;
                 case "Add Block Heading":
-                    AddInstructionBlockHeading(instructionBlockToEdit, recipe);
+                    AddInstructionBlockHeading(userIO, instructionBlockToEdit, recipe);
                     break;
                 case "Edit Block Heading":
-                    EditInstructionBlockHeading(instructionBlockToEdit, recipe);
+                    EditInstructionBlockHeading(userIO, instructionBlockToEdit, recipe);
                     break;
                 case "Delete Block Heading":
-                    DeleteInstructionBlockHeading(instructionBlockToEdit, recipe);
+                    DeleteInstructionBlockHeading(userIO, instructionBlockToEdit, recipe);
                     break;
                 default:
                     break;
             }
         }
 
-        public static void AddInstructionLine(InstructionBlock instructionBlock, Recipe recipe)
+        public static void AddInstructionLine(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            UserInterface.DisplayInstructionBlock(instructionBlock);
+            UserInterface.DisplayInstructionBlock(userIO, instructionBlock);
 
-            Console.WriteLine();
-            Console.WriteLine("Enter the new instruction line to add:");
-            string newInstructionLine = GetUserInput.GetUserInputString(false);
+            userIO.DisplayData();
+            userIO.DisplayData("Enter the new instruction line to add:");
+            string newInstructionLine = GetUserInput.GetUserInputString(userIO, false);
 
             instructionBlock.AddInstructionLine(newInstructionLine);
-            UserInterface.SuccessfulChange(true, "new instruction line", "added");
+            UserInterface.SuccessfulChange(userIO, true, "new instruction line", "added");
         }
 
-        public static void EditInstructionLine(InstructionBlock instructionBlock, Recipe recipe)
+        public static void EditInstructionLine(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            UserInterface.DisplayInstructionBlock(instructionBlock);
+            UserInterface.DisplayInstructionBlock(userIO, instructionBlock);
 
             string[] allInstructionLines = instructionBlock.InstructionLines;
             List<string> instructionLineOptions = new List<string>();
@@ -1214,25 +1214,25 @@ namespace Recipe2ShoppingList
             {
                 instructionLineOptions.Add(i.ToString());
             }
-            Console.WriteLine();
-            Console.Write("Select the instruction line to edit: ");
-            string instructionLineSelected = GetUserInput.GetUserOption(instructionLineOptions);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Select the instruction line to edit: ");
+            string instructionLineSelected = GetUserInput.GetUserOption(userIO, instructionLineOptions);
 
-            Console.WriteLine();
-            Console.WriteLine("Enter the new text for the instruction line:");
-            string newInstructionLineText = GetUserInput.GetUserInputString(false);
+            userIO.DisplayData();
+            userIO.DisplayData("Enter the new text for the instruction line:");
+            string newInstructionLineText = GetUserInput.GetUserInputString(userIO, false);
 
             instructionBlock.EditInstructionLine(int.Parse(instructionLineSelected) - 1, newInstructionLineText);
-            UserInterface.SuccessfulChange(true, "instruction line", "edited");
+            UserInterface.SuccessfulChange(userIO, true, "instruction line", "edited");
         }
 
-        public static void DeleteInstructionLine(InstructionBlock instructionBlock, Recipe recipe)
+        public static void DeleteInstructionLine(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            UserInterface.DisplayInstructionBlock(instructionBlock);
+            UserInterface.DisplayInstructionBlock(userIO, instructionBlock);
 
             string[] allInstructionLines = instructionBlock.InstructionLines;
             List<string> instructionLineOptions = new List<string>();
@@ -1241,85 +1241,85 @@ namespace Recipe2ShoppingList
             {
                 instructionLineOptions.Add(i.ToString());
             }
-            Console.WriteLine();
-            Console.Write("Select the instruction line to delete: ");
-            string instructionLineSelected = GetUserInput.GetUserOption(instructionLineOptions);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Select the instruction line to delete: ");
+            string instructionLineSelected = GetUserInput.GetUserOption(userIO, instructionLineOptions);
 
-            GetUserInput.AreYouSure("delete this instruction line", out bool isSure);
+            GetUserInput.AreYouSure(userIO, "delete this instruction line", out bool isSure);
 
             if (isSure)
             {
                 instructionBlock.DeleteInstructionLine(int.Parse(instructionLineSelected) - 1);
-                UserInterface.SuccessfulChange(true, "instruction line", "deleted");
+                UserInterface.SuccessfulChange(userIO, true, "instruction line", "deleted");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "instruction line", "deleted");
+                UserInterface.SuccessfulChange(userIO, false, "instruction line", "deleted");
             }
         }
 
-        public static void AddInstructionBlockHeading(InstructionBlock instructionBlock, Recipe recipe)
+        public static void AddInstructionBlockHeading(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            UserInterface.DisplayInstructionBlock(instructionBlock);
+            UserInterface.DisplayInstructionBlock(userIO, instructionBlock);
 
-            Console.WriteLine();
-            Console.WriteLine("Enter the new block heading to add:");
-            string newBlockHeading = GetUserInput.GetUserInputString(false);
+            userIO.DisplayData();
+            userIO.DisplayData("Enter the new block heading to add:");
+            string newBlockHeading = GetUserInput.GetUserInputString(userIO, false);
 
             instructionBlock.BlockHeading = newBlockHeading;
-            UserInterface.SuccessfulChange(true, "new block heading", "added");
+            UserInterface.SuccessfulChange(userIO, true, "new block heading", "added");
         }
 
-        public static void EditInstructionBlockHeading(InstructionBlock instructionBlock, Recipe recipe)
+        public static void EditInstructionBlockHeading(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            UserInterface.DisplayInstructionBlock(instructionBlock);
+            UserInterface.DisplayInstructionBlock(userIO, instructionBlock);
 
-            Console.WriteLine();
-            Console.WriteLine("Enter the new block heading:");
-            string newBlockHeading = GetUserInput.GetUserInputString(false);
+            userIO.DisplayData();
+            userIO.DisplayData("Enter the new block heading:");
+            string newBlockHeading = GetUserInput.GetUserInputString(userIO, false);
 
             instructionBlock.BlockHeading = newBlockHeading;
-            UserInterface.SuccessfulChange(true, "block heading", "edited");
+            UserInterface.SuccessfulChange(userIO, true, "block heading", "edited");
         }
 
-        public static void DeleteInstructionBlockHeading(InstructionBlock instructionBlock, Recipe recipe)
+        public static void DeleteInstructionBlockHeading(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            UserInterface.DisplayInstructionBlock(instructionBlock);
+            UserInterface.DisplayInstructionBlock(userIO, instructionBlock);
 
-            GetUserInput.AreYouSure("delete the block heading", out bool isSure);
+            GetUserInput.AreYouSure(userIO, "delete the block heading", out bool isSure);
 
             if (isSure)
             {
                 instructionBlock.BlockHeading = "";
-                UserInterface.SuccessfulChange(true, "block heading", "deleted");
+                UserInterface.SuccessfulChange(userIO, true, "block heading", "deleted");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "block heading", "deleted");
+                UserInterface.SuccessfulChange(userIO, false, "block heading", "deleted");
             }
         }
 
-        public static void DeleteExistingInstructionBlock(Recipe recipe)
+        public static void DeleteExistingInstructionBlock(IUserIO userIO, Recipe recipe)
         {
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(header, additionalMessage);
+            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
-            Console.Write(recipe.CookingInstructions.ProduceInstructionsText(true, true));
-            Console.WriteLine();
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter the instruction block you would like to delete:"));
+            userIO.DisplayDataLite(recipe.CookingInstructions.ProduceInstructionsText(true, true));
+            userIO.DisplayData();
+            userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Enter the instruction block you would like to delete:"));
 
             int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Length;
             List<string> instructionBlockOptions = new List<string>();
@@ -1328,25 +1328,25 @@ namespace Recipe2ShoppingList
                 instructionBlockOptions.Add(i.ToString());
             }
 
-            string userBlockSelection = GetUserInput.GetUserOption(instructionBlockOptions);
+            string userBlockSelection = GetUserInput.GetUserOption(userIO, instructionBlockOptions);
 
-            GetUserInput.AreYouSure("delete this instruction block", out bool isSure);
+            GetUserInput.AreYouSure(userIO, "delete this instruction block", out bool isSure);
 
             if (isSure)
             {
                 recipe.CookingInstructions.DeleteInstructionBlock(int.Parse(userBlockSelection) - 1);
-                UserInterface.SuccessfulChange(true, "instruction block", "deleted");
+                UserInterface.SuccessfulChange(userIO, true, "instruction block", "deleted");
             }
             else
             {
-                UserInterface.SuccessfulChange(false, "instruction block", "deleted");
+                UserInterface.SuccessfulChange(userIO, false, "instruction block", "deleted");
             }
         }
 
-        public static void AddExistingRecipeToShoppingList(RecipeBook recipeBook, ShoppingList shoppingList)
+        public static void AddExistingRecipeToShoppingList(IUserIO userIO, RecipeBook recipeBook, ShoppingList shoppingList)
         {
             string header = "---------- ADD RECIPE TO SHOPPING LIST ----------";
-            UserInterface.DisplayMenuHeader(header);
+            UserInterface.DisplayMenuHeader(userIO, header);
 
             List<string[]> recipesToDisplay = new List<string[]>();
             List<string> recipeOptions = new List<string>();
@@ -1359,10 +1359,10 @@ namespace Recipe2ShoppingList
             //Adds the "R" option to return to previous menu
             recipesToDisplay.Add(new string[] { "R", "Return to Previous Menu" });
 
-            UserInterface.DisplayOptionsMenu(recipesToDisplay, out recipeOptions);
-            Console.WriteLine();
-            Console.Write("Enter the recipe you would like to add to the shopping list: ");
-            string userOption = GetUserInput.GetUserOption(recipeOptions);
+            UserInterface.DisplayOptionsMenu(userIO, recipesToDisplay, out recipeOptions);
+            userIO.DisplayData();
+            userIO.DisplayDataLite("Enter the recipe you would like to add to the shopping list: ");
+            string userOption = GetUserInput.GetUserOption(userIO, recipeOptions);
 
             if (userOption != "R")
             {
@@ -1370,14 +1370,14 @@ namespace Recipe2ShoppingList
 
                 Recipe recipeToAdd = recipeBook.Recipes[recipeOption - 1];
 
-                AddRecipeToShoppingList(shoppingList, recipeToAdd);
+                AddRecipeToShoppingList(userIO, shoppingList, recipeToAdd);
             }
         }
 
-        public static void AddRecipeToShoppingList(ShoppingList shoppingList, Recipe recipe)
+        public static void AddRecipeToShoppingList(IUserIO userIO, ShoppingList shoppingList, Recipe recipe)
         {
             string header = "-------- ADD RECIPE TO SHOPPING LIST --------";
-            UserInterface.DisplayMenuHeader(header);
+            UserInterface.DisplayMenuHeader(userIO, header);
 
             Ingredient[] recipeIngredients = recipe.Ingredients.AllIngredients;
 
@@ -1385,21 +1385,21 @@ namespace Recipe2ShoppingList
             {
                 if (element.StoreLocation == "")
                 {
-                    GetStoreLocationForIngredient(shoppingList, element);
+                    GetStoreLocationForIngredient(userIO, shoppingList, element);
                 }
 
-                AddIngredientToStoreLocation(shoppingList, element);
+                AddIngredientToStoreLocation(userIO, shoppingList, element);
             }
 
-            UserInterface.SuccessfulChange(true, "recipe", "added to the shopping list");
+            UserInterface.SuccessfulChange(userIO, true, "recipe", "added to the shopping list");
         }
 
-        public static void GetStoreLocationForIngredient(ShoppingList shoppingList, Ingredient ingredient)
+        public static void GetStoreLocationForIngredient(IUserIO userIO, ShoppingList shoppingList, Ingredient ingredient)
         {
             string header = "-------- SET STORE LOCATION FOR INGREDIENT --------";
             string message = UserInterface.MakeStringConsoleLengthLines($"INGREDIENT: {ingredient.Name}");
-            UserInterface.DisplayMenuHeader(header, message);
-            Console.WriteLine("Which department is this ingredient generally found in at the store?");
+            UserInterface.DisplayMenuHeader(userIO, header, message);
+            userIO.DisplayData("Which department is this ingredient generally found in at the store?");
 
             List<string[]> menuOptions = new List<string[]>();
             List<string> optionChoices = new List<string>();
@@ -1409,18 +1409,18 @@ namespace Recipe2ShoppingList
                 menuOptions.Add(new string[] { $"{i + 1}", shoppingList.StoreLocations[i] });
             }
 
-            UserInterface.DisplayOptionsMenu(menuOptions, out optionChoices);
-            Console.WriteLine();
-            Console.WriteLine("Select the store location of this ingredient:");
-            string userOption = GetUserInput.GetUserOption(optionChoices);
-            Console.WriteLine();
+            UserInterface.DisplayOptionsMenu(userIO, menuOptions, out optionChoices);
+            userIO.DisplayData();
+            userIO.DisplayData("Select the store location of this ingredient:");
+            string userOption = GetUserInput.GetUserOption(userIO, optionChoices);
+            userIO.DisplayData();
 
             string storeLocation = shoppingList.StoreLocations[int.Parse(userOption) - 1];
 
             ingredient.StoreLocation = storeLocation;
         }
 
-        public static void AddIngredientToStoreLocation(ShoppingList shoppingList, Ingredient ingredient)
+        public static void AddIngredientToStoreLocation(IUserIO userIO, ShoppingList shoppingList, Ingredient ingredient)
         {
             string storeLocation = ingredient.StoreLocation;
 
@@ -1496,7 +1496,7 @@ namespace Recipe2ShoppingList
 
                     if (percentSimilar >= .3 && ingredientsAreCombinable)
                     {
-                        ingredientsAreTheSame = AreIngredientsTheSame(currentIngredientName, newIngredientName);
+                        ingredientsAreTheSame = AreIngredientsTheSame(userIO, currentIngredientName, newIngredientName);
 
                         if (ingredientsAreTheSame)
                         {
@@ -1648,21 +1648,21 @@ namespace Recipe2ShoppingList
             return percentSimilar;
         }
 
-        public static bool AreIngredientsTheSame(string currentIngredientName, string newIngredientName)
+        public static bool AreIngredientsTheSame(IUserIO userIO, string currentIngredientName, string newIngredientName)
         {
             bool ingredientsAreTheSame = false;
             string header = "-------- SIMILAR INGREDIENTS FOUND --------";
-            UserInterface.DisplayMenuHeader(header);
-            Console.WriteLine();
-            Console.WriteLine("The following ingredients might match:");
-            Console.WriteLine();
-            Console.WriteLine($"<<Ingredient Already On Shopping List>>{Environment.NewLine}{currentIngredientName}");
-            Console.WriteLine();
-            Console.WriteLine($"<<New Ingredient>>{Environment.NewLine}{newIngredientName}");
-            Console.WriteLine();
-            Console.WriteLine("Are these ingredients the same? Enter \"Y\" for Yes or \"N\" for No:");
+            UserInterface.DisplayMenuHeader(userIO, header);
+            userIO.DisplayData();
+            userIO.DisplayData("The following ingredients might match:");
+            userIO.DisplayData();
+            userIO.DisplayData($"<<Ingredient Already On Shopping List>>{Environment.NewLine}{currentIngredientName}");
+            userIO.DisplayData();
+            userIO.DisplayData($"<<New Ingredient>>{Environment.NewLine}{newIngredientName}");
+            userIO.DisplayData();
+            userIO.DisplayData("Are these ingredients the same? Enter \"Y\" for Yes or \"N\" for No:");
             List<string> userOptions = new List<string>() { "Y", "N" };
-            string userOption = GetUserInput.GetUserOption(userOptions);
+            string userOption = GetUserInput.GetUserOption(userIO, userOptions);
 
             if (userOption == "Y")
             {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Text;
+﻿using System.IO;
 
 namespace Recipe2ShoppingList
 {
@@ -119,30 +115,5 @@ namespace Recipe2ShoppingList
 
             return returnData;
         }
-
-        public static string GetWebsiteDataFromURL(string url)
-        {
-            WebClient webClient = new WebClient();
-
-            string websiteData = webClient.DownloadString(url);
-
-            return websiteData;
-        }
-
-        //<<<Stuff I was using to get data from a URL>>>
-
-        //Console.WriteLine("Enter a URL:");
-        //string url = Console.ReadLine();
-        //string output = DataHelperMethods.GetWebsiteDataFromURL(url);
-        ////string[] splitSeparators = { "\"", ",", ":" };
-        //string splitOutput = output.Substring(output.IndexOf("prep"), 1200);//.Split(splitSeparators, StringSplitOptions.RemoveEmptyEntries);
-
-        //Console.WriteLine(splitOutput);
-
-        //foreach (string myString in splitOutput)
-        //{
-        //    Console.WriteLine(myString);
-        //}
-
     }
 }
