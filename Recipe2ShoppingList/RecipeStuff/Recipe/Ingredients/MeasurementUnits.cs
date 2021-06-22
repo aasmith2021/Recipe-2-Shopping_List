@@ -43,8 +43,8 @@ namespace Recipe2ShoppingList
         
         public static Tuple<double, string> CombineMeasurementUnits(double quantity1, string measurementUnit1, bool mu1IsVolumeMeasure, double quantity2, string measurementUnit2, bool mu2IsVolumeMeasure)
         {
-            double combinedQuantity = 0;
-            string combinedMeasurementUnit = "";
+            double combinedQuantity;
+            string combinedMeasurementUnit;
             double[] quantities = new double[] { quantity1, quantity2 };
             string[] measurementUnits = new string[] { measurementUnit1, measurementUnit2 };
             bool bothMeasurementUnitsAreBlank = measurementUnit1 == "" && measurementUnit2 == "";

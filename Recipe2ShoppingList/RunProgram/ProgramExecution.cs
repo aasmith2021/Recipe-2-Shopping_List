@@ -64,7 +64,7 @@ namespace Recipe2ShoppingList
                         DeleteRecipeBook(recipeBookLibrary);
                         break;
                     case "V":
-                        ViewShoppingList(shoppingList);
+                        UserInterface.DisplayShoppingList(shoppingList);
                         break;
                     case "M":
                         ManageSavedMeasurementUnits(recipeBookLibrary);
@@ -243,8 +243,8 @@ namespace Recipe2ShoppingList
             exitProgram = false;
             exitRecipeBookSection = false;
 
-            RecipeBook recipeBookToOpen = recipeBookLibrary.AllRecipeBooks[recipeBookOptionNumber - 1];
-            UserInterface.DisplayOpenRecipeBook(recipeBookToOpen, out List<string> recipeBookOptions);
+            RecipeBook recipeBook = recipeBookLibrary.AllRecipeBooks[recipeBookOptionNumber - 1];
+            UserInterface.DisplayOpenRecipeBook(recipeBook, out List<string> recipeBookOptions);
             string userOption = GetUserInput.GetUserOption(recipeBookOptions);
 
             if (int.TryParse(userOption, out int userOptionNumber))
@@ -253,7 +253,7 @@ namespace Recipe2ShoppingList
 
                 while (!exitRecipeSection)
                 {
-                    RunRecipe(recipeBookLibrary, shoppingList, recipeBookToOpen, userOptionNumber, out exitRecipeSection, out exitRecipeBookSection, out exitProgram);
+                    RunRecipe(recipeBookLibrary, shoppingList, recipeBook, userOptionNumber, out exitRecipeSection, out exitRecipeBookSection, out exitProgram);
                 }
             }
             else
@@ -261,19 +261,19 @@ namespace Recipe2ShoppingList
                 switch (userOption)
                 {
                     case "A":
-                        AddNewRecipe(recipeBookLibrary, recipeBookToOpen);
+                        AddNewRecipe(recipeBookLibrary, recipeBook);
                         break;
                     case "E":
-                        EditExistingRecipe(recipeBookLibrary, recipeBookToOpen);
+                        EditExistingRecipe(recipeBookLibrary, recipeBook);
                         break;
                     case "D":
-                        DeleteExistingRecipe(recipeBookToOpen);
+                        DeleteExistingRecipe(recipeBook);
                         break;
                     case "S":
-                        AddExistingRecipeToShoppingList(recipeBookToOpen, shoppingList);
+                        AddExistingRecipeToShoppingList(recipeBook, shoppingList);
                         break;
                     case "V":
-                        ViewShoppingList(shoppingList);
+                        UserInterface.DisplayShoppingList(shoppingList);
                         break;
                     case "R":
                         exitRecipeBookSection = true;
@@ -294,24 +294,24 @@ namespace Recipe2ShoppingList
             exitRecipeSection = false;
             exitRecipeBookSection = false;
 
-            Recipe recipeToOpen = recipeBook.Recipes[recipeOptionNumber - 1];
-            UserInterface.DisplayOpenRecipe(recipeToOpen, recipeBook, out List<string> recipeEditOptions);
+            Recipe recipe = recipeBook.Recipes[recipeOptionNumber - 1];
+            UserInterface.DisplayOpenRecipe(recipe, recipeBook, out List<string> recipeEditOptions);
             string userOption = GetUserInput.GetUserOption(recipeEditOptions);
 
             switch (userOption)
             {
                 case "S":
-                    AddRecipeToShoppingList(shoppingList, recipeToOpen);
+                    AddRecipeToShoppingList(shoppingList, recipe);
                     break;
                 case "E":
-                    EditRecipe(recipeBookLibrary, recipeToOpen);
+                    EditRecipe(recipeBookLibrary, recipe);
                     break;
                 case "D":
-                    DeleteOpenRecipe(recipeBook, recipeToOpen);
+                    DeleteOpenRecipe(recipeBook, recipe);
                     exitRecipeSection = true;
                     break;
                 case "V":
-                    ViewShoppingList(shoppingList);
+                    UserInterface.DisplayShoppingList(shoppingList);
                     break;
                 case "R":
                     exitRecipeSection = true;
@@ -483,9 +483,6 @@ namespace Recipe2ShoppingList
                     break;
                 case "R":
                     return;
-                    break;
-                default:
-                    break;
             }
         }
 
@@ -780,7 +777,7 @@ namespace Recipe2ShoppingList
 
             Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Do you want to change the Food Type, Food Genre, or Both?"));
             Console.WriteLine();
-            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"T\" to change the Low # of Servings, \"G\" to change the High # of Servings, or \"B\" to change both:"));
+            Console.WriteLine(UserInterface.MakeStringConsoleLengthLines("Enter \"T\" to change the Food Type, \"G\" to change the Food Genre, or \"B\" to change both:"));
             List<string> options = new List<string>() { "T", "G", "B" };
             string userInput = GetUserInput.GetUserOption(options);
 
@@ -888,9 +885,6 @@ namespace Recipe2ShoppingList
                     break;
                 case "R":
                     return;
-                    break;
-                default:
-                    break;
             }
         }
 
@@ -1057,9 +1051,6 @@ namespace Recipe2ShoppingList
                     break;
                 case "R":
                     return;
-                    break;
-                default:
-                    break;
             }
         }
 
@@ -1365,14 +1356,22 @@ namespace Recipe2ShoppingList
                 recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
             }
 
+            //Adds the "R" option to return to previous menu
+            recipesToDisplay.Add(new string[] { "R", "Return to Previous Menu" });
+
             UserInterface.DisplayOptionsMenu(recipesToDisplay, out recipeOptions);
             Console.WriteLine();
             Console.Write("Enter the recipe you would like to add to the shopping list: ");
-            int userOption = int.Parse(GetUserInput.GetUserOption(recipeOptions));
+            string userOption = GetUserInput.GetUserOption(recipeOptions);
 
-            Recipe recipeToAdd = recipeBook.Recipes[userOption - 1];
+            if (userOption != "R")
+            {
+                int recipeOption = int.Parse(userOption);
 
-            AddRecipeToShoppingList(shoppingList, recipeToAdd);
+                Recipe recipeToAdd = recipeBook.Recipes[recipeOption - 1];
+
+                AddRecipeToShoppingList(shoppingList, recipeToAdd);
+            }
         }
 
         public static void AddRecipeToShoppingList(ShoppingList shoppingList, Recipe recipe)
@@ -1457,31 +1456,53 @@ namespace Recipe2ShoppingList
 
             string currentIngredientName = "";
             bool currentIngredientHasVolumeMeasurementUnit;
+            string currentIngredientMeasurementUnit;
             string newIngredientName = ingredient.Name;
+            string newIngredientMeasurementUnit = ingredient.MeasurementUnit;
             bool newIngredientHasVolumeMeasurementUnit = MeasurementUnits.IngredientHasVolumeMeasurementUnit(ingredient);
             int indexOfMatchingIngredient = 0;
             bool ingredientsAreCombinable;
             bool ingredientsAreTheSame = false;
 
+            //This loop looks for ingredients that have an exact name and measurement unit match
             for (int i = 0; i < currentLocationIngredients.Count; i++)
             {
                 indexOfMatchingIngredient = i;
                 currentIngredientName = currentLocationIngredients[i].Name;
                 currentIngredientHasVolumeMeasurementUnit = MeasurementUnits.IngredientHasVolumeMeasurementUnit(currentLocationIngredients[i]);
+                currentIngredientMeasurementUnit = currentLocationIngredients[i].MeasurementUnit;
 
                 ingredientsAreCombinable = !(currentIngredientHasVolumeMeasurementUnit ^ newIngredientHasVolumeMeasurementUnit);
 
-                double percentSimilar = GetSimilarityPercentage(currentIngredientName, newIngredientName);
-
-                if (newIngredientName == currentIngredientName && ingredientsAreCombinable)
+                if (newIngredientName == currentIngredientName && ingredientsAreCombinable && !(newIngredientMeasurementUnit == "" ^ newIngredientMeasurementUnit == ""))
                 {
                     ingredientsAreTheSame = true;
                     break;
                 }
-                else if (percentSimilar >= .3 && ingredientsAreCombinable)
+            }
+
+            //This loop looks for ingredients that may be similar if an exact match was not found on the shopping list
+            if (!ingredientsAreTheSame)
+            {
+                for (int i = 0; i < currentLocationIngredients.Count; i++)
                 {
-                    ingredientsAreTheSame = AreIngredientsTheSame(currentIngredientName, newIngredientName);
-                    break;
+                    indexOfMatchingIngredient = i;
+                    currentIngredientName = currentLocationIngredients[i].Name;
+                    currentIngredientHasVolumeMeasurementUnit = MeasurementUnits.IngredientHasVolumeMeasurementUnit(currentLocationIngredients[i]);
+
+                    ingredientsAreCombinable = !(currentIngredientHasVolumeMeasurementUnit ^ newIngredientHasVolumeMeasurementUnit);
+
+                    double percentSimilar = GetSimilarityPercentage(currentIngredientName, newIngredientName);
+
+                    if (percentSimilar >= .3 && ingredientsAreCombinable)
+                    {
+                        ingredientsAreTheSame = AreIngredientsTheSame(currentIngredientName, newIngredientName);
+
+                        if (ingredientsAreTheSame)
+                        {
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -1649,27 +1670,6 @@ namespace Recipe2ShoppingList
             }
 
             return ingredientsAreTheSame;
-        }
-
-        public static void ViewShoppingList(ShoppingList shoppingList)
-        {
-            string header = "---------- SHOPPING LIST ----------";
-            UserInterface.DisplayMenuHeader(header);
-
-            string entireShoppingList = shoppingList.GetEntireShoppingList();
-
-            if (entireShoppingList.Length == 0)
-            {
-                Console.WriteLine("There are currently no items on the shopping list.");
-            }
-            else
-            {
-                Console.WriteLine(entireShoppingList);
-            }
-
-            Console.WriteLine();
-            Console.WriteLine("Press \"Enter\" to return to the main menu...");
-            Console.ReadLine();
         }
     }
 }

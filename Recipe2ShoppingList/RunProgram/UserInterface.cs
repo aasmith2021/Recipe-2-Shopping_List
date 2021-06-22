@@ -271,5 +271,26 @@ namespace Recipe2ShoppingList
                 lineNumberString = $"{lineNumber}.";
             }
         }
+
+        public static void DisplayShoppingList(ShoppingList shoppingList)
+        {
+            string header = "---------- SHOPPING LIST ----------";
+            UserInterface.DisplayMenuHeader(header);
+
+            string entireShoppingList = shoppingList.GetEntireShoppingList();
+
+            if (entireShoppingList.Length == 0)
+            {
+                Console.WriteLine("There are currently no items on the shopping list.");
+            }
+            else
+            {
+                Console.WriteLine(entireShoppingList);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to return to the main menu...");
+            Console.ReadLine();
+        }
     }
 }
