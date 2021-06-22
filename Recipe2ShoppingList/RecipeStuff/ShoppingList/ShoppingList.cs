@@ -99,7 +99,7 @@ namespace Recipe2ShoppingList
             allLocations["meat"] = this.Meat;
             allLocations["refrigerated"] = this.Refrigerated;
             allLocations["frozen"] = this.Frozen;
-            allLocations["nonGrocery"] = this.Produce;
+            allLocations["nonGrocery"] = this.NonGrocery;
 
             string key = "";
             string optionalHeader = $"---------- SHOPPING LIST ----------{Environment.NewLine}{Environment.NewLine}";
@@ -145,7 +145,10 @@ namespace Recipe2ShoppingList
 
                     foreach (Ingredient ingredient in allLocations[key])
                     {
-                        entireShoppingList += $"{ingredient.Quantity} {ingredient.MeasurementUnit} {ingredient.Name}{Environment.NewLine}";
+                        string measurementUnitString = ingredient.MeasurementUnit == "" ? "" : $"{ingredient.MeasurementUnit} ";
+                        string ingredientQuantity = $"{Math.Round(ingredient.Quantity,3)} ";
+
+                        entireShoppingList += $"{ingredientQuantity}{measurementUnitString}{ingredient.Name}{Environment.NewLine}";
                     }
 
                     entireShoppingList += Environment.NewLine;

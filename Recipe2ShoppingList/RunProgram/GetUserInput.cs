@@ -20,7 +20,7 @@ namespace Recipe2ShoppingList
             return userInput;
         }
 
-        public static string GetUserInputString(bool allowEmptyStringInput = true)
+        public static string GetUserInputString(bool allowEmptyStringInput = true, int maxCharacters = 1200)
         {
             string userInput;
             bool inputIsNull;
@@ -34,10 +34,20 @@ namespace Recipe2ShoppingList
                 inputIsNull = userInput == null;
                 inputIsEmptyString = userInput == "";
 
-                if (inputIsNull || (inputIsEmptyString && !allowEmptyStringInput))
+                if (inputIsNull)
                 {
                     Console.WriteLine();
                     Console.WriteLine("Invalid entry. Please try again:");
+                }
+                else if (inputIsEmptyString && !allowEmptyStringInput)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Invalid entry; entry cannot be blank. Please try again:");
+                }
+                else if (userInput.Length > maxCharacters)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"Invalid entry; input cannot exceed ${maxCharacters} characters. Please try again:");
                 }
                 else
                 {

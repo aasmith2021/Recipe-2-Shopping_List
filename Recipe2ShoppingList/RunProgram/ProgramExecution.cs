@@ -1456,18 +1456,29 @@ namespace Recipe2ShoppingList
             }
 
             string currentIngredientName = "";
+            bool currentIngredientHasVolumeMeasurementUnit;
             string newIngredientName = ingredient.Name;
+            bool newIngredientHasVolumeMeasurementUnit = MeasurementUnits.IngredientHasVolumeMeasurementUnit(ingredient);
             int indexOfMatchingIngredient = 0;
+            bool ingredientsAreCombinable;
             bool ingredientsAreTheSame = false;
 
             for (int i = 0; i < currentLocationIngredients.Count; i++)
             {
                 indexOfMatchingIngredient = i;
                 currentIngredientName = currentLocationIngredients[i].Name;
+                currentIngredientHasVolumeMeasurementUnit = MeasurementUnits.IngredientHasVolumeMeasurementUnit(currentLocationIngredients[i]);
+
+                ingredientsAreCombinable = !(currentIngredientHasVolumeMeasurementUnit ^ newIngredientHasVolumeMeasurementUnit);
 
                 double percentSimilar = GetSimilarityPercentage(currentIngredientName, newIngredientName);
 
-                if (percentSimilar >= .3)
+                if (newIngredientName == currentIngredientName && ingredientsAreCombinable)
+                {
+                    ingredientsAreTheSame = true;
+                    break;
+                }
+                else if (percentSimilar >= .3 && ingredientsAreCombinable)
                 {
                     ingredientsAreTheSame = AreIngredientsTheSame(currentIngredientName, newIngredientName);
                     break;
@@ -1579,28 +1590,35 @@ namespace Recipe2ShoppingList
 
             if (firstIngredientName.Length <= secondIngredientName.Length)
             {
-                shorterPhrase = firstIngredientName;
-                longerPhrase = secondIngredientName;
+                shorterPhrase = firstIngredientName.ToLower();
+                longerPhrase = secondIngredientName.ToLower();
             }
             else
             {
-                shorterPhrase = secondIngredientName;
-                longerPhrase = firstIngredientName;
+                shorterPhrase = secondIngredientName.ToLower();
+                longerPhrase = firstIngredientName.ToLower();
             }
 
+            string[] shorterPhraseWords = shorterPhrase.Split(" ");
+            string wordToCheck = "";
             string testString = "";
             string regexExpression = "";
             bool matchFound = false;
 
-            for (int i = 0; i < shorterPhrase.Length; i++)
+            for (int i = 0; i < shorterPhraseWords.Length; i++)
             {
-                testString = shorterPhrase.Substring(0, i + 1);
-                regexExpression = $"{testString}.*?";
-                matchFound = Regex.Match(longerPhrase, regexExpression).Success;
-
-                if (matchFound)
+                wordToCheck = shorterPhraseWords[i];
+                
+                for (int j = 0; j < wordToCheck.Length; j++)
                 {
-                    countOfCharactersTheSame++;
+                    testString = wordToCheck.Substring(0, j + 1);
+                    regexExpression = $"{testString}.*?";
+                    matchFound = Regex.Match(longerPhrase, regexExpression).Success;
+
+                    if (matchFound)
+                    {
+                        countOfCharactersTheSame++;
+                    }
                 }
             }
 

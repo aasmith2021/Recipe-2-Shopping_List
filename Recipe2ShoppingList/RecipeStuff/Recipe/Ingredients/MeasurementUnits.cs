@@ -20,27 +20,42 @@ namespace Recipe2ShoppingList
 
             return allStandardMeasurementUnits;
         }
-        
-        public static Tuple<double, string> CombineMeasurementUnits(double quantity1, string measurementUnit1, double quantity2, string measurementUnit2)
-        {
-            bool mu1IsVolumeMeasure = measurementUnit1 == tsp || measurementUnit1 == tbsp || measurementUnit1 == cup || measurementUnit1 == flOz;
-            bool mu2IsVolumeMeasure = measurementUnit2 == tsp || measurementUnit2 == tbsp || measurementUnit2 == cup || measurementUnit2 == flOz;
 
+        public static string[] AllVolumeMeasurementUnits()
+        {
+            string[] allVolumeMeasurementUnits = new string[] { "", tsp, tbsp, flOz, cup };
+
+            return allVolumeMeasurementUnits;
+        }
+
+        public static string[] AllWeightMeasurementUnits()
+        {
+            string[] allWeightMeasurementUnits = new string[] { oz, lb };
+
+            return allWeightMeasurementUnits;
+        }
+
+        public static bool IngredientHasVolumeMeasurementUnit(Ingredient ingredient)
+        {
+            bool ingredientHasVolumeMeasurement = ingredient.MeasurementUnit == "" || ingredient.MeasurementUnit == tsp || ingredient.MeasurementUnit == tbsp || ingredient.MeasurementUnit == cup || ingredient.MeasurementUnit == flOz;
+            return ingredientHasVolumeMeasurement;
+        }
+        
+        public static Tuple<double, string> CombineMeasurementUnits(double quantity1, string measurementUnit1, bool mu1IsVolumeMeasure, double quantity2, string measurementUnit2, bool mu2IsVolumeMeasure)
+        {
             double combinedQuantity = 0;
             string combinedMeasurementUnit = "";
             double[] quantities = new double[] { quantity1, quantity2 };
             string[] measurementUnits = new string[] { measurementUnit1, measurementUnit2 };
+            bool bothMeasurementUnitsAreBlank = measurementUnit1 == "" && measurementUnit2 == "";
 
-            if (mu1IsVolumeMeasure ^ mu2IsVolumeMeasure)
+            if (bothMeasurementUnitsAreBlank)
             {
-                combinedMeasurementUnit = "INVALID";
-            }
-            else if (measurementUnit1 == measurementUnit2)
-            {
-                combinedMeasurementUnit = measurementUnit1;
-                combinedQuantity = quantity1 + quantity2;
-            }
-            else if (mu1IsVolumeMeasure && mu2IsVolumeMeasure)
+                Tuple<double, string> combinedBlankMeasurementUnit = CombineBlankMeasurementUnit(quantities);
+                combinedQuantity = combinedBlankMeasurementUnit.Item1;
+                combinedMeasurementUnit = "";
+            }            
+            else if(mu1IsVolumeMeasure && mu2IsVolumeMeasure && !bothMeasurementUnitsAreBlank)
             {               
                 Tuple<double, string> combinedVolumeUnit = CombineToCommonVolumeUnit(quantities, measurementUnits);
                 combinedQuantity = combinedVolumeUnit.Item1;
@@ -58,13 +73,30 @@ namespace Recipe2ShoppingList
             return result;
         }
 
+        private static Tuple<double, string> CombineBlankMeasurementUnit(double[] quantities)
+        {
+            double combinedQuantity = 0;
+            string combinedMeasurementUnit = "";
+
+            for (int i = 0; i < quantities.Length; i++)
+            {
+                combinedQuantity += quantities[i];
+            }
+
+            Tuple<double, string> combinedBlankMeasurementUnit = new Tuple<double, string>(combinedQuantity, combinedMeasurementUnit);
+
+            return combinedBlankMeasurementUnit;
+        }
+
         private static Tuple<double, string> CombineToCommonVolumeUnit(double[] quantities, string[] measurementUnits)
         {
+            string[] allVolumeMeasurementUnits = AllVolumeMeasurementUnits();
             double totalTeaspoons = 0;
             int largerMeasurementUnitIndex = GetLargerVolumeMeasurementUnit(measurementUnits);
             int conversionMultiplier;
             int conversionDivisor;
-            double combinedQuantity = 0;
+            string combinedMeasurementUnit;
+            double combinedQuantity;
 
             for (int i = 0; i < quantities.Length; i++)
             {
@@ -72,22 +104,38 @@ namespace Recipe2ShoppingList
                 totalTeaspoons += quantities[i] * conversionMultiplier;
             }
 
-            conversionDivisor = GetVolumeConversionMultiplier(measurementUnits[largerMeasurementUnitIndex]);
+            //Anything equal to 1/4 cup or more is converted to cups
+            if ((totalTeaspoons / 16) >= 1)
+            {
+                combinedMeasurementUnit = allVolumeMeasurementUnits[4];
+            }//Anything equal to 3 teaspoons ore more is converted to Tablespoons
+            else if ((totalTeaspoons / 3) >= 1)
+            {
+                combinedMeasurementUnit = allVolumeMeasurementUnits[2];
+            }
+            else
+            {
+                combinedMeasurementUnit = measurementUnits[largerMeasurementUnitIndex];
+            }
+
+            conversionDivisor = GetVolumeConversionMultiplier(combinedMeasurementUnit);
 
             combinedQuantity = totalTeaspoons / conversionDivisor;
 
-            Tuple<double, string> combinedVolumeUnit = new Tuple<double, string>(combinedQuantity, measurementUnits[largerMeasurementUnitIndex]);
+            Tuple<double, string> combinedVolumeUnit = new Tuple<double, string>(combinedQuantity, combinedMeasurementUnit);
 
             return combinedVolumeUnit;
         }
 
         private static Tuple<double, string> CombineToCommonWeightUnit(double[] quantities, string[] measurementUnits)
         {
+            string[] allWeightMeasurementUnits = AllWeightMeasurementUnits();
             double totalOunces = 0;
             int largerMeasurementUnitIndex = GetLargerWeightMeasurementUnit(measurementUnits);
             int conversionMultiplier;
             int conversionDivisor;
-            double combinedQuantity = 0;
+            string combinedMeasurementUnit;
+            double combinedQuantity;
 
             for (int i = 0; i < quantities.Length; i++)
             {
@@ -95,11 +143,20 @@ namespace Recipe2ShoppingList
                 totalOunces += quantities[i] * conversionMultiplier;
             }
 
-            conversionDivisor = GetWeightConversionMultiplier(measurementUnits[largerMeasurementUnitIndex]);
+            if (totalOunces / 16 >= 1)
+            {
+                combinedMeasurementUnit = allWeightMeasurementUnits[1];
+            }
+            else
+            {
+                combinedMeasurementUnit = measurementUnits[largerMeasurementUnitIndex];
+            }
+
+            conversionDivisor = GetWeightConversionMultiplier(combinedMeasurementUnit);
 
             combinedQuantity = totalOunces / conversionDivisor;
 
-            Tuple<double, string> combinedWeightUnit = new Tuple<double, string>(combinedQuantity, measurementUnits[largerMeasurementUnitIndex]);
+            Tuple<double, string> combinedWeightUnit = new Tuple<double, string>(combinedQuantity, combinedMeasurementUnit);
 
             return combinedWeightUnit;
         }

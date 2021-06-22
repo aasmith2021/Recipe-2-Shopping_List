@@ -29,7 +29,10 @@ namespace Recipe2ShoppingList
         {
             Ingredient combinedIngredient = new Ingredient(0, "", this.Name);
 
-            Tuple<double, string> combinedQuantityAndMeasurementUnit = MeasurementUnits.CombineMeasurementUnits(this.Quantity, this.MeasurementUnit, ingredient.Quantity, ingredient.MeasurementUnit);
+            bool thisIngredientHasVolumeMeasurementUnit = MeasurementUnits.IngredientHasVolumeMeasurementUnit(this);
+            bool newIngredientHasVolumeMeasurementUnit = MeasurementUnits.IngredientHasVolumeMeasurementUnit(ingredient);
+
+            Tuple<double, string> combinedQuantityAndMeasurementUnit = MeasurementUnits.CombineMeasurementUnits(this.Quantity, this.MeasurementUnit, thisIngredientHasVolumeMeasurementUnit, ingredient.Quantity, ingredient.MeasurementUnit, newIngredientHasVolumeMeasurementUnit);
 
             combinedIngredient.Quantity = combinedQuantityAndMeasurementUnit.Item1;
             combinedIngredient.MeasurementUnit = combinedQuantityAndMeasurementUnit.Item2;
