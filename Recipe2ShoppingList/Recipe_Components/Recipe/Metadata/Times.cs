@@ -17,6 +17,8 @@ namespace Recipe2ShoppingList
             this.CookTime = cookTime;
         }
 
+        public int Id { get; set; }
+
         public int PrepTime { get; set; }
 
         public int CookTime { get; set; }

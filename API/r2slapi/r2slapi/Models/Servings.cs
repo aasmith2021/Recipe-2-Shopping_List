@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Recipe2ShoppingList
+namespace r2slapi.Models
 {
     public class Servings
     {
@@ -33,31 +33,6 @@ namespace Recipe2ShoppingList
             {
                 this.HighNumberOfServings = newNumberOfServings;
             }
-        }
-
-        public string ProduceServingsText(bool printVersion)
-        {
-            string servingsText = "";
-            bool includeHighNumberOfServings = this.HighNumberOfServings != 0;
-
-            if (printVersion)
-            {
-                servingsText += $"Servings: {this.LowNumberOfServings}";
-
-                if (includeHighNumberOfServings)
-                {
-                    servingsText += $" - {this.HighNumberOfServings}";
-                }
-
-                servingsText += $"{Environment.NewLine}{Environment.NewLine}";
-            }
-            else
-            {
-                servingsText += $"LOW_SERVINGS:{this.LowNumberOfServings}{Environment.NewLine}";
-                servingsText += $"HIGH_SERVINGS:{this.HighNumberOfServings}{Environment.NewLine}";
-            }
-            
-            return servingsText;
         }
     }
 }

@@ -19,6 +19,10 @@ namespace Recipe2ShoppingList
             this.Ingredients = ingredients;
         }
 
+        public int Id { get; set; }
+
+        public int RecipeNumber { get; set; } = 0;
+
         public Metadata Metadata { get; set; } = new Metadata();
 
         public CookingInstructions CookingInstructions { get; set; } = new CookingInstructions();
@@ -28,6 +32,11 @@ namespace Recipe2ShoppingList
         public string ProduceRecipeText(bool printVersion)
         {
             string recipeText = "";
+
+            if (!printVersion)
+            {
+                recipeText += $"RECIPE_#:{this.RecipeNumber}{Environment.NewLine}";
+            }
             recipeText += this.Metadata.ProduceMetadataText(printVersion);
             recipeText += this.Ingredients.ProduceIngredientsText(printVersion);
             recipeText += this.CookingInstructions.ProduceInstructionsText(printVersion);
@@ -38,7 +47,7 @@ namespace Recipe2ShoppingList
         public void AddMetadataFromFile(string recipeText)
         {
             Dictionary<string, string> metadataRegexDictionary = new Dictionary<string, string>();
-            metadataRegexDictionary["recipeId"] = @"RECIPE_#:(.*?)RECIPE_TITLE:";
+            metadataRegexDictionary["recipeNumber"] = @"RECIPE_#:(.*?)RECIPE_TITLE:";
             metadataRegexDictionary["title"] = @"RECIPE_TITLE:(.*?)USER_NOTES:";
             metadataRegexDictionary["notes"] = @"USER_NOTES:(.*?)FOOD_TYPE:";
             metadataRegexDictionary["foodType"] = @"FOOD_TYPE:(.*?)FOOD_GENRE:";
@@ -50,7 +59,7 @@ namespace Recipe2ShoppingList
 
             string regexExpression;
             string regexResult;
-            int recipeId = 0;
+            int recipeNumber = 0;
             string title = "";
             string notes = "";
             string foodType = "";
@@ -67,8 +76,8 @@ namespace Recipe2ShoppingList
 
                 switch (element.Key)
                 {
-                    case "recipeId":
-                        recipeId = int.Parse(regexResult);
+                    case "recipeNumber":
+                        recipeNumber = int.Parse(regexResult);
                         break;
                     
                     case "title":
@@ -108,7 +117,7 @@ namespace Recipe2ShoppingList
                 }
             }
 
-            this.Metadata.RecipeId = recipeId;
+            this.RecipeNumber = recipeNumber;
             this.Metadata.Title = title;
             this.Metadata.Notes = notes;
             this.Metadata.Tags.FoodType = foodType;

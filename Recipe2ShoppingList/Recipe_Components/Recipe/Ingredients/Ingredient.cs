@@ -6,6 +6,11 @@ namespace Recipe2ShoppingList
 {
     public class Ingredient
     {
+        public Ingredient()
+        {
+
+        }
+        
         public Ingredient(double quantity, string measurementUnit, string name, string preparationNote = "", string storeLocation = "")
         {
             this.Quantity = quantity;
@@ -14,6 +19,8 @@ namespace Recipe2ShoppingList
             this.PreparationNote = preparationNote;
             this.StoreLocation = storeLocation;
         }
+
+        public int Id { get; set; }
 
         public double Quantity { get; set; }
 

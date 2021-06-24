@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Recipe2ShoppingList
+namespace r2slapi.Models
 {
     public class Tags
     {
@@ -31,25 +31,6 @@ namespace Recipe2ShoppingList
         public void UpdateFoodGenre(string newFoodGenre)
         {
             this.FoodGenre = newFoodGenre;
-        }
-
-        public string ProduceTagsText(bool printVersion)
-        {
-            string tagsText = "";
-
-            if(printVersion)
-            {
-                //This is stubbed in for the future if we want to print out
-                //the tags as a part of the recipe.
-                tagsText = "";
-            }
-            else
-            {
-                tagsText += UserInterface.MakeStringConsoleLengthLines($"FOOD_TYPE:{this.FoodType}{Environment.NewLine}");
-                tagsText += UserInterface.MakeStringConsoleLengthLines($"FOOD_GENRE:{this.FoodGenre}{Environment.NewLine}");
-            }
-
-            return tagsText;
         }
     }
 }

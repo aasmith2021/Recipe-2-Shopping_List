@@ -6,6 +6,8 @@ namespace Recipe2ShoppingList
 {
     public class InstructionBlock
     {
+        private List<string> instructionLines = new List<string>();
+
         public InstructionBlock()
         {
 
@@ -15,10 +17,10 @@ namespace Recipe2ShoppingList
         {
             this.BlockHeading = blockHeading;
         }
-        
+
+        public int Id { get; set; }
+
         public string BlockHeading { get; set; }
-        
-        private List<string> instructionLines = new List<string>();
 
         public string[] InstructionLines
         {

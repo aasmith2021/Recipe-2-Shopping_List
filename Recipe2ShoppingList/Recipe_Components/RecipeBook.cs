@@ -6,14 +6,21 @@ namespace Recipe2ShoppingList
 {
     public class RecipeBook
     {
+        private List<Recipe> recipes = new List<Recipe>();
+
+        public RecipeBook()
+        {
+
+        }
+        
         public RecipeBook(string name = "")
         {
             this.Name = name;
         }
-        
-        public string Name { get; set; }
 
-        private List<Recipe> recipes = new List<Recipe>();
+        public int Id { get; set; }
+
+        public string Name { get; set; }
 
         public Recipe[] Recipes
         {
@@ -26,9 +33,9 @@ namespace Recipe2ShoppingList
 
         public void AddRecipe(Recipe newRecipe)
         {
-            if (newRecipe.Metadata.RecipeId == 0)
+            if (newRecipe.RecipeNumber == 0)
             {
-                newRecipe.Metadata.RecipeId = this.Recipes.Length + 1;
+                newRecipe.RecipeNumber = this.Recipes.Length + 1;
             }
 
             recipes.Add(newRecipe);
@@ -95,6 +102,8 @@ namespace Recipe2ShoppingList
         private void AddOneRecipeToRecipeBook(string recipeText)
         {
             Recipe recipeToAdd = new Recipe();
+
+            
 
             recipeToAdd.AddMetadataFromFile(recipeText);
             recipeToAdd.AddCookingInstructionsFromFile(recipeText);

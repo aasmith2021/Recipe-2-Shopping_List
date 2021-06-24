@@ -7,7 +7,9 @@ namespace Recipe2ShoppingList
     public class CookingInstructions
     {       
         private List<InstructionBlock> instructionBlocks = new List<InstructionBlock>();
-
+    
+        public int Id { get; set; }
+        
         public InstructionBlock[] InstructionBlocks
         {
             get { return this.instructionBlocks.ToArray(); }

@@ -8,6 +8,8 @@ namespace Recipe2ShoppingList
     {
         private List<Ingredient> allIngredients = new List<Ingredient>();
 
+        public int Id { get; set; }
+
         public Ingredient[] AllIngredients
         {
             get { return this.allIngredients.ToArray(); }

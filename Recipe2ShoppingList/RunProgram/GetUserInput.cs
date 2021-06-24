@@ -194,19 +194,19 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
             
             userIO.DisplayDataLite("Enter the title of the new recipe: ");
-            string title = GetUserInputString(userIO, false);
+            string title = GetUserInputString(userIO, false, 200);
 
             userIO.DisplayData();
             userIO.DisplayData("Enter notes about the new recipe (or press \"Enter\" to leave blank):");
-            string userNotes = GetUserInputString(userIO, true);
+            string userNotes = GetUserInputString(userIO, true, 1200);
 
             userIO.DisplayData();
             userIO.DisplayData("Enter the food type of the new recipe (or press \"Enter\" to leave blank): ");
-            string foodType = GetUserInputString(userIO, true);
+            string foodType = GetUserInputString(userIO, true, 100);
 
             userIO.DisplayData();
             userIO.DisplayData("Enter the food genre of the new recipe (or press \"Enter\" to leave blank): ");
-            string foodGenre = GetUserInputString(userIO, true);
+            string foodGenre = GetUserInputString(userIO, true, 100);
 
             userIO.DisplayData();
             userIO.DisplayDataLite("Enter the prep time of recipe in minutes: ");
@@ -234,9 +234,23 @@ namespace Recipe2ShoppingList
             userIO.DisplayDataLite("Enter the low number of estimated servings: ");
             int lowServings = GetUserInputInt(userIO, 1);
 
+            while (lowServings > 500)
+            {
+                userIO.DisplayData();
+                userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("A recipe cannot have more than 500 servings. Please enter a valid number of servings:"));
+                lowServings = GetUserInputInt(userIO, 1);
+            }
+
             userIO.DisplayData();
             userIO.DisplayData("Enter the high number of estimated servings (or press \"Enter\" to leave blank): ");
             int highServings = GetUserInputInt(userIO, 2, true);
+
+            while (highServings > 500)
+            {
+                userIO.DisplayData();
+                userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("A recipe cannot have more than 500 servings. Please enter a valid number of servings:"));
+                highServings = GetUserInputInt(userIO, 2, true);
+            }
 
             userIO.DisplayData();
             userIO.DisplayData("Basic info complete! Now on to the ingredients!");
@@ -310,11 +324,11 @@ namespace Recipe2ShoppingList
 
                 userIO.DisplayData();
                 userIO.DisplayDataLite("Enter the ingredient name: ");
-                string name = GetUserInputString(userIO, false);
+                string name = GetUserInputString(userIO, false, 100);
 
                 userIO.DisplayData();
                 userIO.DisplayData("Enter the ingredient preparation note (or press \"Enter\" to leave blank):");
-                string preparationNote = GetUserInputString(userIO, true);
+                string preparationNote = GetUserInputString(userIO, true, 120);
 
                 Ingredient ingredientToAdd = new Ingredient(qty, measurementUnit, name, preparationNote);
                 recipeIngredientList.AddIngredient(ingredientToAdd);
@@ -345,6 +359,13 @@ namespace Recipe2ShoppingList
             userIO.DisplayDataLite($"Enter the quantity of ingredient needed (ex: 1.5): ");
             double qty = GetUserInputDouble(userIO, 2);
 
+            while (qty > 1000)
+            {
+                userIO.DisplayData();
+                userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("An ingredient quantity cannot be more than 1000. Please enter a valid ingredient quantity:"));
+                qty = GetUserInputDouble(userIO, 2);
+            }
+
             List<string[]> measurementUnits = MeasurementUnits.AllMeasurementUnitsForUserInput(recipeBookLibrary);
             List<string> options = new List<string>();
             userIO.DisplayData();
@@ -369,11 +390,11 @@ namespace Recipe2ShoppingList
 
             userIO.DisplayData();
             userIO.DisplayDataLite("Enter the ingredient name: ");
-            string name = GetUserInputString(userIO, false);
+            string name = GetUserInputString(userIO, false, 100);
 
             userIO.DisplayData();
             userIO.DisplayData("Enter the ingredient preparation note (or press \"Enter\" to leave blank):");
-            string preparationNote = GetUserInputString(userIO, true);
+            string preparationNote = GetUserInputString(userIO, true, 120);
 
             Ingredient ingredientToAdd = new Ingredient(qty, measurementUnit, name, preparationNote);
             return ingredientToAdd;
@@ -408,7 +429,7 @@ namespace Recipe2ShoppingList
                 userIO.DisplayData();
 
                 userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines($"Enter the heading for instruction block {i + 1} (or press \"Enter\" to leave blank):"));
-                string blockHeading = GetUserInputString(userIO, true);
+                string blockHeading = GetUserInputString(userIO, true, 100);
 
                 InstructionBlock instructionBlockToAdd = new InstructionBlock(blockHeading);
 
@@ -416,11 +437,18 @@ namespace Recipe2ShoppingList
                 userIO.DisplayDataLite($"Enter the number of instruction lines for instruction block {i + 1}: ");
                 int numberOfLines = GetUserInputInt(userIO, 2);
 
+                while (numberOfLines > 20)
+                {
+                    userIO.DisplayData();
+                    userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("An instruction block cannot have more than 20 instruction lines. Please enter a valid number of instruction lines:"));
+                    numberOfLines = GetUserInputInt(userIO, 2);
+                }
+
                 for (int j = 0; j < numberOfLines; j++)
                 {
                     userIO.DisplayData();
                     userIO.DisplayData($"Enter the instructions for line #{j + 1}:");
-                    string instructionLine = GetUserInputString(userIO, false);
+                    string instructionLine = GetUserInputString(userIO, false, 400);
 
                     instructionBlockToAdd.AddInstructionLine(instructionLine);
                 }
@@ -459,7 +487,7 @@ namespace Recipe2ShoppingList
         public static InstructionBlock GetInstructionBlockFromUser(IUserIO userIO)
         {
             userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines($"Enter the heading for the new instruction block (or press \"Enter\" to leave blank):"));
-            string blockHeading = GetUserInputString(userIO, true);
+            string blockHeading = GetUserInputString(userIO, true, 100);
 
             InstructionBlock newInstructionBlock = new InstructionBlock(blockHeading);
 
@@ -467,11 +495,18 @@ namespace Recipe2ShoppingList
             userIO.DisplayDataLite($"Enter the number of instruction lines for the instruction block: ");
             int numberOfLines = GetUserInputInt(userIO, 2);
 
+            while (numberOfLines > 20)
+            {
+                userIO.DisplayData();
+                userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("An instruction block cannot have more than 20 instruction lines. Please enter a valid number of instruction lines:"));
+                numberOfLines = GetUserInputInt(userIO, 2);
+            }
+
             for (int j = 0; j < numberOfLines; j++)
             {
                 userIO.DisplayData();
                 userIO.DisplayData($"Enter the instructions for line #{j + 1}:");
-                string instructionLine = GetUserInputString(userIO, false);
+                string instructionLine = GetUserInputString(userIO, false, 400);
 
                 newInstructionBlock.AddInstructionLine(instructionLine);
             }
@@ -483,7 +518,7 @@ namespace Recipe2ShoppingList
         {
             userIO.DisplayData();
             userIO.DisplayData("Enter the name of the new measurement unit:");
-            measurementUnit = GetUserInputString(userIO, false);
+            measurementUnit = GetUserInputString(userIO, false, 30);
         }
 
         public static string GetTheFieldToEditFromUser(IUserIO userIO, Recipe recipe, List<string[]> editOptions)
@@ -502,10 +537,14 @@ namespace Recipe2ShoppingList
             return userOption;
         }
 
-        public static string GetNewUserNotes(IUserIO userIO)
+        public static string GetNewUserNotes(IUserIO userIO, Recipe recipe)
         {
+            int currentLengthOfNotes = recipe.Metadata.Notes.Length;
+            int maxLengthOfNotes = 1200;
+            int maxLengthOfNewNote = maxLengthOfNotes - currentLengthOfNotes;
+            
             userIO.DisplayData("Enter the notes you would like to add to this recipe:");
-            string newNotes = GetUserInputString(userIO, false);
+            string newNotes = GetUserInputString(userIO, false, maxLengthOfNewNote);
 
             return newNotes;
         }

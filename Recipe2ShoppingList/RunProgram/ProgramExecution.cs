@@ -41,7 +41,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayMainMenu(userIO, recipeBookLibrary, out List<string> mainMenuOptions);
             string userOption = GetUserInput.GetUserOption(userIO, mainMenuOptions);
 
-            if (Int32.TryParse(userOption, out int userOptionNumber))
+            if (int.TryParse(userOption, out int userOptionNumber))
             {
                 bool exitRecipeBookSection = false;
 
@@ -201,7 +201,7 @@ namespace Recipe2ShoppingList
 
             userIO.DisplayData();
             userIO.DisplayData("Enter the new name for the measurement unit:");
-            string newName = GetUserInput.GetUserInputString(userIO, false);
+            string newName = GetUserInput.GetUserInputString(userIO, false, 30);
 
             recipeBookLibrary.EditMeasurementUnit(userAddedMeasurementUnits[int.Parse(userOption) - 1], newName);
             UserInterface.SuccessfulChange(userIO, true, "measurement unit name", "updated");
@@ -332,7 +332,7 @@ namespace Recipe2ShoppingList
             userIO.DisplayData("---------- ADD NEW RECIPE BOOK ----------");
             userIO.DisplayData();
             userIO.DisplayDataLite("Enter a name for the new recipe book: ");
-            string bookName = GetUserInput.GetUserInputString(userIO, false);
+            string bookName = GetUserInput.GetUserInputString(userIO, false, 120);
 
             GetUserInput.AreYouSure(userIO, $"create a new recipe book named {bookName}", out bool isSure);
 
@@ -365,14 +365,14 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayOptionsMenu(userIO, recipeBooksToDisplay, out recipeBookOptions);
             userIO.DisplayData();
             userIO.DisplayDataLite("Enter the recipe book you would like to rename: ");
-            int userOption = Int32.Parse(GetUserInput.GetUserOption(userIO, recipeBookOptions));
+            int userOption = int.Parse(GetUserInput.GetUserOption(userIO, recipeBookOptions));
 
             RecipeBook recipeBookToRename = recipeBookLibrary.AllRecipeBooks[userOption - 1];
             string oldName = recipeBookToRename.Name;
 
             userIO.DisplayData("");
             userIO.DisplayDataLite($"Enter the new name for the {oldName} recipe book: ");
-            string newName = GetUserInput.GetUserInputString(userIO, false);
+            string newName = GetUserInput.GetUserInputString(userIO, false, 120);
 
             GetUserInput.AreYouSure(userIO, $"rename the {oldName} recipe book to \"{newName}\"", out bool isSure);
 
@@ -404,7 +404,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayOptionsMenu(userIO, recipeBooksToDisplay, out recipeBookOptions);
             userIO.DisplayData();
             userIO.DisplayDataLite("Enter the recipe book you would like to delete: ");
-            int userOption = Int32.Parse(GetUserInput.GetUserOption(userIO, recipeBookOptions));
+            int userOption = int.Parse(GetUserInput.GetUserOption(userIO, recipeBookOptions));
 
             RecipeBook recipeBookToDelete = recipeBookLibrary.AllRecipeBooks[userOption - 1];
 
@@ -570,7 +570,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
             userIO.DisplayDataLite("Enter the new title for this recipe: ");
-            string newTitle = GetUserInput.GetUserInputString(userIO, false);
+            string newTitle = GetUserInput.GetUserInputString(userIO, false, 200);
 
             GetUserInput.AreYouSure(userIO, $"change the name of this recipe to {newTitle}", out bool isSure);
 
@@ -602,7 +602,7 @@ namespace Recipe2ShoppingList
             }
 
             userIO.DisplayData();
-            string newNotes = GetUserInput.GetNewUserNotes(userIO);
+            string newNotes = GetUserInput.GetNewUserNotes(userIO, recipe);
 
             GetUserInput.AreYouSure(userIO, "add these new notes to the recipe", out bool isSure);
 
@@ -662,14 +662,26 @@ namespace Recipe2ShoppingList
                 if (i == 0)
                 {
                     userIO.DisplayData();
-                    userIO.DisplayDataLite("Enter the new Prep Time: ");
+                    userIO.DisplayDataLite("Enter the new Prep Time in minutes: ");
                     newPrepTime = GetUserInput.GetUserInputInt(userIO, 1);
+                    while (newPrepTime > 2880)
+                    {
+                        userIO.DisplayData();
+                        userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("A recipe cannot have a prep time of more than 2,880 minutes. Please enter a valid prep time:"));
+                        newPrepTime = GetUserInput.GetUserInputInt(userIO, 1);
+                    }
                 }
                 else
                 {
                     userIO.DisplayData();
-                    userIO.DisplayDataLite("Enter the new Cook Time: ");
+                    userIO.DisplayDataLite("Enter the new Cook Time in minutes: ");
                     newCookTime = GetUserInput.GetUserInputInt(userIO, 1);
+                    while (newCookTime > 1440)
+                    {
+                        userIO.DisplayData();
+                        userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("A recipe cannot have a cook time of more than 1,440 minutes. Please enter a valid cook time:"));
+                        newCookTime = GetUserInput.GetUserInputInt(userIO, 1);
+                    }
                 }
             }
 
@@ -738,12 +750,24 @@ namespace Recipe2ShoppingList
                     userIO.DisplayData();
                     userIO.DisplayDataLite("Enter the new Low # of Servings: ");
                     newLowServings = GetUserInput.GetUserInputInt(userIO, 1);
+                    while (newLowServings > 500)
+                    {
+                        userIO.DisplayData();
+                        userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("A recipe cannot have more than 500 servings. Please enter a valid number of servings:"));
+                        newLowServings = GetUserInput.GetUserInputInt(userIO, 1);
+                    }
                 }
                 else
                 {
                     userIO.DisplayData();
                     userIO.DisplayDataLite("Enter the new High # of Servings: ");
                     newHighServings = GetUserInput.GetUserInputInt(userIO, 1);
+                    while (newHighServings > 500)
+                    {
+                        userIO.DisplayData();
+                        userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("A recipe cannot have more than 500 servings. Please enter a valid number of servings:"));
+                        newHighServings = GetUserInput.GetUserInputInt(userIO, 1);
+                    }
                 }
             }
 
@@ -811,13 +835,13 @@ namespace Recipe2ShoppingList
                 {
                     userIO.DisplayData();
                     userIO.DisplayDataLite("Enter the new Food Type: ");
-                    newFoodType = GetUserInput.GetUserInputString(userIO, true);
+                    newFoodType = GetUserInput.GetUserInputString(userIO, true, 100);
                 }
                 else
                 {
                     userIO.DisplayData();
                     userIO.DisplayDataLite("Enter the new Food Genre: ");
-                    newFoodGenre = GetUserInput.GetUserInputString(userIO, true);
+                    newFoodGenre = GetUserInput.GetUserInputString(userIO, true, 100);
                 }
             }
 
@@ -932,6 +956,12 @@ namespace Recipe2ShoppingList
                 case "1":
                     userIO.DisplayDataLite("Enter the new quantity of the ingredient (ex: 1.5): ");
                     double newQuantity = GetUserInput.GetUserInputDouble(userIO, 2);
+                    while (newQuantity > 1000)
+                    {
+                        userIO.DisplayData();
+                        userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("An ingredient quantity cannot be more than 1000. Please enter a valid ingredient quantity:"));
+                        newQuantity = GetUserInput.GetUserInputDouble(userIO, 2);
+                    }
                     ingredientToEdit.Quantity = newQuantity;
                     UserInterface.SuccessfulChange(userIO, true, "ingredient quantity", "updated");
                     break;
@@ -959,13 +989,13 @@ namespace Recipe2ShoppingList
                     break;
                 case "3":
                     userIO.DisplayData("Enter the new ingredient name:");
-                    string newName = GetUserInput.GetUserInputString(userIO, false);
+                    string newName = GetUserInput.GetUserInputString(userIO, false, 100);
                     ingredientToEdit.Name = newName;
                     UserInterface.SuccessfulChange(userIO, true, "ingredient name", "updated");
                     break;
                 case "4":
                     userIO.DisplayData("Enter the new ingredient preparation note (or press \"Enter\" to leave blank):");
-                    newPrepNote = GetUserInput.GetUserInputString(userIO, true);
+                    newPrepNote = GetUserInput.GetUserInputString(userIO, true, 120);
                     ingredientToEdit.PreparationNote = newPrepNote;
                     UserInterface.SuccessfulChange(userIO, true, "ingredient preparation note", "updated");
                     break;
@@ -1193,7 +1223,7 @@ namespace Recipe2ShoppingList
 
             userIO.DisplayData();
             userIO.DisplayData("Enter the new instruction line to add:");
-            string newInstructionLine = GetUserInput.GetUserInputString(userIO, false);
+            string newInstructionLine = GetUserInput.GetUserInputString(userIO, false, 360);
 
             instructionBlock.AddInstructionLine(newInstructionLine);
             UserInterface.SuccessfulChange(userIO, true, "new instruction line", "added");
@@ -1220,7 +1250,7 @@ namespace Recipe2ShoppingList
 
             userIO.DisplayData();
             userIO.DisplayData("Enter the new text for the instruction line:");
-            string newInstructionLineText = GetUserInput.GetUserInputString(userIO, false);
+            string newInstructionLineText = GetUserInput.GetUserInputString(userIO, false, 360);
 
             instructionBlock.EditInstructionLine(int.Parse(instructionLineSelected) - 1, newInstructionLineText);
             UserInterface.SuccessfulChange(userIO, true, "instruction line", "edited");
@@ -1268,7 +1298,7 @@ namespace Recipe2ShoppingList
 
             userIO.DisplayData();
             userIO.DisplayData("Enter the new block heading to add:");
-            string newBlockHeading = GetUserInput.GetUserInputString(userIO, false);
+            string newBlockHeading = GetUserInput.GetUserInputString(userIO, false, 100);
 
             instructionBlock.BlockHeading = newBlockHeading;
             UserInterface.SuccessfulChange(userIO, true, "new block heading", "added");
@@ -1284,7 +1314,7 @@ namespace Recipe2ShoppingList
 
             userIO.DisplayData();
             userIO.DisplayData("Enter the new block heading:");
-            string newBlockHeading = GetUserInput.GetUserInputString(userIO, false);
+            string newBlockHeading = GetUserInput.GetUserInputString(userIO, false, 100);
 
             instructionBlock.BlockHeading = newBlockHeading;
             UserInterface.SuccessfulChange(userIO, true, "block heading", "edited");
