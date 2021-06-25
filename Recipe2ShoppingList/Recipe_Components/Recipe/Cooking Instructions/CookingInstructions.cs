@@ -5,24 +5,19 @@ using System.Text;
 namespace Recipe2ShoppingList
 {
     public class CookingInstructions
-    {       
-        private List<InstructionBlock> instructionBlocks = new List<InstructionBlock>();
-    
+    {         
         public int Id { get; set; }
         
-        public InstructionBlock[] InstructionBlocks
-        {
-            get { return this.instructionBlocks.ToArray(); }
-        }
+        public List<InstructionBlock> InstructionBlocks { get; set; } = new List<InstructionBlock>();
 
         public void AddInstructionBlock(InstructionBlock newInstructionBlock)
         {
-            instructionBlocks.Add(newInstructionBlock);
+            InstructionBlocks.Add(newInstructionBlock);
         }
 
         public void DeleteInstructionBlock(int indexOfBlockToDelete)
         {
-            instructionBlocks.RemoveAt(indexOfBlockToDelete);
+            InstructionBlocks.RemoveAt(indexOfBlockToDelete);
         }
 
         public string ProduceInstructionsText(bool printVersion, bool includeEditHeadings = false)
@@ -33,7 +28,7 @@ namespace Recipe2ShoppingList
             {
                 instructionsText += $"INSTRUCTIONS:{Environment.NewLine}";
 
-                for (int i = 0; i < this.InstructionBlocks.Length; i++)
+                for (int i = 0; i < this.InstructionBlocks.Count; i++)
                 {
                     InstructionBlock currentInstructionBlock = this.InstructionBlocks[i];
                     int lineNumber = 1;
@@ -56,7 +51,7 @@ namespace Recipe2ShoppingList
                         lineNumberString = $"{lineNumber}.";
                     }
 
-                    if (i != this.InstructionBlocks.Length - 1)
+                    if (i != this.InstructionBlocks.Count - 1)
                     {
                         instructionsText += $"{Environment.NewLine}";
                     }
@@ -66,7 +61,7 @@ namespace Recipe2ShoppingList
             {
                 instructionsText += $"-START_OF_INSTRUCTIONS-{Environment.NewLine}";
                 
-                for (int i = 0; i < this.InstructionBlocks.Length; i++)
+                for (int i = 0; i < this.InstructionBlocks.Count; i++)
                 {
                     InstructionBlock currentInstructionBlock = this.InstructionBlocks[i];
 

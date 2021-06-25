@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace r2slapi.Models
 {
     public class InstructionBlock
     {
-        private List<string> instructionLines = new List<string>();
-
         public InstructionBlock()
         {
 
@@ -20,26 +19,25 @@ namespace r2slapi.Models
 
         public int Id { get; set; }
 
+        [StringLength(100, MinimumLength = 0, ErrorMessage = "Block heading cannot be null, and cannot exceed 100 characters.")]
         public string BlockHeading { get; set; }
-        
-        public string[] InstructionLines
-        {
-            get { return this.instructionLines.ToArray(); }
-        }
+
+        [MaxLength(20, ErrorMessage = "An instruction block cannot have more than 20 instruction lines.")]
+        public List<string> InstructionLines { get; set; } = new List<string>();
         
         public void AddInstructionLine(string newInstructionLine)
         {
-            instructionLines.Add(newInstructionLine);
+            InstructionLines.Add(newInstructionLine);
         }
 
         public void DeleteInstructionLine(int indexOfLineToDelete)
         {
-            instructionLines.RemoveAt(indexOfLineToDelete);
+            InstructionLines.RemoveAt(indexOfLineToDelete);
         }
 
         public void EditInstructionLine(int indexOfLineToEdit, string newInstructionLine)
         {
-            instructionLines[indexOfLineToEdit] = newInstructionLine;
+            InstructionLines[indexOfLineToEdit] = newInstructionLine;
         }
     }
 }

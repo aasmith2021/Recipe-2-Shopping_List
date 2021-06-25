@@ -6,23 +6,18 @@ namespace Recipe2ShoppingList
 {
     public class IngredientList
     {
-        private List<Ingredient> allIngredients = new List<Ingredient>();
-
         public int Id { get; set; }
 
-        public Ingredient[] AllIngredients
-        {
-            get { return this.allIngredients.ToArray(); }
-        }
+        public List<Ingredient> AllIngredients { get; set; } = new List<Ingredient>();
 
         public void AddIngredient(Ingredient newIngredient)
         {
-            allIngredients.Add(newIngredient);
+            AllIngredients.Add(newIngredient);
         }
 
         public void DeleteIngredient(Ingredient ingredientToDelete)
         {
-            allIngredients.Remove(ingredientToDelete);
+            AllIngredients.Remove(ingredientToDelete);
         }
 
         public string ProduceIngredientsText(bool printVersion, bool includeLineNumbers = false)
@@ -33,7 +28,7 @@ namespace Recipe2ShoppingList
             {
                 ingredientsText += $"INGREDIENTS:{Environment.NewLine}";
 
-                for (int i = 0; i < this.AllIngredients.Length; i++)
+                for (int i = 0; i < this.AllIngredients.Count; i++)
                 {
                     string ingredientLine = "";
 

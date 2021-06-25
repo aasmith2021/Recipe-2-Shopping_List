@@ -448,7 +448,7 @@ namespace Recipe2ShoppingList
                 {
                     userIO.DisplayData();
                     userIO.DisplayData($"Enter the instructions for line #{j + 1}:");
-                    string instructionLine = GetUserInputString(userIO, false, 400);
+                    string instructionLine = GetUserInputString(userIO, false, 360);
 
                     instructionBlockToAdd.AddInstructionLine(instructionLine);
                 }
@@ -506,7 +506,7 @@ namespace Recipe2ShoppingList
             {
                 userIO.DisplayData();
                 userIO.DisplayData($"Enter the instructions for line #{j + 1}:");
-                string instructionLine = GetUserInputString(userIO, false, 400);
+                string instructionLine = GetUserInputString(userIO, false, 360);
 
                 newInstructionBlock.AddInstructionLine(instructionLine);
             }

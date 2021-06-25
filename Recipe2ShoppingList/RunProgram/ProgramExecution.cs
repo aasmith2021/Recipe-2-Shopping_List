@@ -883,7 +883,7 @@ namespace Recipe2ShoppingList
             };
             List<string> options = new List<string>();
 
-            if (recipe.Ingredients.AllIngredients.Length == 0)
+            if (recipe.Ingredients.AllIngredients.Count == 0)
             {
                 menuOptions.RemoveAt(1);
                 menuOptions.RemoveAt(1);
@@ -914,16 +914,16 @@ namespace Recipe2ShoppingList
 
         public static void EditExistingIngredient(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
-            Ingredient[] allRecipeIngredients = recipe.Ingredients.AllIngredients;
+            List<Ingredient> allRecipeIngredients = recipe.Ingredients.AllIngredients;
             List<string> ingredientLineOptions = new List<string>();
-            for (int i = 0; i < allRecipeIngredients.Length; i++)
+            for (int i = 0; i < allRecipeIngredients.Count; i++)
             {
                 ingredientLineOptions.Add((i + 1).ToString());
             }
 
             Ingredient ingredientToEdit;
 
-            if (allRecipeIngredients.Length > 1)
+            if (allRecipeIngredients.Count > 1)
             {
                 userIO.DisplayData("Select the ingredient line you would like to edit:");
                 string userOption = GetUserInput.GetUserOption(userIO, ingredientLineOptions);
@@ -1015,9 +1015,9 @@ namespace Recipe2ShoppingList
         {
             userIO.DisplayData("Select the ingredient line you would like to delete:");
 
-            Ingredient[] allRecipeIngredients = recipe.Ingredients.AllIngredients;
+            List<Ingredient> allRecipeIngredients = recipe.Ingredients.AllIngredients;
             List<string> ingredientLineOptions = new List<string>();
-            for (int i = 1; i <= allRecipeIngredients.Length; i++)
+            for (int i = 1; i <= allRecipeIngredients.Count; i++)
             {
                 ingredientLineOptions.Add(i.ToString());
             }
@@ -1056,7 +1056,7 @@ namespace Recipe2ShoppingList
             };
             List<string> options = new List<string>();
 
-            if (recipe.CookingInstructions.InstructionBlocks.Length == 0)
+            if (recipe.CookingInstructions.InstructionBlocks.Count == 0)
             {
                 menuOptions.RemoveAt(1);
                 menuOptions.RemoveAt(1);
@@ -1113,7 +1113,7 @@ namespace Recipe2ShoppingList
 
             userIO.DisplayDataLite(recipe.CookingInstructions.ProduceInstructionsText(true, true));
             InstructionBlock instructionBlockToEdit;
-            int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Length;
+            int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Count;
             List<string> instructionBlockOptions = new List<string>();
             for (int i = 1; i <= numberOfInstructionBlocks; i++)
             {
@@ -1155,7 +1155,7 @@ namespace Recipe2ShoppingList
             };
             List<string> editBlockOptions = new List<string>();
 
-            bool instructionLinesAreBlank = instructionBlockToEdit.InstructionLines.Length == 0;
+            bool instructionLinesAreBlank = instructionBlockToEdit.InstructionLines.Count == 0;
             bool blockHeadingIsBlank = instructionBlockToEdit.BlockHeading == "";
 
             if (instructionLinesAreBlank)
@@ -1237,10 +1237,10 @@ namespace Recipe2ShoppingList
 
             UserInterface.DisplayInstructionBlock(userIO, instructionBlock);
 
-            string[] allInstructionLines = instructionBlock.InstructionLines;
+            List<string> allInstructionLines = instructionBlock.InstructionLines;
             List<string> instructionLineOptions = new List<string>();
 
-            for (int i = 1; i <= allInstructionLines.Length; i++)
+            for (int i = 1; i <= allInstructionLines.Count; i++)
             {
                 instructionLineOptions.Add(i.ToString());
             }
@@ -1264,10 +1264,10 @@ namespace Recipe2ShoppingList
 
             UserInterface.DisplayInstructionBlock(userIO, instructionBlock);
 
-            string[] allInstructionLines = instructionBlock.InstructionLines;
+            List<string> allInstructionLines = instructionBlock.InstructionLines;
             List<string> instructionLineOptions = new List<string>();
 
-            for (int i = 1; i <= allInstructionLines.Length; i++)
+            for (int i = 1; i <= allInstructionLines.Count; i++)
             {
                 instructionLineOptions.Add(i.ToString());
             }
@@ -1351,7 +1351,7 @@ namespace Recipe2ShoppingList
             userIO.DisplayData();
             userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("Enter the instruction block you would like to delete:"));
 
-            int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Length;
+            int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Count;
             List<string> instructionBlockOptions = new List<string>();
             for (int i = 1; i <= numberOfInstructionBlocks; i++)
             {
@@ -1409,7 +1409,7 @@ namespace Recipe2ShoppingList
             string header = "-------- ADD RECIPE TO SHOPPING LIST --------";
             UserInterface.DisplayMenuHeader(userIO, header);
 
-            Ingredient[] recipeIngredients = recipe.Ingredients.AllIngredients;
+            List<Ingredient> recipeIngredients = recipe.Ingredients.AllIngredients;
 
             foreach (Ingredient element in recipeIngredients)
             {

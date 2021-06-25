@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace r2slapi.Models
@@ -19,8 +20,10 @@ namespace r2slapi.Models
 
         public int Id { get; set; }
 
+        [Range(0, 500, ErrorMessage = "Low Number of Servings must be between 0 - 500")]
         public int LowNumberOfServings { get; set; }
 
+        [Range(0, 500, ErrorMessage = "High Number of Servings must be between 0 - 500")]
         public int HighNumberOfServings { get; set; }
 
         public void UpdateNumberOfServings(int newNumberOfServings, bool updateLowNumberOfServings)

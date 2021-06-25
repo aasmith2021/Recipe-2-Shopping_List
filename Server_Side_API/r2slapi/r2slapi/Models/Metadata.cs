@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace r2slapi.Models
@@ -22,8 +23,10 @@ namespace r2slapi.Models
 
         public int Id { get; set; }
 
+        [StringLength(200, MinimumLength = 1, ErrorMessage = "Recipe Name cannot be blank, and cannot exceed 200 characters.")]
         public string Title { get; set; }
 
+        [StringLength(1200, MinimumLength = 0, ErrorMessage = "Recipe Notes cannot be null, and cannot exceed 1,200 characters.")]
         public string Notes { get; set; }
 
         public Times PrepTimes { get; set; } = new Times();

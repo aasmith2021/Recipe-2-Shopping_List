@@ -15,7 +15,7 @@ namespace r2slapi.Models
             allMeasurementUnits.AddRange(MeasurementUnits.AllStandardMeasurementUnits());
         }
 
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         public RecipeBook[] AllRecipeBooks
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace r2slapi.Models
@@ -20,6 +21,7 @@ namespace r2slapi.Models
 
         public int Id { get; set; }
 
+        [StringLength(120, MinimumLength = 1, ErrorMessage = "Recipe Book name cannot be blank, and cannot exceed 120 characters.")]
         public string Name { get; set; }
 
         public Recipe[] Recipes

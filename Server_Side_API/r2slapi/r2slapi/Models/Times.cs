@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace r2slapi.Models
@@ -19,8 +20,10 @@ namespace r2slapi.Models
 
         public int Id { get; set; }
 
+        [Range(0, 2880, ErrorMessage = "Prep time must be between 0 - 2,880")]
         public int PrepTime { get; set; }
 
+        [Range(0, 1440, ErrorMessage = "Cook time must be between 0 - 1,440")]
         public int CookTime { get; set; }
 
         public int TotalTime { 

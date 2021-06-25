@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using r2slapi.DAO;
 
 namespace r2slapi
 {
@@ -26,6 +27,7 @@ namespace r2slapi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddTransient<IRecipeDao, RecipeDao>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

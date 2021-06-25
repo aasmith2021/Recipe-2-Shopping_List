@@ -6,8 +6,6 @@ namespace Recipe2ShoppingList
 {
     public class InstructionBlock
     {
-        private List<string> instructionLines = new List<string>();
-
         public InstructionBlock()
         {
 
@@ -22,24 +20,21 @@ namespace Recipe2ShoppingList
 
         public string BlockHeading { get; set; }
 
-        public string[] InstructionLines
-        {
-            get { return this.instructionLines.ToArray(); }
-        }
+        public List<string> InstructionLines { get; set; } = new List<string>();
         
         public void AddInstructionLine(string newInstructionLine)
         {
-            instructionLines.Add(newInstructionLine);
+            InstructionLines.Add(newInstructionLine);
         }
 
         public void DeleteInstructionLine(int indexOfLineToDelete)
         {
-            instructionLines.RemoveAt(indexOfLineToDelete);
+            InstructionLines.RemoveAt(indexOfLineToDelete);
         }
 
         public void EditInstructionLine(int indexOfLineToEdit, string newInstructionLine)
         {
-            instructionLines[indexOfLineToEdit] = newInstructionLine;
+            InstructionLines[indexOfLineToEdit] = newInstructionLine;
         }
 
         public void GetInstructionBlockFromText(string instructionBlockText)
