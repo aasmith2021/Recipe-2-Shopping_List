@@ -147,7 +147,7 @@ namespace Recipe2ShoppingList
             List<string[]> recipeBookStandardOptions = new List<string[]>();
             recipeBookOptions = new List<string>();
 
-            if (recipeBook.Recipes.Length == 0)
+            if (recipeBook.Recipes.Count == 0)
             {
                 userIO.DisplayData("You currently don't have any recipes in this recipe book.");
                 userIO.DisplayData();
@@ -163,7 +163,7 @@ namespace Recipe2ShoppingList
             {
                 userIO.DisplayData("----- RECIPES -----");
 
-                for (int i = 0; i < recipeBook.Recipes.Length; i++)
+                for (int i = 0; i < recipeBook.Recipes.Count; i++)
                 {
                     recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
                 }
@@ -185,7 +185,7 @@ namespace Recipe2ShoppingList
             DisplayOptionsMenu(userIO, recipeBookStandardOptions, out List<string> standardOptionsToAdd);
             userIO.DisplayData();
 
-            if (recipeBook.Recipes.Length != 0)
+            if (recipeBook.Recipes.Count != 0)
             {
                 userIO.DisplayData();
                 userIO.DisplayData(MakeStringConsoleLengthLines("Open a recipe by entering its number, or select an option from the menu:"));

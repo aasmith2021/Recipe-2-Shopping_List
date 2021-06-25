@@ -6,8 +6,6 @@ namespace Recipe2ShoppingList
 {
     public class RecipeBook
     {
-        private List<Recipe> recipes = new List<Recipe>();
-
         public RecipeBook()
         {
 
@@ -22,28 +20,21 @@ namespace Recipe2ShoppingList
 
         public string Name { get; set; }
 
-        public Recipe[] Recipes
-        {
-            get
-            {
-                Recipe[] allRecipes = recipes.ToArray();
-                return allRecipes;
-            }
-        }
+        public List<Recipe> Recipes { get; set; } = new List<Recipe>();
 
         public void AddRecipe(Recipe newRecipe)
         {
             if (newRecipe.RecipeNumber == 0)
             {
-                newRecipe.RecipeNumber = this.Recipes.Length + 1;
+                newRecipe.RecipeNumber = this.Recipes.Count + 1;
             }
 
-            recipes.Add(newRecipe);
+            Recipes.Add(newRecipe);
         }
 
         public void DeleteRecipe(Recipe recipeToDelete)
         {
-            recipes.Remove(recipeToDelete);
+            Recipes.Remove(recipeToDelete);
         }
 
         public string ProduceRecipeBookText(bool printVersion)
@@ -54,11 +45,11 @@ namespace Recipe2ShoppingList
             {
                 recipeBookText += $"RECIPE BOOK NAME: {this.Name}{Environment.NewLine}{Environment.NewLine}";
 
-                for (int i = 0; i < this.Recipes.Length; i++)
+                for (int i = 0; i < this.Recipes.Count; i++)
                 {
                     recipeBookText += this.Recipes[i].ProduceRecipeText(printVersion);
 
-                    if (i != this.Recipes.Length - 1)
+                    if (i != this.Recipes.Count - 1)
                     {
                         recipeBookText += $"{Environment.NewLine}{Environment.NewLine}";
                     }
@@ -70,7 +61,7 @@ namespace Recipe2ShoppingList
                 recipeBookText += $"RECIPE_BOOK_NAME:{this.Name}{Environment.NewLine}";
 
 
-                for (int i = 0; i < this.Recipes.Length; i++)
+                for (int i = 0; i < this.Recipes.Count; i++)
                 {
                     recipeBookText += $"-START_OF_RECIPE-{Environment.NewLine}";
                     recipeBookText += this.Recipes[i].ProduceRecipeText(printVersion);

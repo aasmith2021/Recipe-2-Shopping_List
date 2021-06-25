@@ -12,11 +12,11 @@ namespace Recipe2ShoppingList
 
         }
         
-        public Recipe(Metadata metadata, CookingInstructions cookingInstructions, IngredientList ingredients)
+        public Recipe(Metadata metadata, CookingInstructions cookingInstructions, IngredientList ingredientList)
         {
             this.Metadata = metadata;
             this.CookingInstructions = cookingInstructions;
-            this.Ingredients = ingredients;
+            this.IngredientList = ingredientList;
         }
 
         public int Id { get; set; }
@@ -27,7 +27,7 @@ namespace Recipe2ShoppingList
 
         public CookingInstructions CookingInstructions { get; set; } = new CookingInstructions();
 
-        public IngredientList Ingredients { get; set; } = new IngredientList();
+        public IngredientList IngredientList { get; set; } = new IngredientList();
 
         public string ProduceRecipeText(bool printVersion)
         {
@@ -38,7 +38,7 @@ namespace Recipe2ShoppingList
                 recipeText += $"RECIPE_#:{this.RecipeNumber}{Environment.NewLine}";
             }
             recipeText += this.Metadata.ProduceMetadataText(printVersion);
-            recipeText += this.Ingredients.ProduceIngredientsText(printVersion);
+            recipeText += this.IngredientList.ProduceIngredientsText(printVersion);
             recipeText += this.CookingInstructions.ProduceInstructionsText(printVersion);
 
             return recipeText;
@@ -162,7 +162,7 @@ namespace Recipe2ShoppingList
                 allRecipeIngredients.AddIngredient(ingredient);
             }
 
-            this.Ingredients = allRecipeIngredients;
+            this.IngredientList = allRecipeIngredients;
         }
 
         private Ingredient[] GetIngredientsFromText(string ingredientsText)

@@ -7,11 +7,6 @@ namespace r2slapi.Models
 {
     public class IngredientList
     {
-        public IngredientList()
-        {
-
-        }
-
         public int Id { get; set; }
 
         [MaxLength(30, ErrorMessage = "A recipe cannot have more than 30 ingredients.")]

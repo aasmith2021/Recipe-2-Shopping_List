@@ -14,7 +14,7 @@ namespace r2slapi.DAO
 
         public Recipe GetRecipe(int recipeId);
 
-        public RecipeBook CreateRecipeBook(RecipeBook recipeBook);
+        public RecipeBook CreateRecipeBook(int recipeBookLibraryId, RecipeBook recipeBook);
 
         public Recipe CreateRecipe(int recipeBookId, Recipe recipe);
     }

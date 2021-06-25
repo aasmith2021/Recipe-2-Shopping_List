@@ -494,7 +494,7 @@ namespace Recipe2ShoppingList
             List<string[]> recipesToDisplay = new List<string[]>();
             List<string> recipeOptions = new List<string>();
 
-            for (int i = 0; i < recipeBook.Recipes.Length; i++)
+            for (int i = 0; i < recipeBook.Recipes.Count; i++)
             {
                 recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
             }
@@ -537,7 +537,7 @@ namespace Recipe2ShoppingList
             List<string[]> recipesToDisplay = new List<string[]>();
             List<string> recipeOptions = new List<string>();
 
-            for (int i = 0; i < recipeBook.Recipes.Length; i++)
+            for (int i = 0; i < recipeBook.Recipes.Count; i++)
             {
                 recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
             }
@@ -872,7 +872,7 @@ namespace Recipe2ShoppingList
             string header = "---------- EDIT RECIPE ----------";
             string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
             UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
-            userIO.DisplayDataLite(recipe.Ingredients.ProduceIngredientsText(true, true));
+            userIO.DisplayDataLite(recipe.IngredientList.ProduceIngredientsText(true, true));
 
             List<string[]> menuOptions = new List<string[]>()
             {
@@ -883,7 +883,7 @@ namespace Recipe2ShoppingList
             };
             List<string> options = new List<string>();
 
-            if (recipe.Ingredients.AllIngredients.Count == 0)
+            if (recipe.IngredientList.AllIngredients.Count == 0)
             {
                 menuOptions.RemoveAt(1);
                 menuOptions.RemoveAt(1);
@@ -914,7 +914,7 @@ namespace Recipe2ShoppingList
 
         public static void EditExistingIngredient(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
-            List<Ingredient> allRecipeIngredients = recipe.Ingredients.AllIngredients;
+            List<Ingredient> allRecipeIngredients = recipe.IngredientList.AllIngredients;
             List<string> ingredientLineOptions = new List<string>();
             for (int i = 0; i < allRecipeIngredients.Count; i++)
             {
@@ -1007,7 +1007,7 @@ namespace Recipe2ShoppingList
         public static void AddNewIngredient(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
             Ingredient ingredientToAdd = GetUserInput.GetIngredientFromUser(userIO, recipeBookLibrary);
-            recipe.Ingredients.AddIngredient(ingredientToAdd);
+            recipe.IngredientList.AddIngredient(ingredientToAdd);
             UserInterface.SuccessfulChange(userIO, true, "ingredient", "added");
         }
 
@@ -1015,7 +1015,7 @@ namespace Recipe2ShoppingList
         {
             userIO.DisplayData("Select the ingredient line you would like to delete:");
 
-            List<Ingredient> allRecipeIngredients = recipe.Ingredients.AllIngredients;
+            List<Ingredient> allRecipeIngredients = recipe.IngredientList.AllIngredients;
             List<string> ingredientLineOptions = new List<string>();
             for (int i = 1; i <= allRecipeIngredients.Count; i++)
             {
@@ -1029,7 +1029,7 @@ namespace Recipe2ShoppingList
 
             if (isSure)
             {
-                recipe.Ingredients.DeleteIngredient(recipe.Ingredients.AllIngredients[indexOfIngredientToDelete]);
+                recipe.IngredientList.DeleteIngredient(recipe.IngredientList.AllIngredients[indexOfIngredientToDelete]);
                 UserInterface.SuccessfulChange(userIO, true, "ingredient", "deleted");
             }
             else
@@ -1381,7 +1381,7 @@ namespace Recipe2ShoppingList
             List<string[]> recipesToDisplay = new List<string[]>();
             List<string> recipeOptions = new List<string>();
 
-            for (int i = 0; i < recipeBook.Recipes.Length; i++)
+            for (int i = 0; i < recipeBook.Recipes.Count; i++)
             {
                 recipesToDisplay.Add(new string[] { (i + 1).ToString(), recipeBook.Recipes[i].Metadata.Title });
             }
@@ -1409,9 +1409,9 @@ namespace Recipe2ShoppingList
             string header = "-------- ADD RECIPE TO SHOPPING LIST --------";
             UserInterface.DisplayMenuHeader(userIO, header);
 
-            List<Ingredient> recipeIngredients = recipe.Ingredients.AllIngredients;
+            List<Ingredient> recipeIngredientList = recipe.IngredientList.AllIngredients;
 
-            foreach (Ingredient element in recipeIngredients)
+            foreach (Ingredient element in recipeIngredientList)
             {
                 if (element.StoreLocation == "")
                 {

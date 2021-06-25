@@ -7,11 +7,6 @@ namespace r2slapi.Models
 {
     public class CookingInstructions
     {       
-        public CookingInstructions()
-        {
-
-        }
-
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Recipe Cooking Instructions must have at least 1 instruction block.")]

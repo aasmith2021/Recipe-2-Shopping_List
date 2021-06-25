@@ -7,8 +7,6 @@ namespace r2slapi.Models
 {
     public class RecipeBook
     {
-        private List<Recipe> recipes = new List<Recipe>();
-
         public RecipeBook()
         {
 
@@ -24,28 +22,21 @@ namespace r2slapi.Models
         [StringLength(120, MinimumLength = 1, ErrorMessage = "Recipe Book name cannot be blank, and cannot exceed 120 characters.")]
         public string Name { get; set; }
 
-        public Recipe[] Recipes
-        {
-            get
-            {
-                Recipe[] allRecipes = recipes.ToArray();
-                return allRecipes;
-            }
-        }
+        public List<Recipe> Recipes { get; set; } = new List<Recipe>();
 
         public void AddRecipe(Recipe newRecipe)
         {
             if (newRecipe.RecipeNumber == 0)
             {
-                newRecipe.RecipeNumber = this.Recipes.Length + 1;
+                newRecipe.RecipeNumber = this.Recipes.Count + 1;
             }
 
-            recipes.Add(newRecipe);
+            Recipes.Add(newRecipe);
         }
 
         public void DeleteRecipe(Recipe recipeToDelete)
         {
-            recipes.Remove(recipeToDelete);
+            Recipes.Remove(recipeToDelete);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace r2slapi.Controllers
     public class RecipesController : ControllerBase
     {
         private readonly IRecipeDao dao;
-        private const int recipeBookLibraryId = 1;
+        private const int RECIPE_BOOK_LIBRARY_ID = 1;
 
         public RecipesController(IRecipeDao _dao)
         {
@@ -25,7 +25,7 @@ namespace r2slapi.Controllers
         [HttpGet()]
         public ActionResult<RecipeBookLibrary> Get()
         {
-            RecipeBookLibrary recipeBookLibrary = dao.GetRecipeBookLibrary(recipeBookLibraryId);
+            RecipeBookLibrary recipeBookLibrary = dao.GetRecipeBookLibrary(RECIPE_BOOK_LIBRARY_ID);
 
             if (recipeBookLibrary == null)
             {
@@ -78,11 +78,11 @@ namespace r2slapi.Controllers
                 return Ok(recipe);
             }
         }
-        /*
+
         [HttpPost]
-        public ActionResult<RecipeBook> CreateRecipeBook(RecipeBook recipeBook)
-        {
-            RecipeBook newRecipeBook = dao.CreateRecipeBook(recipeBook);
+        public ActionResult<RecipeBook> CreateRecipeBook(RecipeBook recipeBook, int recipeBookLibraryId = RECIPE_BOOK_LIBRARY_ID)
+        {           
+            RecipeBook newRecipeBook = dao.CreateRecipeBook(recipeBookLibraryId, recipeBook);
 
             if (newRecipeBook == null)
             {
@@ -90,12 +90,12 @@ namespace r2slapi.Controllers
             }
             else
             {
-                return Created($"recipes/{newRecipeBook.Id}", newRecipeBook);
+                return Created($"/recipes/{newRecipeBook.Id}", newRecipeBook);
             }
         }
-        */
+
         [HttpPost("{recipeBookId}")]
-        public ActionResult<RecipeBookLibrary> CreateRecipe(int recipeBookId, Recipe recipe)
+        public ActionResult<Recipe> CreateRecipe(int recipeBookId, Recipe recipe)
         {
             Recipe newRecipe = dao.CreateRecipe(recipeBookId, recipe);
 
@@ -105,16 +105,36 @@ namespace r2slapi.Controllers
             }
             else
             {
-                return Created($"recipes/{recipeBookId}/{newRecipe.Id}", newRecipe);
+                return Created($"/recipes/{recipeBookId}/{newRecipe.Id}", newRecipe);
             }
         }
 
-        [HttpPut]
-        public RecipeBookLibrary Put(RecipeBookLibrary updatedLibrary)
+        [HttpPut("{recipeBookId}/{recipeId}")]
+        public ActionResult<Recipe> Put(int recipeBookId, int recipeId, Recipe recipe)
         {
-            RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
+            Recipe recipeToUpdate = dao.GetRecipe(recipeId);
 
-            return recipeBookLibrary;
+            if (recipe == null)
+            {
+                return StatusCode(500, "Error: Unable to complete request. Please try again later.");
+            }
+            else if (recipe.RecipeNumber == -1)
+            {
+                return NotFound();
+            }
+            else
+            {
+                Recipe updatedRecipe = dao.UpdateRecipe(recipeBookId, recipeId, recipe);
+
+                if (updatedRecipe == null)
+                {
+                    return StatusCode(500, "Error: Unable to complete request. Please try again later.");
+                }
+                else
+                {
+                    return Ok(updatedRecipe);
+                }
+            }
         }
     }
 }

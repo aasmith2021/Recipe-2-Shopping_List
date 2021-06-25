@@ -4,16 +4,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace r2slapi.DAO
 {
     public class RecipeDao : IRecipeDao
     {
-        private readonly string connectionString = "Server=.\\SQLEXPRESS;Database=RecipeDB;Trusted_Connection=True;";
+        private readonly string connectionString;
         
         public RecipeDao()
         {
-            
+            connectionString = GetConnectionString();
+        }
+
+        private string GetConnectionString()
+        {
+            // Get the connection string from the appsettings.json file
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            IConfigurationRoot configuration = builder.Build();
+
+            return configuration.GetConnectionString("RecipeDB");
         }
 
         public RecipeBookLibrary GetRecipeBookLibrary(int recipeBookLibraryId)
@@ -464,9 +478,34 @@ namespace r2slapi.DAO
             return instructionBlock;
         }
 
-        public RecipeBook CreateRecipeBook(RecipeBook recipeBook)
-        {
-            return null;
+        public RecipeBook CreateRecipeBook(int recipeBookLibraryId, RecipeBook recipeBook)
+        {          
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlInsertRecipeBook = "INSERT INTO recipe_book (name, recipe_book_library_id) OUTPUT INSERTED.ID VALUES(@recipe_book_name, @recipe_book_library_id); ";
+                    SqlCommand sqlCmd = new SqlCommand(sqlInsertRecipeBook, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_name", recipeBook.Name);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_library_id", recipeBookLibraryId);
+
+                    recipeBook.Id = Convert.ToInt32(sqlCmd.ExecuteScalar());
+
+                    for (int i = 0; i < recipeBook.Recipes.Count; i++)
+                    {
+                        CreateRecipe(recipeBook.Id, recipeBook.Recipes[i]);
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return recipeBook;
         }
         
         public Recipe CreateRecipe(int recipeBookId, Recipe recipe)
@@ -680,6 +719,34 @@ namespace r2slapi.DAO
             }
 
             return isSuccessful;
+        }
+
+        public Recipe UpdateRecipe(int recipeBookId, int recipeId, Recipe recipe)
+        {
+            Recipe updatedRecipe = new Recipe();
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlUpdateRecipe = "";
+                    //WORK ON THIS
+                    SqlCommand sqlCmd = new SqlCommand(sqlUpdateRecipe, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
+                    sqlCmd.Parameters.AddWithValue("@recipe_id", recipeId);
+
+                    sqlCmd.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return updatedRecipe;
         }
     }
 }
