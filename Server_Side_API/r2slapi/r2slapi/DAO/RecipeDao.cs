@@ -54,14 +54,22 @@ namespace r2slapi.DAO
 
                     SqlDataReader reader = sqlCmd.ExecuteReader();
 
-                    while (reader.Read())
+                    if (reader.HasRows == false)
                     {
-                        int recipeBookLibraryIdFromDatabase = Convert.ToInt32(reader["recipe_book_library_id"]);
-                        recipeBookIds.Add(Convert.ToInt32(reader["recipe_book_id"]));
+                        recipeBookLibrary.Id = recipeBookLibraryId;
+                    }
+                    else
+                    {
 
-                        if (recipeBookLibraryIdFromDatabase != 0)
+                        while (reader.Read())
                         {
-                            recipeBookLibrary.Id = recipeBookLibraryIdFromDatabase;
+                            int recipeBookLibraryIdFromDatabase = Convert.ToInt32(reader["recipe_book_library_id"]);
+                            recipeBookIds.Add(Convert.ToInt32(reader["recipe_book_id"]));
+
+                            if (recipeBookLibraryIdFromDatabase != 0)
+                            {
+                                recipeBookLibrary.Id = recipeBookLibraryIdFromDatabase;
+                            }
                         }
                     }
                 }
@@ -94,7 +102,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlSelectRecipeBook = "SELECT rb.id AS 'recipe_book_id', rb.name AS 'recipe_book_name', r.recipe_number AS 'recipe_number' " +
+                    string sqlSelectRecipeBook = "SELECT rb.id AS 'recipe_book_id', rb.name AS 'recipe_book_name', r.id AS 'recipe_id' " +
                                                         "FROM recipe_book rb " +
                                                         "JOIN recipe r ON rb.id = r.recipe_book_id " +
                                                         "WHERE recipe_book_id = @recipe_book_id;";
@@ -108,7 +116,7 @@ namespace r2slapi.DAO
                     {
                         int recipeBookIdFromDatabase = Convert.ToInt32(reader["recipe_book_id"]);
                         recipeBook.Name = Convert.ToString(reader["recipe_book_name"]);
-                        recipeIds.Add(Convert.ToInt32(reader["recipe_number"]));
+                        recipeIds.Add(Convert.ToInt32(reader["recipe_id"]));
 
                         if (recipeBookIdFromDatabase != 0)
                         {
@@ -486,7 +494,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlInsertRecipeBook = "INSERT INTO recipe_book (name, recipe_book_library_id) OUTPUT INSERTED.ID VALUES(@recipe_book_name, @recipe_book_library_id); ";
+                    string sqlInsertRecipeBook = "INSERT INTO recipe_book (name, recipe_book_library_id) OUTPUT INSERTED.ID VALUES (@recipe_book_name, @recipe_book_library_id); ";
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertRecipeBook, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_name", recipeBook.Name);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_library_id", recipeBookLibraryId);
@@ -720,6 +728,58 @@ namespace r2slapi.DAO
 
             return isSuccessful;
         }
+
+        public bool? UpdateRecipeBook(int recipeBookId, RecipeBook recipeBook)
+        {
+            bool recipeBookUpdated = false;
+            bool allRecipesUpdated = false;
+            int recipeUpdateCount = 0;
+            int numberOfRecipesToUpdate = recipeBook.Recipes.Count;
+
+            //Loops through all the recipes in the recipe book and updates each one
+            for (int i = 0; i < recipeBook.Recipes.Count; i++)
+            {
+                Recipe recipe = recipeBook.Recipes[i];
+
+                bool? recipeUpdated = UpdateRecipe(recipeBookId, recipe.Id, recipe);
+
+                if (recipeUpdated != null && recipeUpdated != false)
+                {
+                    recipeUpdateCount++;
+                }
+            }
+
+            //Validates that every recipe in the recipe book was updated
+            if (numberOfRecipesToUpdate == recipeUpdateCount)
+            {
+                allRecipesUpdated = true;
+            }
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlUpdateRecipeBook = "UPDATE recipe_book SET name = @name WHERE id = @recipe_book_id;";
+
+                    SqlCommand sqlCmd = new SqlCommand(sqlUpdateRecipeBook, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@name", recipeBook.Name);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBook.Id);
+
+                    sqlCmd.ExecuteNonQuery();
+
+                    recipeBookUpdated = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return (recipeBookUpdated && allRecipesUpdated);
+        }
         
         public bool? UpdateRecipe(int recipeBookId, int recipeId, Recipe recipe)
         {
@@ -895,6 +955,58 @@ namespace r2slapi.DAO
             return cookingInstructionsUpdated;
         }
 
+        public bool? DeleteRecipeBook(int recipeBookId)
+        {
+            RecipeBook recipeBookToDelete = GetRecipeBook(recipeBookId);
+
+            bool allRecipesDeleted = false;
+            bool recipeBookDeleted = false;
+            int recipeDeleteCount = 0;
+            int numberOfRecipesToDelete = recipeBookToDelete.Recipes.Count;
+
+            //Delete all recipes from recipe book
+            for (int i = 0; i < recipeBookToDelete.Recipes.Count; i++)
+            {
+                int recipeId = recipeBookToDelete.Recipes[i].Id;
+
+                bool? recipeDeleted = DeleteRecipe(recipeBookId, recipeId);
+
+                if (recipeDeleted != null && recipeDeleted != false)
+                {
+                    recipeDeleteCount++;
+                }
+            }
+
+            if (numberOfRecipesToDelete == recipeDeleteCount)
+            {
+                allRecipesDeleted = true;
+            }
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlDeleteRecipeBook = "DELETE FROM recipe_book WHERE id = @recipe_book_id;";
+                    
+                    SqlCommand sqlCmd = new SqlCommand(sqlDeleteRecipeBook, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
+
+                    sqlCmd.ExecuteNonQuery();
+
+                    recipeBookDeleted = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return (recipeBookDeleted && allRecipesDeleted);
+        }
+
         public bool? DeleteRecipe(int recipeBookId, int recipeId)
         {
             bool recipeDeleted = false;
@@ -918,7 +1030,7 @@ namespace r2slapi.DAO
                                              "DELETE FROM instruction_block WHERE cooking_instructions_id = @cooking_instructions_id; " +
                                              "DELETE FROM cooking_instructions WHERE id = @cooking_instructions_id; " +
                                              "DELETE FROM instruction WHERE id IN(SELECT instruction_id FROM instruction_block_instruction WHERE block_id IN (SELECT id FROM instruction_block WHERE cooking_instructions_id = @cooking_instructions_id));";
-                    //ADD ALL THE PARAMETERS TO MAKE THE DELETE HAPPEN
+
                     SqlCommand sqlCmd = new SqlCommand(sqlDeleteRecipe, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_id", recipeId);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);

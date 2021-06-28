@@ -14,6 +14,12 @@ JOIN instruction i ON ibi.instruction_id = i.id
 JOIN ingredient_list il ON r.ingredient_list_id = il.id
 JOIN ingredient ing ON il.id = ing.ingredient_list_id;
 
+SELECT rbl.id AS 'recipe_book_library_id', rb.id AS 'recipe_book_id'
+FROM recipe_book_library rbl
+JOIN recipe_book rb ON rbl.id = rb.recipe_book_library_id
+JOIN recipe r ON rb.id = r.recipe_book_id
+WHERE recipe_book_library_id = 1;
+
 DECLARE @recipe_id INT = 2;
 DECLARE @recipe_book_id INT = 1;
 DECLARE @metadata_id INT = 2;
