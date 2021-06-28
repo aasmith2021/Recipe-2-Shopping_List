@@ -623,7 +623,7 @@ namespace r2slapi.DAO
             return recipe.IngredientList.Id;
         }
 
-        public int? CreateCookingInstructions(Recipe recipe)
+        private int? CreateCookingInstructions(Recipe recipe)
         {           
             try
             {
@@ -700,7 +700,7 @@ namespace r2slapi.DAO
                     
                     int instructionId = Convert.ToInt32(sqlCmd.ExecuteScalar());
 
-                    //Create the new entry in the instruction_block_instruction associative table to link the new instruction to it's instruction block
+                    //Create the new entry in the instruction_block_instruction associative table to link the new instruction to its instruction block
                     string sqlInsertIntoInstructionBlockInstruction = "INSERT INTO instruction_block_instruction (block_id, instruction_id) VALUES (@block_id, @instruction_id);";
                     
                     sqlCmd = new SqlCommand(sqlInsertIntoInstructionBlockInstruction, sqlConn);
@@ -720,10 +720,19 @@ namespace r2slapi.DAO
 
             return isSuccessful;
         }
-
-        public Recipe UpdateRecipe(int recipeBookId, int recipeId, Recipe recipe)
+        
+        public bool? UpdateRecipe(int recipeBookId, int recipeId, Recipe recipe)
         {
-            Recipe updatedRecipe = new Recipe();
+            bool recipeUpdated = false;
+            
+            bool? metadataUpdated = UpdateMetadata(recipe);
+            bool? ingredientListUpdated = UpdateIngredientList(recipe);
+            bool? cookingInstructionsUpdated = UpdateCookingInstructions(recipe);
+
+            if (metadataUpdated == null || ingredientListUpdated == null || cookingInstructionsUpdated == null)
+            {
+                return null;
+            }
 
             try
             {
@@ -731,13 +740,16 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlUpdateRecipe = "";
-                    //WORK ON THIS
+                    string sqlUpdateRecipe = "UPDATE recipe SET recipe_book_id = @recipe_book_id, recipe_number = @recipe_number WHERE id = @recipe_id;";
+
                     SqlCommand sqlCmd = new SqlCommand(sqlUpdateRecipe, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
+                    sqlCmd.Parameters.AddWithValue("@recipe_number", recipe.RecipeNumber);
                     sqlCmd.Parameters.AddWithValue("@recipe_id", recipeId);
 
                     sqlCmd.ExecuteNonQuery();
+
+                    recipeUpdated = true;
                 }
             }
             catch (SqlException ex)
@@ -746,7 +758,189 @@ namespace r2slapi.DAO
                 return null;
             }
 
-            return updatedRecipe;
+            return recipeUpdated;
+        }
+
+        private bool? UpdateMetadata(Recipe recipe)
+        {
+            bool metadataUpdated = false;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlUpdateMetadata = "UPDATE metadata SET title = @title, notes = @notes WHERE id = @metadata_id; " +
+                                                "UPDATE times SET prep_time = @prep_time, cook_time = @cook_time WHERE id = @times_id; " +
+                                                "UPDATE tags SET food_type = @food_type, food_genre = @food_genre WHERE id = @tags_id; " +
+                                                "UPDATE servings SET low_servings = @low_servings, high_servings = @high_servings WHERE id = @servings_id;";
+                    
+                    SqlCommand sqlCmd = new SqlCommand(sqlUpdateMetadata, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@title", recipe.Metadata.Title);
+                    sqlCmd.Parameters.AddWithValue("@notes", recipe.Metadata.Notes);
+                    sqlCmd.Parameters.AddWithValue("@metadata_id", recipe.Metadata.Id);
+                    sqlCmd.Parameters.AddWithValue("@prep_time", recipe.Metadata.PrepTimes.PrepTime);
+                    sqlCmd.Parameters.AddWithValue("@cook_time", recipe.Metadata.PrepTimes.CookTime);
+                    sqlCmd.Parameters.AddWithValue("@times_id", recipe.Metadata.PrepTimes.Id);
+                    sqlCmd.Parameters.AddWithValue("@food_type", recipe.Metadata.Tags.FoodType);
+                    sqlCmd.Parameters.AddWithValue("@food_genre", recipe.Metadata.Tags.FoodGenre);
+                    sqlCmd.Parameters.AddWithValue("@tags_id", recipe.Metadata.Tags.Id);
+                    sqlCmd.Parameters.AddWithValue("@low_servings", recipe.Metadata.Servings.LowNumberOfServings);
+                    sqlCmd.Parameters.AddWithValue("@high_servings", recipe.Metadata.Servings.HighNumberOfServings);
+                    sqlCmd.Parameters.AddWithValue("@servings_id", recipe.Metadata.Servings.Id);
+
+                    sqlCmd.ExecuteNonQuery();
+
+                    metadataUpdated = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return metadataUpdated;
+        }
+
+        private bool? UpdateIngredientList(Recipe recipe)
+        {
+            bool ingredientListUpdated = false;
+
+            List<Ingredient> allIngredientsToUpdate = recipe.IngredientList.AllIngredients;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlUpdateIngrientList = "UPDATE ingredient SET quantity = @quantity, measurement_unit = @measurement_unit, name = @name, prep_note = @prep_note, store_location = @store_location WHERE ingredient_list_id = @ingredient_list_id AND id = @ingredient_id;";
+
+                    for (int i = 0; i < allIngredientsToUpdate.Count; i++)
+                    {
+                        SqlCommand sqlCmd = new SqlCommand(sqlUpdateIngrientList, sqlConn);
+                        sqlCmd.Parameters.AddWithValue("@quantity", allIngredientsToUpdate[i].Quantity);
+                        sqlCmd.Parameters.AddWithValue("@measurement_unit", allIngredientsToUpdate[i].MeasurementUnit);
+                        sqlCmd.Parameters.AddWithValue("@name", allIngredientsToUpdate[i].Name);
+                        sqlCmd.Parameters.AddWithValue("@prep_note", allIngredientsToUpdate[i].PreparationNote);
+                        sqlCmd.Parameters.AddWithValue("@store_location", allIngredientsToUpdate[i].StoreLocation);
+                        sqlCmd.Parameters.AddWithValue("@ingredient_list_id", recipe.IngredientList.Id);
+                        sqlCmd.Parameters.AddWithValue("@ingredient_id", allIngredientsToUpdate[i].Id);
+
+                        sqlCmd.ExecuteNonQuery();
+                    }
+                    
+                    ingredientListUpdated = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return ingredientListUpdated;
+        }
+
+        private bool? UpdateCookingInstructions(Recipe recipe)
+        {
+            bool cookingInstructionsUpdated = false;
+
+            List<InstructionBlock> allInstructionBlocksToUpdate = recipe.CookingInstructions.InstructionBlocks;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlUpdateInstructionBlock = "UPDATE instruction_block SET block_heading = @block_heading WHERE id = @instruction_block_id AND cooking_instructions_id = @cooking_instructions_id;";
+                    string sqlDeleteInstructionsFromBlock = "DELETE FROM instruction_block_instruction WHERE block_id = @block_id; " +
+                                                            "DELETE FROM instruction WHERE id IN (SELECT i.id FROM instruction i JOIN instruction_block_instruction ibi ON i.id = ibi.instruction_id JOIN instruction_block ib ON ibi.block_id = ib.id WHERE ib.id = @block_id);";
+
+                    //Loops through all of the instruction blocks and updates them
+                    for (int i = 0; i < allInstructionBlocksToUpdate.Count; i++)
+                    {                        
+                        SqlCommand sqlCmd = new SqlCommand(sqlUpdateInstructionBlock, sqlConn);
+                        sqlCmd.Parameters.AddWithValue("@block_heading", allInstructionBlocksToUpdate[i].BlockHeading);
+                        sqlCmd.Parameters.AddWithValue("@instruction_block_id", allInstructionBlocksToUpdate[i].Id);
+                        sqlCmd.Parameters.AddWithValue("@cooking_instructions_id", recipe.CookingInstructions.Id);
+
+                        sqlCmd.ExecuteNonQuery();
+
+                        //This command deletes all of the instruction lines from the current instruction block in the database
+                        //so that the new, updated instruction lines can be created in the for loop below.
+                        sqlCmd = new SqlCommand(sqlDeleteInstructionsFromBlock, sqlConn);
+                        sqlCmd.Parameters.AddWithValue("@block_id", allInstructionBlocksToUpdate[i].Id);
+
+                        sqlCmd.ExecuteNonQuery();
+
+                        for (int j = 0; j < allInstructionBlocksToUpdate[i].InstructionLines.Count; j++)
+                        {
+                            CreateInstructionLine(recipe, i, j);
+                        }
+                    }
+
+                    cookingInstructionsUpdated = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return cookingInstructionsUpdated;
+        }
+
+        public bool? DeleteRecipe(int recipeBookId, int recipeId)
+        {
+            bool recipeDeleted = false;
+
+            Recipe recipeToDelete = GetRecipe(recipeId);
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlDeleteRecipe = "DELETE FROM recipe WHERE id = @recipe_id AND recipe_book_id = @recipe_book_id; " +
+                                             "DELETE FROM metadata WHERE id = @metadata_id; " +
+                                             "DELETE FROM times WHERE id = @times_id; " +
+                                             "DELETE FROM tags WHERE id = @tags_id; " +
+                                             "DELETE FROM servings WHERE id = @servings_id; " +
+                                             "DELETE FROM ingredient_list WHERE id = @ingredient_list_id; " +
+                                             "DELETE FROM ingredient WHERE id IN (SELECT id FROM ingredient WHERE ingredient_list_id = @ingredient_list_id); " +
+                                             "DELETE FROM instruction_block_instruction WHERE block_id IN (SELECT id FROM instruction_block WHERE cooking_instructions_id = @cooking_instructions_id); " +
+                                             "DELETE FROM instruction_block WHERE cooking_instructions_id = @cooking_instructions_id; " +
+                                             "DELETE FROM cooking_instructions WHERE id = @cooking_instructions_id; " +
+                                             "DELETE FROM instruction WHERE id IN(SELECT instruction_id FROM instruction_block_instruction WHERE block_id IN (SELECT id FROM instruction_block WHERE cooking_instructions_id = @cooking_instructions_id));";
+                    //ADD ALL THE PARAMETERS TO MAKE THE DELETE HAPPEN
+                    SqlCommand sqlCmd = new SqlCommand(sqlDeleteRecipe, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_id", recipeId);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
+                    sqlCmd.Parameters.AddWithValue("@metadata_id", recipeToDelete.Metadata.Id);
+                    sqlCmd.Parameters.AddWithValue("@times_id", recipeToDelete.Metadata.PrepTimes.Id);
+                    sqlCmd.Parameters.AddWithValue("@tags_id", recipeToDelete.Metadata.Tags.Id);
+                    sqlCmd.Parameters.AddWithValue("@servings_id", recipeToDelete.Metadata.Servings.Id);
+                    sqlCmd.Parameters.AddWithValue("@ingredient_list_id", recipeToDelete.IngredientList.Id);
+                    sqlCmd.Parameters.AddWithValue("@cooking_instructions_id", recipeToDelete.CookingInstructions.Id);
+
+                    sqlCmd.ExecuteNonQuery();
+
+                    recipeDeleted = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return recipeDeleted;
         }
     }
 }
