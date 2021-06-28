@@ -23,7 +23,7 @@ namespace r2slapi.Controllers
 
 
         [HttpGet()]
-        public ActionResult<RecipeBookLibrary> Get()
+        public ActionResult<RecipeBookLibrary> GetRecipeBookLibrary()
         {
             RecipeBookLibrary recipeBookLibrary = dao.GetRecipeBookLibrary(RECIPE_BOOK_LIBRARY_ID);
 
@@ -110,29 +110,57 @@ namespace r2slapi.Controllers
         }
 
         [HttpPut("{recipeBookId}/{recipeId}")]
-        public ActionResult<Recipe> Put(int recipeBookId, int recipeId, Recipe recipe)
+        public ActionResult UpdateRecipe(int recipeBookId, int recipeId, Recipe recipe)
         {
             Recipe recipeToUpdate = dao.GetRecipe(recipeId);
 
-            if (recipe == null)
+            if (recipeToUpdate == null)
             {
                 return StatusCode(500, "Error: Unable to complete request. Please try again later.");
             }
-            else if (recipe.RecipeNumber == -1)
+            else if (recipeToUpdate.RecipeNumber == -1)
             {
                 return NotFound();
             }
             else
             {
-                Recipe updatedRecipe = dao.UpdateRecipe(recipeBookId, recipeId, recipe);
+                bool? recipeUpdated = dao.UpdateRecipe(recipeBookId, recipeId, recipe);
 
-                if (updatedRecipe == null)
+                if (recipeUpdated == null)
                 {
                     return StatusCode(500, "Error: Unable to complete request. Please try again later.");
                 }
                 else
                 {
-                    return Ok(updatedRecipe);
+                    return NoContent();
+                }
+            }
+        }
+
+        [HttpDelete("{recipeBookId}/{recipeId}")]
+        public ActionResult DeleteRecipe(int recipeBookId, int recipeId)
+        {
+            Recipe recipeToDelete = dao.GetRecipe(recipeId);
+
+            if (recipeToDelete == null)
+            {
+                return StatusCode(500, "Error: Unable to complete request. Please try again later.");
+            }
+            else if (recipeToDelete.RecipeNumber == -1)
+            {
+                return NotFound();
+            }
+            else
+            {
+                bool? recipeDeleted = dao.DeleteRecipe(recipeBookId, recipeId);
+
+                if (recipeDeleted == null)
+                {
+                    return StatusCode(500, "Error: Unable to complete request. Please try again later.");
+                }
+                else
+                {
+                    return NoContent();
                 }
             }
         }
