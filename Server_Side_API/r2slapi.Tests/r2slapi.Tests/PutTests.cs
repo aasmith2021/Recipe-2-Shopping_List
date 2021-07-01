@@ -5,23 +5,23 @@ using r2slapi.Tests.Models;
 namespace r2slapi.Tests
 {
     [TestClass]
-    public class PostTests
+    public class PutTests
     {
         private static readonly string API_URL = "https://localhost:44302/recipes";
         private static readonly IRestClient client = new RestClient();
 
         private RecipeBook GetTestRecipeBook()
         {
-            Times times = new Times(20, 0);
-            Tags tags = new Tags("Salads", "European");
-            Servings servings = new Servings(4, 8);
-            Metadata metadata = new Metadata("Cobb Salad", times, tags, servings, "Excellent side-salad option");
+            Times times = new Times(25, 10);
+            Tags tags = new Tags("Better Salads", "Canadian");
+            Servings servings = new Servings(5, 9);
+            Metadata metadata = new Metadata("Salad de Cobb", times, tags, servings, "Great for a side dish");
 
             IngredientList ingredientList = new IngredientList();
 
-            Ingredient ingredient1 = new Ingredient(4, "Cup", "dark leafy greens", "cut into bite-sized pieces", "Produce");
-            Ingredient ingredient2 = new Ingredient(2, "Cup", "cheddar cheese", "shredded", "Refrigerated");
-            Ingredient ingredient3 = new Ingredient(0.5, "Cup", "hard-boiled egg pieces", "cut into small squares", "Refrigerated");
+            Ingredient ingredient1 = new Ingredient(5, "oz.", "dark and leafy greens", "cut into pieces", "Refrigerated");
+            Ingredient ingredient2 = new Ingredient(6, "oz.", "white cheddar cheese", "cut up", "Bakery/Deli");
+            Ingredient ingredient3 = new Ingredient(1.5, "oz.", "hard-boiled egg pieces", "cut into small squares", "Bakery/Deli");
 
             ingredientList.AddIngredient(ingredient1);
             ingredientList.AddIngredient(ingredient2);
@@ -29,19 +29,19 @@ namespace r2slapi.Tests
 
             CookingInstructions cookingInstructions = new CookingInstructions();
 
-            InstructionBlock instructionBlock1 = new InstructionBlock("Prep Work");
-            InstructionBlock instructionBlock2 = new InstructionBlock("Assembly");
+            InstructionBlock instructionBlock1 = new InstructionBlock("Start");
+            InstructionBlock instructionBlock2 = new InstructionBlock("Finish");
 
-            instructionBlock1.AddInstructionLine("Add salad mix to small salad plates");
-            instructionBlock1.AddInstructionLine("Shred cheddar cheese and chill");
-            instructionBlock2.AddInstructionLine("Make the salads by adding ingredients together on top of salad mix.");
+            instructionBlock1.AddInstructionLine("Add salad to small salad plates");
+            instructionBlock1.AddInstructionLine("Chill cheese");
+            instructionBlock2.AddInstructionLine("Make the salads.");
 
             cookingInstructions.AddInstructionBlock(instructionBlock1);
             cookingInstructions.AddInstructionBlock(instructionBlock2);
 
             Recipe recipe = new Recipe(metadata, cookingInstructions, ingredientList);
 
-            RecipeBook recipeBook = new RecipeBook("Salads");
+            RecipeBook recipeBook = new RecipeBook("Even Better Salads");
 
             recipeBook.AddRecipe(recipe);
 
@@ -50,16 +50,16 @@ namespace r2slapi.Tests
 
         private Recipe GetTestRecipe()
         {
-            Times times = new Times(20, 0);
-            Tags tags = new Tags("Salads", "European");
-            Servings servings = new Servings(4, 8);
-            Metadata metadata = new Metadata("Cobb Salad", times, tags, servings, "Excellent side-salad option");
+            Times times = new Times(25, 10);
+            Tags tags = new Tags("Better Salads", "Canadian");
+            Servings servings = new Servings(5, 9);
+            Metadata metadata = new Metadata("Salad de Cobb", times, tags, servings, "Great for a side dish");
 
             IngredientList ingredientList = new IngredientList();
 
-            Ingredient ingredient1 = new Ingredient(4, "Cup", "dark leafy greens", "cut into bite-sized pieces", "Produce");
-            Ingredient ingredient2 = new Ingredient(2, "Cup", "cheddar cheese", "shredded", "Refrigerated");
-            Ingredient ingredient3 = new Ingredient(0.5, "Cup", "hard-boiled egg pieces", "cut into small squares", "Refrigerated");
+            Ingredient ingredient1 = new Ingredient(5, "oz.", "dark and leafy greens", "cut into pieces", "Refrigerated");
+            Ingredient ingredient2 = new Ingredient(6, "oz.", "white cheddar cheese", "cut up", "Bakery/Deli");
+            Ingredient ingredient3 = new Ingredient(1.5, "oz.", "hard-boiled egg pieces", "cut into small squares", "Bakery/Deli");
 
             ingredientList.AddIngredient(ingredient1);
             ingredientList.AddIngredient(ingredient2);
@@ -67,12 +67,12 @@ namespace r2slapi.Tests
 
             CookingInstructions cookingInstructions = new CookingInstructions();
 
-            InstructionBlock instructionBlock1 = new InstructionBlock("Prep Work");
-            InstructionBlock instructionBlock2 = new InstructionBlock("Assembly");
+            InstructionBlock instructionBlock1 = new InstructionBlock("Start");
+            InstructionBlock instructionBlock2 = new InstructionBlock("Finish");
 
-            instructionBlock1.AddInstructionLine("Add salad mix to small salad plates");
-            instructionBlock1.AddInstructionLine("Shred cheddar cheese and chill");
-            instructionBlock2.AddInstructionLine("Make the salads by adding ingredients together on top of salad mix.");
+            instructionBlock1.AddInstructionLine("Add salad to small salad plates");
+            instructionBlock1.AddInstructionLine("Chill cheese");
+            instructionBlock2.AddInstructionLine("Make the salads.");
 
             cookingInstructions.AddInstructionBlock(instructionBlock1);
             cookingInstructions.AddInstructionBlock(instructionBlock2);
@@ -83,50 +83,52 @@ namespace r2slapi.Tests
         }
 
         [TestMethod]
-        public void POST_new_recipe_book_creates_recipe_book()
+        public void PUT_new_recipe_book_updates_recipe_book()
         {
             //Arrange
-            RecipeBook recipeBookToCreate = GetTestRecipeBook();
-            RestRequest request = new RestRequest(API_URL, DataFormat.Json);
-            request.AddJsonBody(recipeBookToCreate);
+            RecipeBook recipeBookToUpdate = GetTestRecipeBook();
+            RestRequest updateRequest = new RestRequest(API_URL + "/1", DataFormat.Json);
+            RestRequest getRequest = new RestRequest(API_URL + "/1", DataFormat.Json);
+            updateRequest.AddJsonBody(recipeBookToUpdate);
 
-            string expectedNameOfRecipeBook = "Salads";
+            string expectedNameOfRecipeBook = "Even Better Salads";
             int expectedNumberOfRecipesInBook = 1;
-            string expectedTitleOfNewRecipe = "Cobb Salad";
-            string expectedNoteOfNewRecipe = "Excellent side-salad option";
-            int expectedPrepTimeOfNewRecipe = 20;
-            int expectedCookTimeOfNewRecipe = 0;
-            int expectedLowServingsOfNewRecipe = 4;
-            int expectedHighServingsOfNewRecipe = 8;
-            string expectedFoodTypeOfNewRecipe = "Salads";
-            string expectedFoodGenreOfNewRecipe = "European";
+            string expectedTitleOfNewRecipe = "Salad de Cobb";
+            string expectedNoteOfNewRecipe = "Great for a side dish";
+            int expectedPrepTimeOfNewRecipe = 25;
+            int expectedCookTimeOfNewRecipe = 10;
+            int expectedLowServingsOfNewRecipe = 5;
+            int expectedHighServingsOfNewRecipe = 9;
+            string expectedFoodTypeOfNewRecipe = "Better Salads";
+            string expectedFoodGenreOfNewRecipe = "Canadian";
             int expectedNumberOfInstructionBlocksInRecipe_1 = 2;
-            string expectedHeadingOfNewRecipe_InstructionBlock_1 = "Prep Work";
+            string expectedHeadingOfNewRecipe_InstructionBlock_1 = "Start";
             string expectedBlock1Line1Instruction = "Add salad mix to small salad plates";
             string expectedBlock1Line2Instruction = "Shred cheddar cheese and chill";
-            string expectedHeadingOfNewRecipe_InstructionBlock_2 = "Assembly";
+            string expectedHeadingOfNewRecipe_InstructionBlock_2 = "Finish";
             string expectedBlock2Line1Instruction = "Make the salads by adding ingredients together on top of salad mix.";
             int expectedNumberOfIngrdientsInRecipe_1 = 3;
-            double expectedIngredient1Quantity = 4;
-            string expectedIngredient1MeasurementUnit = "Cup";
-            string expectedIngredient1Name = "dark leafy greens";
-            string expectedIngredient1PrepNote = "cut into bite-sized pieces";
-            string expectedIngredient1StoreLocation = "Produce";
-            double expectedIngredient2Quantity = 2;
-            string expectedIngredient2MeasurementUnit = "Cup";
-            string expectedIngredient2Name = "cheddar cheese";
-            string expectedIngredient2PrepNote = "shredded";
-            string expectedIngredient2StoreLocation = "Refrigerated";
-            double expectedIngredient3Quantity = 0.5;
-            string expectedIngredient3MeasurementUnit = "Cup";
+            double expectedIngredient1Quantity = 5;
+            string expectedIngredient1MeasurementUnit = "oz.";
+            string expectedIngredient1Name = "dark and leafy greens";
+            string expectedIngredient1PrepNote = "cut into pieces";
+            string expectedIngredient1StoreLocation = "Refrigerated";
+            double expectedIngredient2Quantity = 6;
+            string expectedIngredient2MeasurementUnit = "oz.";
+            string expectedIngredient2Name = "white cheddar cheese";
+            string expectedIngredient2PrepNote = "cut up";
+            string expectedIngredient2StoreLocation = "Bakery/Deli";
+            double expectedIngredient3Quantity = 1.5;
+            string expectedIngredient3MeasurementUnit = "oz.";
             string expectedIngredient3Name = "hard-boiled egg pieces";
             string expectedIngredient3PrepNote = "cut into small squares";
-            string expectedIngredient3StoreLocation = "Refrigerated";
+            string expectedIngredient3StoreLocation = "Bakery/Deli";
 
             //Act
-            IRestResponse<RecipeBook> response = client.Post<RecipeBook>(request);
+            IRestResponse updateResponse = client.Put(updateRequest);
+            IRestResponse<RecipeBook> getResponse = client.Get<RecipeBook>(getRequest);
 
-            RecipeBook returnedRecipeBook = response.Data;
+            RecipeBook returnedRecipeBook = getResponse.Data;
 
             string actualNameOfRecipeBook = returnedRecipeBook.Name;
             int actualNumberOfRecipes = returnedRecipeBook.Recipes.Count;
@@ -163,6 +165,7 @@ namespace r2slapi.Tests
 
 
             //Assert
+            Assert.AreEqual((int)updateResponse.StatusCode, 204, "PUT request did not generate correct 204 status code");
             Assert.AreEqual(expectedNameOfRecipeBook, actualNameOfRecipeBook, "Name of Recipe Book retrieved is incorrect");
             Assert.AreEqual(expectedNumberOfRecipesInBook, actualNumberOfRecipes, "Number of recipes in Recipe Book is incorrect");
             Assert.AreEqual(expectedTitleOfNewRecipe, actualTitleOfNewRecipe, "Name of Recipe retrieved is incorrect");
@@ -197,7 +200,7 @@ namespace r2slapi.Tests
             Assert.AreEqual(expectedIngredient3StoreLocation, actualIngredient3StoreLocation, "Store Location of Ingredient 3 in Recipe 1 retrieved is incorrect");
         }
 
-        
+        /*
         [TestMethod]
         public void POST_recipe_returns_entire_recipe()
         {
@@ -208,8 +211,8 @@ namespace r2slapi.Tests
 
             string expectedTitleOfNewRecipe = "Cobb Salad";
             string expectedNoteOfNewRecipe = "Excellent side-salad option";
-            int expectedPrepTimeOfNewRecipe = 20;
-            int expectedCookTimeOfNewRecipe = 0;
+            int expectedPrepTimeOfNewRecipe = 25;
+            int expectedCookTimeOfNewRecipe = 10;
             int expectedLowServingsOfNewRecipe = 4;
             int expectedHighServingsOfNewRecipe = 8;
             string expectedFoodTypeOfNewRecipe = "Salads";
@@ -306,5 +309,6 @@ namespace r2slapi.Tests
             Assert.AreEqual(expectedIngredient3PrepNote, actualIngredient3PrepNote, "Prep Note of Ingredient 3 in Recipe 1 retrieved is incorrect");
             Assert.AreEqual(expectedIngredient3StoreLocation, actualIngredient3StoreLocation, "Store Location of Ingredient 3 in Recipe 1 retrieved is incorrect");
         }
+        */
     }
 }

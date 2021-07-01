@@ -129,6 +129,10 @@ namespace r2slapi.Controllers
                 {
                     return StatusCode(500, "Error: Unable to complete request. Please try again later.");
                 }
+                else if (recipeBookUpdated == false)
+                {
+                    return StatusCode(500, "Error: Problem processin request. Please try again later.");
+                }
                 else
                 {
                     return NoContent();

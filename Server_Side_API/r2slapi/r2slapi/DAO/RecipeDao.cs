@@ -494,7 +494,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlInsertRecipeBook = "INSERT INTO recipe_book (name, recipe_book_library_id) OUTPUT INSERTED.ID VALUES (@recipe_book_name, @recipe_book_library_id); ";
+                    string sqlInsertRecipeBook = "INSERT INTO recipe_book (name, recipe_book_library_id) OUTPUT INSERTED.RB_ID VALUES (@recipe_book_name, @recipe_book_library_id);";
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertRecipeBook, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_name", recipeBook.Name);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_library_id", recipeBookLibraryId);
@@ -534,7 +534,7 @@ namespace r2slapi.DAO
                     sqlConn.Open();
 
                     string sqlInsertNewRecipe = "INSERT INTO recipe (recipe_book_id, recipe_number, metadata_id, ingredient_list_id, cooking_instructions_id) " +
-                                                "OUTPUT INSERTED.ID " +
+                                                "OUTPUT INSERTED.R_ID " +
                                                 "VALUES(@recipe_book_id, @recipe_number, @metadata_id, @ingredient_list_id, @cooking_instructions_id);";
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertNewRecipe, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
@@ -567,7 +567,7 @@ namespace r2slapi.DAO
                                                     "INSERT INTO times (prep_time, cook_time) VALUES(@prep_time, @cook_time) DECLARE @times_id INT = (SELECT @@IDENTITY); " +
                                                     "INSERT INTO tags(food_type, food_genre) VALUES(@food_type, @food_genre) DECLARE @tags_id INT = (SELECT @@IDENTITY); " +
                                                     "INSERT INTO servings(low_servings, high_servings) VALUES(@low_servings, @high_servings) DECLARE @servings_id INT = (SELECT @@IDENTITY); " +
-                                                    "INSERT INTO metadata(title, notes, times_id, tags_id, servings_id) OUTPUT INSERTED.ID VALUES(@title, @notes, @times_id, @tags_id, @servings_id); " +
+                                                    "INSERT INTO metadata(title, notes, times_id, tags_id, servings_id) OUTPUT INSERTED.M_ID VALUES(@title, @notes, @times_id, @tags_id, @servings_id); " +
                                                     "COMMIT;";
                     
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertNewMetadata, sqlConn);
@@ -600,7 +600,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlInsertNewIngredientList = "INSERT INTO ingredient_list OUTPUT INSERTED.ID DEFAULT VALUES;";
+                    string sqlInsertNewIngredientList = "INSERT INTO ingredient_list OUTPUT INSERTED.IL_ID DEFAULT VALUES;";
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertNewIngredientList, sqlConn);
                     recipe.IngredientList.Id = Convert.ToInt32(sqlCmd.ExecuteScalar());
 
@@ -639,7 +639,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlInsertNewCookingInstructions = "INSERT INTO cooking_instructions OUTPUT INSERTED.ID DEFAULT VALUES;";
+                    string sqlInsertNewCookingInstructions = "INSERT INTO cooking_instructions OUTPUT INSERTED.CI_ID DEFAULT VALUES;";
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertNewCookingInstructions, sqlConn);
                     
                     recipe.CookingInstructions.Id = Convert.ToInt32(sqlCmd.ExecuteScalar());
@@ -672,7 +672,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlInsertInstructionBlock = "INSERT INTO instruction_block (cooking_instructions_id, block_heading) OUTPUT INSERTED.ID VALUES(@cooking_instructions_id, @block_heading);";
+                    string sqlInsertInstructionBlock = "INSERT INTO instruction_block (cooking_instructions_id, block_heading) OUTPUT INSERTED.IB_ID VALUES(@cooking_instructions_id, @block_heading);";
                     
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertInstructionBlock, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@cooking_instructions_id", recipe.CookingInstructions.Id);
@@ -701,7 +701,7 @@ namespace r2slapi.DAO
                     sqlConn.Open();
 
                     //Create the new instruction in the Database
-                    string sqlInsertInstructionLine = "INSERT INTO instruction (text) OUTPUT INSERTED.ID VALUES (@text);";
+                    string sqlInsertInstructionLine = "INSERT INTO instruction (text) OUTPUT INSERTED.INST_ID VALUES (@text);";
                     
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertInstructionLine, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@text", recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex].InstructionLines[instructionLineIndex]);
@@ -709,10 +709,10 @@ namespace r2slapi.DAO
                     int instructionId = Convert.ToInt32(sqlCmd.ExecuteScalar());
 
                     //Create the new entry in the instruction_block_instruction associative table to link the new instruction to its instruction block
-                    string sqlInsertIntoInstructionBlockInstruction = "INSERT INTO instruction_block_instruction (block_id, instruction_id) VALUES (@block_id, @instruction_id);";
+                    string sqlInsertIntoInstructionBlockInstruction = "INSERT INTO instruction_block_instruction (instruction_block_id, instruction_id) VALUES (@instruction_block_id, @instruction_id);";
                     
                     sqlCmd = new SqlCommand(sqlInsertIntoInstructionBlockInstruction, sqlConn);
-                    sqlCmd.Parameters.AddWithValue("@block_id", recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex].Id);
+                    sqlCmd.Parameters.AddWithValue("@instruction_block_id", recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex].Id);
                     sqlCmd.Parameters.AddWithValue("@instruction_id", instructionId);
 
                     sqlCmd.ExecuteNonQuery();
@@ -917,8 +917,8 @@ namespace r2slapi.DAO
                     sqlConn.Open();
 
                     string sqlUpdateInstructionBlock = "UPDATE instruction_block SET block_heading = @block_heading WHERE ib_id = @instruction_block_id AND cooking_instructions_id = @cooking_instructions_id;";
-                    string sqlDeleteInstructionsFromBlock = "DELETE FROM instruction_block_instruction WHERE instruction_block_id = @block_id; " +
-                                                            "DELETE FROM instruction WHERE id IN (SELECT i.i_id FROM instruction i JOIN instruction_block_instruction ibi ON i.i_id = ibi.inst_id JOIN instruction_block ib ON ibi.instruction_block_id = ib.ib_id WHERE ib.ib_id = @block_id);";
+                    string sqlDeleteInstructionsFromBlock = "DELETE FROM instruction_block_instruction WHERE instruction_block_id = @instruction_block_id; " +
+                                                            "DELETE FROM instruction WHERE inst_id IN (SELECT i.inst_id FROM instruction i JOIN instruction_block_instruction ibi ON i.inst_id = ibi.instruction_id JOIN instruction_block ib ON ibi.instruction_block_id = ib.ib_id WHERE ib.ib_id = @instruction_block_id);";
 
                     //Loops through all of the instruction blocks and updates them
                     for (int i = 0; i < allInstructionBlocksToUpdate.Count; i++)
@@ -933,13 +933,13 @@ namespace r2slapi.DAO
                         //This command deletes all of the instruction lines from the current instruction block in the database
                         //so that the new, updated instruction lines can be created in the for loop below.
                         sqlCmd = new SqlCommand(sqlDeleteInstructionsFromBlock, sqlConn);
-                        sqlCmd.Parameters.AddWithValue("@block_id", allInstructionBlocksToUpdate[i].Id);
+                        sqlCmd.Parameters.AddWithValue("@instruction_block_id", allInstructionBlocksToUpdate[i].Id);
 
                         sqlCmd.ExecuteNonQuery();
 
                         for (int j = 0; j < allInstructionBlocksToUpdate[i].InstructionLines.Count; j++)
                         {
-                            CreateInstructionLine(recipe, i, j);
+                            bool? instructionLineCreated = CreateInstructionLine(recipe, i, j);
                         }
                     }
 

@@ -17,10 +17,8 @@ namespace r2slapi.Tests
             RestRequest request = new RestRequest(API_URL, DataFormat.Json);
 
             int? expectedIdOfRecipeBookLibrary = 1;
-            int expectedNumberOfRecipeBooks = 1;
             int expectedIdOfRecipeBook_1 = 1;
             string expectedNameOfRecipeBook_1 = "Desserts";
-            int expectedNumberOfRecipesInBook_1 = 1;
             string expectedTitleOfRecipe_1 = "Dirt Cups";
             string expectedNoteOfRecipe_1 = "A fun treat during the summer!";
             int expectedPrepTimeOfRecipe_1 = 10;
@@ -58,9 +56,7 @@ namespace r2slapi.Tests
             RecipeBookLibrary returnedRecipeBookLibrary = response.Data;
 
             int? actualIdOfRecipeBookLibrary = returnedRecipeBookLibrary.Id;
-            int actualNumberOfRecipeBooks = returnedRecipeBookLibrary.AllRecipeBooks.Count;
             int actualIdOfRecipeBook_1 = returnedRecipeBookLibrary.AllRecipeBooks[0].Id;
-            int actualNumberOfRecipesInBook_1 = returnedRecipeBookLibrary.AllRecipeBooks.Count;
             string actualNameOfRecipeBook_1 = returnedRecipeBookLibrary.AllRecipeBooks[0].Name;
             string actualTitleOfRecipe_1 = returnedRecipeBookLibrary.AllRecipeBooks[0].Recipes[0].Metadata.Title;
             string actualNoteOfRecipe_1 = returnedRecipeBookLibrary.AllRecipeBooks[0].Recipes[0].Metadata.Notes;
@@ -96,10 +92,8 @@ namespace r2slapi.Tests
 
             //Assert
             Assert.AreEqual(expectedIdOfRecipeBookLibrary, actualIdOfRecipeBookLibrary, "Recipe Book Library ID retrieved is incorrect");
-            Assert.AreEqual(expectedNumberOfRecipeBooks, actualNumberOfRecipeBooks, "Number of recipe books retrieved is incorrect");
             Assert.AreEqual(expectedIdOfRecipeBook_1, actualIdOfRecipeBook_1, "Recipe Book 1 ID retrieved is incorrect");
             Assert.AreEqual(expectedNameOfRecipeBook_1, actualNameOfRecipeBook_1, "Name of Recipe Book 1 retrieved is incorrect");
-            Assert.AreEqual(expectedNumberOfRecipesInBook_1, actualNumberOfRecipesInBook_1, "Number of recipes in Recipe Book 1 is incorrect");
             Assert.AreEqual(expectedTitleOfRecipe_1, actualTitleOfRecipe_1, "Name of Recipe 1 retrieved is incorrect");
             Assert.AreEqual(expectedNoteOfRecipe_1, actualNoteOfRecipe_1, "Note of Recipe 1 retrieved is incorrect");
             Assert.AreEqual(expectedPrepTimeOfRecipe_1, actualPrepTimeOfRecipe_1, "Prep Time of Recipe 1 retrieved is incorrect");
@@ -140,7 +134,6 @@ namespace r2slapi.Tests
 
             int expectedIdOfRecipeBook_1 = 1;
             string expectedNameOfRecipeBook_1 = "Desserts";
-            int expectedNumberOfRecipesInBook_1 = 1;
             string expectedTitleOfRecipe_1 = "Dirt Cups";
             string expectedNoteOfRecipe_1 = "A fun treat during the summer!";
             int expectedPrepTimeOfRecipe_1 = 10;
@@ -178,7 +171,6 @@ namespace r2slapi.Tests
             RecipeBook returnedRecipeBook = response.Data;
 
             int actualIdOfRecipeBook_1 = returnedRecipeBook.Id;
-            int actualNumberOfRecipesInBook_1 = returnedRecipeBook.Recipes.Count;
             string actualNameOfRecipeBook_1 = returnedRecipeBook.Name;
             string actualTitleOfRecipe_1 = returnedRecipeBook.Recipes[0].Metadata.Title;
             string actualNoteOfRecipe_1 = returnedRecipeBook.Recipes[0].Metadata.Notes;
@@ -215,7 +207,6 @@ namespace r2slapi.Tests
             //Assert
             Assert.AreEqual(expectedIdOfRecipeBook_1, actualIdOfRecipeBook_1, "Recipe Book 1 ID retrieved is incorrect");
             Assert.AreEqual(expectedNameOfRecipeBook_1, actualNameOfRecipeBook_1, "Name of Recipe Book 1 retrieved is incorrect");
-            Assert.AreEqual(expectedNumberOfRecipesInBook_1, actualNumberOfRecipesInBook_1, "Number of recipes in Recipe Book 1 is incorrect");
             Assert.AreEqual(expectedTitleOfRecipe_1, actualTitleOfRecipe_1, "Name of Recipe 1 retrieved is incorrect");
             Assert.AreEqual(expectedNoteOfRecipe_1, actualNoteOfRecipe_1, "Note of Recipe 1 retrieved is incorrect");
             Assert.AreEqual(expectedPrepTimeOfRecipe_1, actualPrepTimeOfRecipe_1, "Prep Time of Recipe 1 retrieved is incorrect");
