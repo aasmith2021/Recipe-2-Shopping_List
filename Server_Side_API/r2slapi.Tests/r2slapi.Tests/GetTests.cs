@@ -127,7 +127,7 @@ namespace r2slapi.Tests
         }
 
         [TestMethod]
-        public void GET_recipe_book_number_returns_entire_recipe_book()
+        public void GET_recipe_book_returns_entire_recipe_book()
         {
             //Arrange
             RestRequest request = new RestRequest(API_URL + "/1", DataFormat.Json);
@@ -240,7 +240,7 @@ namespace r2slapi.Tests
         }
 
         [TestMethod]
-        public void GET_recipe_number_returns_entire_recipe()
+        public void GET_recipe_returns_entire_recipe()
         {
             //Arrange
             RestRequest request = new RestRequest(API_URL + "/1/1", DataFormat.Json);

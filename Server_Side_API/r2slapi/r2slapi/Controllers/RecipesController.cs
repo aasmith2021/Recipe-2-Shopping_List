@@ -21,6 +21,7 @@ namespace r2slapi.Controllers
             dao = _dao;
         }
 
+
         [HttpGet]
         public ActionResult<RecipeBookLibrary> GetRecipeBookLibrary()
         {
@@ -39,6 +40,7 @@ namespace r2slapi.Controllers
                 return Ok(recipeBookLibrary);
             }
         }
+
 
         [HttpGet("{recipeBookId}")]
         public ActionResult<RecipeBook> GetRecipeBook(int recipeBookId)
@@ -59,6 +61,7 @@ namespace r2slapi.Controllers
             }
         }
 
+
         [HttpGet("{recipeBookId}/{recipeId}")]
         public ActionResult<Recipe> GetRecipe(int recipeId)
         {
@@ -78,6 +81,7 @@ namespace r2slapi.Controllers
             }
         }
 
+
         [HttpPost]
         public ActionResult<RecipeBook> CreateRecipeBook(RecipeBook recipeBook, int recipeBookLibraryId = RECIPE_BOOK_LIBRARY_ID)
         {           
@@ -93,6 +97,7 @@ namespace r2slapi.Controllers
             }
         }
 
+
         [HttpPost("{recipeBookId}")]
         public ActionResult<Recipe> CreateRecipe(int recipeBookId, Recipe recipe)
         {
@@ -107,6 +112,7 @@ namespace r2slapi.Controllers
                 return Created($"/recipes/{recipeBookId}/{newRecipe.Id}", newRecipe);
             }
         }
+        
 
         [HttpPut("{recipeBookId}")]
         public ActionResult UpdateRecipeBook(int recipeBookId, RecipeBook recipeBook)
@@ -139,6 +145,7 @@ namespace r2slapi.Controllers
                 }
             }
         }
+        
 
         [HttpPut("{recipeBookId}/{recipeId}")]
         public ActionResult UpdateRecipe(int recipeBookId, int recipeId, Recipe recipe)
@@ -168,6 +175,7 @@ namespace r2slapi.Controllers
             }
         }
 
+
         [HttpDelete("{recipeBookId}")]
         public ActionResult DeleteRecipeBook(int recipeBookId)
         {
@@ -195,6 +203,7 @@ namespace r2slapi.Controllers
                 }
             }
         }
+
 
         [HttpDelete("{recipeBookId}/{recipeId}")]
         public ActionResult DeleteRecipe(int recipeBookId, int recipeId)

@@ -172,7 +172,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlSelectRecipeNumber = "SELECT recipe_number FROM recipe WHERE r_id = @recipe_id";
+                    string sqlSelectRecipeNumber = "SELECT recipe_number FROM recipe WHERE r_id = @recipe_id;";
 
                     SqlCommand sqlCmd = new SqlCommand(sqlSelectRecipeNumber, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_id", recipeId);
@@ -765,7 +765,7 @@ namespace r2slapi.DAO
 
                     SqlCommand sqlCmd = new SqlCommand(sqlUpdateRecipeBook, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@name", recipeBook.Name);
-                    sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBook.Id);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
 
                     sqlCmd.ExecuteNonQuery();
 

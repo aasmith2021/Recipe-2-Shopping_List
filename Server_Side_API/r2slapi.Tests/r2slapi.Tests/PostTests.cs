@@ -12,34 +12,7 @@ namespace r2slapi.Tests
 
         private RecipeBook GetTestRecipeBook()
         {
-            Times times = new Times(20, 0);
-            Tags tags = new Tags("Salads", "European");
-            Servings servings = new Servings(4, 8);
-            Metadata metadata = new Metadata("Cobb Salad", times, tags, servings, "Excellent side-salad option");
-
-            IngredientList ingredientList = new IngredientList();
-
-            Ingredient ingredient1 = new Ingredient(4, "Cup", "dark leafy greens", "cut into bite-sized pieces", "Produce");
-            Ingredient ingredient2 = new Ingredient(2, "Cup", "cheddar cheese", "shredded", "Refrigerated");
-            Ingredient ingredient3 = new Ingredient(0.5, "Cup", "hard-boiled egg pieces", "cut into small squares", "Refrigerated");
-
-            ingredientList.AddIngredient(ingredient1);
-            ingredientList.AddIngredient(ingredient2);
-            ingredientList.AddIngredient(ingredient3);
-
-            CookingInstructions cookingInstructions = new CookingInstructions();
-
-            InstructionBlock instructionBlock1 = new InstructionBlock("Prep Work");
-            InstructionBlock instructionBlock2 = new InstructionBlock("Assembly");
-
-            instructionBlock1.AddInstructionLine("Add salad mix to small salad plates");
-            instructionBlock1.AddInstructionLine("Shred cheddar cheese and chill");
-            instructionBlock2.AddInstructionLine("Make the salads by adding ingredients together on top of salad mix.");
-
-            cookingInstructions.AddInstructionBlock(instructionBlock1);
-            cookingInstructions.AddInstructionBlock(instructionBlock2);
-
-            Recipe recipe = new Recipe(metadata, cookingInstructions, ingredientList);
+            Recipe recipe = GetTestRecipe();
 
             RecipeBook recipeBook = new RecipeBook("Salads");
 
@@ -199,7 +172,7 @@ namespace r2slapi.Tests
 
         
         [TestMethod]
-        public void POST_recipe_returns_entire_recipe()
+        public void POST_recipe_creates_recipe()
         {
             //Arrange
             Recipe recipeToCreate = GetTestRecipe();
