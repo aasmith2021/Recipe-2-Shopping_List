@@ -21,7 +21,7 @@ namespace r2slapi.Controllers
             dao = _dao;
         }
 
-        [HttpGet()]
+        [HttpGet]
         public ActionResult<RecipeBookLibrary> GetRecipeBookLibrary()
         {
             RecipeBookLibrary recipeBookLibrary = dao.GetRecipeBookLibrary(RECIPE_BOOK_LIBRARY_ID);

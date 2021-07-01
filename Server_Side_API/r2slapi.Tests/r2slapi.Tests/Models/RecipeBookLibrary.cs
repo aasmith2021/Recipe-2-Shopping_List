@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace r2slapi.Models
+namespace r2slapi.Tests.Models
 {
     public class RecipeBookLibrary
     {
         private List<string> allMeasurementUnits = new List<string>();
-        
+
         public RecipeBookLibrary()
         {
             allMeasurementUnits.AddRange(MeasurementUnits.AllStandardMeasurementUnits());
@@ -47,7 +47,7 @@ namespace r2slapi.Models
             allMeasurementUnits.Remove(measurementUnit);
         }
 
-        public void EditMeasurementUnit (string measurementUnit, string newMeasurementUnit)
+        public void EditMeasurementUnit(string measurementUnit, string newMeasurementUnit)
         {
             allMeasurementUnits[allMeasurementUnits.IndexOf(measurementUnit)] = newMeasurementUnit;
         }

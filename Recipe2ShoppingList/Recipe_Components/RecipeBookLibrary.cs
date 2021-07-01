@@ -7,7 +7,6 @@ namespace Recipe2ShoppingList
 {
     public class RecipeBookLibrary
     {
-        private List<RecipeBook> allRecipeBooksList = new List<RecipeBook>();
         private List<string> allMeasurementUnits = new List<string>();
 
         public RecipeBookLibrary()
@@ -15,16 +14,9 @@ namespace Recipe2ShoppingList
             allMeasurementUnits.AddRange(MeasurementUnits.AllStandardMeasurementUnits());
         }
 
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
-        public RecipeBook[] AllRecipeBooks
-        {
-            get
-            {
-                RecipeBook[] allRecipeBooksArray = allRecipeBooksList.ToArray();
-                return allRecipeBooksArray;
-            }
-        }
+        public List<RecipeBook> AllRecipeBooks { get; set; } = new List<RecipeBook>();
 
         public string[] AllMeasurementUnits
         {
@@ -37,12 +29,12 @@ namespace Recipe2ShoppingList
 
         public void AddRecipeBook(RecipeBook recipeBook)
         {
-            allRecipeBooksList.Add(recipeBook);
+            AllRecipeBooks.Add(recipeBook);
         }
 
         public void DeleteRecipeBook(RecipeBook recipeBook)
         {
-            allRecipeBooksList.Remove(recipeBook);
+            AllRecipeBooks.Remove(recipeBook);
         }
 
         public void AddMeasurementUnit(string measurementUnit)
@@ -63,7 +55,7 @@ namespace Recipe2ShoppingList
         public void WriteRecipeBookLibraryToFile(IUserIO userIO, string alternateFilePath = "")
         {
             string[] allMeasurementUnits = this.AllMeasurementUnits;
-            RecipeBook[] allRecipeBooks = this.AllRecipeBooks;
+            RecipeBook[] allRecipeBooks = this.AllRecipeBooks.ToArray();
 
             try
             {
