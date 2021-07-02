@@ -92,7 +92,7 @@ namespace Recipe2ShoppingList
             List<string[]> mainMenuStandardOptions = new List<string[]>();
             mainMenuOptions = new List<string>();
 
-            if (recipeBookLibrary.AllRecipeBooks.Length == 0)
+            if (recipeBookLibrary.AllRecipeBooks.Count == 0)
             {
                 userIO.DisplayData("You currently don't have any recipe books saved.");
                 userIO.DisplayData();
@@ -107,7 +107,7 @@ namespace Recipe2ShoppingList
             {
                 userIO.DisplayData("----- RECIPE BOOKS -----");
 
-                for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Length; i++)
+                for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Count; i++)
                 {
                     recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
                 }
@@ -128,7 +128,7 @@ namespace Recipe2ShoppingList
             DisplayOptionsMenu(userIO, mainMenuStandardOptions, out List<string> standardOptionsToAdd);
             userIO.DisplayData();
             
-            if (recipeBookLibrary.AllRecipeBooks.Length != 0)
+            if (recipeBookLibrary.AllRecipeBooks.Count != 0)
             {
                 userIO.DisplayData();
                 userIO.DisplayData(MakeStringConsoleLengthLines("Open a recipe book by entering its number, or select an option from the menu:"));
@@ -291,6 +291,41 @@ namespace Recipe2ShoppingList
             userIO.DisplayData();
             userIO.DisplayData("Press \"Enter\" to return to the main menu...");
             userIO.GetInput();
+        }
+
+        public static void DisplayCurrentMeasurementUnits(IUserIO userIO, List<string> userAddedMeasurementUnits)
+        {
+            if (userAddedMeasurementUnits.Count == 0)
+            {
+                userIO.DisplayData("There are currently no user-added measurement units saved.");
+            }
+            else
+            {
+                userIO.DisplayData("<<< Current Measurement Units >>>");
+                for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
+                {
+                    userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                }
+            }
+            userIO.DisplayData();
+        }
+
+        public static void DisplayCurrentMeasurementUnitsForAddingAndEditingMU(IUserIO userIO, List<string> userAddedMeasurementUnits)
+        {
+            if (userAddedMeasurementUnits.Count != 0)
+            {
+                userIO.DisplayData("<<< Current Measurement Units >>>");
+                for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
+                {
+                    userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
+                }
+            }
+        }
+
+        public static void DisplaySelectMUToEditMessage(IUserIO userIO)
+        {
+            userIO.DisplayData();
+            userIO.DisplayData("Select the measurement unit to edit:");
         }
     }
 }

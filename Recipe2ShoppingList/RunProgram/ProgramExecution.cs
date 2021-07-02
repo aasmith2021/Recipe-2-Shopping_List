@@ -109,21 +109,7 @@ namespace Recipe2ShoppingList
                     editOptions.RemoveAt(1);
                 }
 
-                if (userAddedMeasurementUnits.Count == 0)
-                {
-                    userIO.DisplayData("There are currently no user-added measurement units saved.");
-                    userIO.DisplayData();
-                }
-                else
-                {
-                    userIO.DisplayData("<<< Current Measurement Units >>>");
-                    for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
-                    {
-                        userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
-                    }
-                    userIO.DisplayData();
-                }
-
+                UserInterface.DisplayCurrentMeasurementUnits(userIO, userAddedMeasurementUnits);
                 UserInterface.DisplayOptionsMenu(userIO, editOptions, out options);
                 userIO.DisplayData();
                 userIO.DisplayDataLite("Select an editing option: ");
@@ -156,14 +142,7 @@ namespace Recipe2ShoppingList
             string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
             UserInterface.DisplayMenuHeader(userIO, header);
 
-            if (userAddedMeasurementUnits.Count != 0)
-            {
-                userIO.DisplayData("<<< Current Measurement Units >>>");
-                for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
-                {
-                    userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
-                }
-            }
+            UserInterface.DisplayCurrentMeasurementUnitsForAddingAndEditingMU(userIO, userAddedMeasurementUnits);
 
             string measurementUnit = "";
             GetUserInput.GetNewMeasurementUnitFromUser(userIO, out measurementUnit);
@@ -188,17 +167,17 @@ namespace Recipe2ShoppingList
 
             List<string> userOptions = new List<string>();
 
-            userIO.DisplayData("<<< Current Measurement Units >>>");
+            UserInterface.DisplayCurrentMeasurementUnitsForAddingAndEditingMU(userIO, userAddedMeasurementUnits);
+
             for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
             {
-                userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
                 userOptions.Add((i + 1).ToString());
             }
 
-            userIO.DisplayData();
-            userIO.DisplayData("Select the measurement unit to edit:");
+            UserInterface.DisplaySelectMUToEditMessage(userIO);
             string userOption = GetUserInput.GetUserOption(userIO, userOptions);
 
+            //TODO - turn this into a UserInterface thing
             userIO.DisplayData();
             userIO.DisplayData("Enter the new name for the measurement unit:");
             string newName = GetUserInput.GetUserInputString(userIO, false, 30);
@@ -357,7 +336,7 @@ namespace Recipe2ShoppingList
             List<string[]> recipeBooksToDisplay = new List<string[]>();
             List<string> recipeBookOptions = new List<string>();
 
-            for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Length; i++)
+            for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Count; i++)
             {
                 recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
             }
@@ -396,7 +375,7 @@ namespace Recipe2ShoppingList
             List<string[]> recipeBooksToDisplay = new List<string[]>();
             List<string> recipeBookOptions = new List<string>();
 
-            for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Length; i++)
+            for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Count; i++)
             {
                 recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
             }
