@@ -345,5 +345,31 @@ namespace r2slapi.Tests
             Assert.AreEqual(expectedIngredient3PrepNote, actualIngredient3PrepNote, "Prep Note of Ingredient 3 in Recipe 1 retrieved is incorrect");
             Assert.AreEqual(expectedIngredient3StoreLocation, actualIngredient3StoreLocation, "Store Location of Ingredient 3 in Recipe 1 retrieved is incorrect");
         }
+
+        [TestMethod]
+        public void GET_recipe_for_nonexistent_recipe_returns_404_error()
+        {
+            //Arrange
+            RestRequest request = new RestRequest(API_URL + "/100/100", DataFormat.Json);
+
+            //Act
+            IRestResponse<Recipe> response = client.Get<Recipe>(request);
+
+            //Assert
+            Assert.AreEqual((int)response.StatusCode, 404, "Status code of getting nonexistent recipe was not 404");
+        }
+
+        [TestMethod]
+        public void GET_recipe_book_for_nonexistent_recipe_book_returns_404_error()
+        {
+            //Arrange
+            RestRequest request = new RestRequest(API_URL + "/100", DataFormat.Json);
+
+            //Act
+            IRestResponse<RecipeBook> response = client.Get<RecipeBook>(request);
+
+            //Assert
+            Assert.AreEqual((int)response.StatusCode, 404, "Status code of getting nonexistent recipe book was not 404");
+        }
     }
 }

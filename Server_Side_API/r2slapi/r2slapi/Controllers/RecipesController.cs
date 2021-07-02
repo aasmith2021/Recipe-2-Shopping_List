@@ -101,6 +101,17 @@ namespace r2slapi.Controllers
         [HttpPost("{recipeBookId}")]
         public ActionResult<Recipe> CreateRecipe(int recipeBookId, Recipe recipe)
         {
+            RecipeBook recipeBook = dao.GetRecipeBook(recipeBookId);
+
+            if (recipeBook == null)
+            {
+                return StatusCode(500, "Error: Unable to complete request. Please try again later.");
+            }
+            else if (recipeBook.Id == -1)
+            {
+                return NotFound();
+            }
+
             Recipe newRecipe = dao.CreateRecipe(recipeBookId, recipe);
 
             if (newRecipe == null)

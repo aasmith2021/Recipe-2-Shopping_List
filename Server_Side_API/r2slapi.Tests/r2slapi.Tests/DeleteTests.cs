@@ -43,5 +43,31 @@ namespace r2slapi.Tests
             Assert.AreEqual((int)beforeGetResponse.StatusCode, 200, "Status code of GET method before delete was not 200");
             Assert.AreEqual((int)afterGetResponse.StatusCode, 404, "Status code of GET method after delete was not 404");
         }
+
+        [TestMethod]
+        public void DELETE_recipe_for_nonexistent_recipe_returns_404_error()
+        {
+            //Arrange
+            RestRequest request = new RestRequest(API_URL + "/100/100", DataFormat.Json);
+
+            //Act
+            IRestResponse response = client.Delete(request);
+
+            //Assert
+            Assert.AreEqual((int)response.StatusCode, 404, "Status code of deleting nonexistent recipe was not 404");
+        }
+
+        [TestMethod]
+        public void DELETE_recipe_book_for_nonexistent_recipe_book_returns_404_error()
+        {
+            //Arrange
+            RestRequest request = new RestRequest(API_URL + "/100", DataFormat.Json);
+
+            //Act
+            IRestResponse response = client.Delete(request);
+
+            //Assert
+            Assert.AreEqual((int)response.StatusCode, 404, "Status code of deleting nonexistent recipe book was not 404");
+        }
     }
 }
