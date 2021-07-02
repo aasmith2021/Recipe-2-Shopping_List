@@ -241,6 +241,18 @@ namespace Recipe2ShoppingList
             userIO.GetInput();
         }
 
+        public static void DisplaySuccessfulChangeMessage(IUserIO userIO, bool isSure, string changeNoun, string changeVerb, bool isPluralNoun = false)
+        {
+            if (isSure)
+            {
+                SuccessfulChange(userIO, isSure, changeNoun, changeVerb, isPluralNoun);
+            }
+            else
+            {
+                SuccessfulChange(userIO, isSure, changeNoun, changeVerb, isPluralNoun);
+            }
+        }
+
         public static void DisplayMenuHeader(IUserIO userIO, string header, string additionalMessage = "")
         {
             userIO.ClearDisplay();
@@ -293,7 +305,7 @@ namespace Recipe2ShoppingList
             userIO.GetInput();
         }
 
-        public static void DisplayCurrentMeasurementUnits(IUserIO userIO, List<string> userAddedMeasurementUnits)
+        public static void DisplayCurrentMeasurementUnits(IUserIO userIO, List<string> userAddedMeasurementUnits, bool addExtraLineBreak = false)
         {
             if (userAddedMeasurementUnits.Count == 0)
             {
@@ -307,25 +319,31 @@ namespace Recipe2ShoppingList
                     userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
                 }
             }
-            userIO.DisplayData();
-        }
 
-        public static void DisplayCurrentMeasurementUnitsForAddingAndEditingMU(IUserIO userIO, List<string> userAddedMeasurementUnits)
-        {
-            if (userAddedMeasurementUnits.Count != 0)
+            if (addExtraLineBreak)
             {
-                userIO.DisplayData("<<< Current Measurement Units >>>");
-                for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
-                {
-                    userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
-                }
+                userIO.DisplayData();
             }
         }
 
-        public static void DisplaySelectMUToEditMessage(IUserIO userIO)
+        public static void DisplayRegularPrompt(IUserIO userIO, string message, bool includeLeadingSpace = true)
         {
-            userIO.DisplayData();
-            userIO.DisplayData("Select the measurement unit to edit:");
+            if (includeLeadingSpace)
+            {
+                userIO.DisplayData();
+            }
+
+            userIO.DisplayData($"{message}:");
+        }
+
+        public static void DisplayLitePrompt(IUserIO userIO, string message, bool includeLeadingSpace = true)
+        {
+            if (includeLeadingSpace)
+            {
+                userIO.DisplayData();
+            }
+
+            userIO.DisplayDataLite($"{message}: ");
         }
     }
 }

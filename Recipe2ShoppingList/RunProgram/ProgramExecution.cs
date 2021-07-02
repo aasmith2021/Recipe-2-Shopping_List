@@ -55,19 +55,19 @@ namespace Recipe2ShoppingList
                 switch (userOption)
                 {
                     case "A":
-                        AddNewRecipeBook(userIO, recipeBookLibrary);
+                        ManageRecipeBooks.AddNewRecipeBook(userIO, recipeBookLibrary);
                         break;
                     case "R":
-                        RenameRecipeBook(userIO, recipeBookLibrary);
+                        ManageRecipeBooks.RenameRecipeBook(userIO, recipeBookLibrary);
                         break;
                     case "D":
-                        DeleteRecipeBook(userIO, recipeBookLibrary);
+                        ManageRecipeBooks.DeleteRecipeBook(userIO, recipeBookLibrary);
                         break;
                     case "V":
                         UserInterface.DisplayShoppingList(userIO, shoppingList);
                         break;
                     case "M":
-                        ManageSavedMeasurementUnits(userIO, recipeBookLibrary);
+                        RunManageSavedMeasurementUnits(userIO, recipeBookLibrary);
                         break;
                     case "X":
                         exitProgram = true;
@@ -75,145 +75,6 @@ namespace Recipe2ShoppingList
                     default:
                         break;
                 }
-            }
-        }
-
-        public static void ManageSavedMeasurementUnits(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
-        {
-            bool exitMeasurementUnits = false;
-
-            do
-            {
-                string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
-                UserInterface.DisplayMenuHeader(userIO, header);
-
-                int allStandardMeasurementUnitsLength = MeasurementUnits.AllStandardMeasurementUnits().Count;
-                string[] allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits;
-
-                List<string> userAddedMeasurementUnits = new List<string>();
-                userAddedMeasurementUnits.AddRange(allMeasurementUnits);
-                userAddedMeasurementUnits.RemoveRange(0, allStandardMeasurementUnitsLength);
-
-                List<string[]> editOptions = new List<string[]>()
-            {
-                new string[] { "A", "Add New Measurement Unit"},
-                new string[] { "E", "Edit Measurement Unit"},
-                new string[] { "D", "Delete Measurement Unit"},
-                new string[] { "R", "Return to Main Menu"},
-            };
-                List<string> options = new List<string>();
-
-                if (userAddedMeasurementUnits.Count == 0)
-                {
-                    editOptions.RemoveAt(1);
-                    editOptions.RemoveAt(1);
-                }
-
-                UserInterface.DisplayCurrentMeasurementUnits(userIO, userAddedMeasurementUnits);
-                UserInterface.DisplayOptionsMenu(userIO, editOptions, out options);
-                userIO.DisplayData();
-                userIO.DisplayDataLite("Select an editing option: ");
-                string userOption = GetUserInput.GetUserOption(userIO, options);
-
-                userIO.DisplayData();
-                switch (userOption)
-                {
-                    case "A":
-                        AddNewMeasurementUnit(userIO, recipeBookLibrary, userAddedMeasurementUnits);
-                        break;
-                    case "E":
-                        EditExistingMeasurementUnit(userIO, recipeBookLibrary, userAddedMeasurementUnits);
-                        break;
-                    case "D":
-                        DeleteExistingMeasurementUnit(userIO, recipeBookLibrary, userAddedMeasurementUnits);
-                        break;
-                    case "R":
-                        exitMeasurementUnits = true;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            while (!exitMeasurementUnits);
-        }
-
-        public static void AddNewMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
-        {
-            string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
-            UserInterface.DisplayMenuHeader(userIO, header);
-
-            UserInterface.DisplayCurrentMeasurementUnitsForAddingAndEditingMU(userIO, userAddedMeasurementUnits);
-
-            string measurementUnit = "";
-            GetUserInput.GetNewMeasurementUnitFromUser(userIO, out measurementUnit);
-
-            GetUserInput.AreYouSure(userIO, "add this measurement unit", out bool isSure);
-
-            if (isSure)
-            {
-                recipeBookLibrary.AddMeasurementUnit(measurementUnit);
-                UserInterface.SuccessfulChange(userIO, true, "measurement unit", "added");
-            }
-            else
-            {
-                UserInterface.SuccessfulChange(userIO, false, "measurement unit", "added");
-            }
-        }
-
-        public static void EditExistingMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
-        {
-            string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
-            UserInterface.DisplayMenuHeader(userIO, header);
-
-            List<string> userOptions = new List<string>();
-
-            UserInterface.DisplayCurrentMeasurementUnitsForAddingAndEditingMU(userIO, userAddedMeasurementUnits);
-
-            for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
-            {
-                userOptions.Add((i + 1).ToString());
-            }
-
-            UserInterface.DisplaySelectMUToEditMessage(userIO);
-            string userOption = GetUserInput.GetUserOption(userIO, userOptions);
-
-            //TODO - turn this into a UserInterface thing
-            userIO.DisplayData();
-            userIO.DisplayData("Enter the new name for the measurement unit:");
-            string newName = GetUserInput.GetUserInputString(userIO, false, 30);
-
-            recipeBookLibrary.EditMeasurementUnit(userAddedMeasurementUnits[int.Parse(userOption) - 1], newName);
-            UserInterface.SuccessfulChange(userIO, true, "measurement unit name", "updated");
-        }
-
-        public static void DeleteExistingMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
-        {
-            string header = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
-            UserInterface.DisplayMenuHeader(userIO, header);
-
-            List<string> userOptions = new List<string>();
-
-            userIO.DisplayData("<<< Current Measurement Units >>>");
-            for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
-            {
-                userIO.DisplayData($"{i + 1}. {userAddedMeasurementUnits[i]}");
-                userOptions.Add((i + 1).ToString());
-            }
-
-            userIO.DisplayData();
-            userIO.DisplayData("Select the measurement unit to delete:");
-            string userOption = GetUserInput.GetUserOption(userIO, userOptions);
-
-            GetUserInput.AreYouSure(userIO, "delete this measurement unit", out bool isSure);
-
-            if (isSure)
-            {
-                recipeBookLibrary.DeleteMeasurementUnit(userAddedMeasurementUnits[int.Parse(userOption) - 1]);
-                UserInterface.SuccessfulChange(userIO, true, "measurement unit", "deleted");
-            }
-            else
-            {
-                UserInterface.SuccessfulChange(userIO, false, "measurement unit", "deleted");
             }
         }
 
@@ -305,99 +166,62 @@ namespace Recipe2ShoppingList
             }
         }
 
-        private static void AddNewRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
+        public static void RunManageSavedMeasurementUnits(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
-            userIO.ClearDisplay();
-            userIO.DisplayData("---------- ADD NEW RECIPE BOOK ----------");
-            userIO.DisplayData();
-            userIO.DisplayDataLite("Enter a name for the new recipe book: ");
-            string bookName = GetUserInput.GetUserInputString(userIO, false, 120);
+            bool exitMeasurementUnits = false;
 
-            GetUserInput.AreYouSure(userIO, $"create a new recipe book named {bookName}", out bool isSure);
-
-            if (isSure)
+            do
             {
-                RecipeBook newRecipeBook = new RecipeBook(bookName);
-                recipeBookLibrary.AddRecipeBook(newRecipeBook);
-                UserInterface.SuccessfulChange(userIO, true, $"new recipe book, {bookName},", "created");
+                UserInterface.DisplayMenuHeader(userIO, "---------- MANAGE SAVED MEASUREMENT UNITS ----------");
+
+                int allStandardMeasurementUnitsLength = MeasurementUnits.AllStandardMeasurementUnits().Count;
+                string[] allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits;
+
+                List<string> userAddedMeasurementUnits = new List<string>();
+                userAddedMeasurementUnits.AddRange(allMeasurementUnits);
+                userAddedMeasurementUnits.RemoveRange(0, allStandardMeasurementUnitsLength);
+
+                List<string[]> editOptions = new List<string[]>()
+                {
+                    new string[] { "A", "Add New Measurement Unit"},
+                    new string[] { "E", "Edit Measurement Unit"},
+                    new string[] { "D", "Delete Measurement Unit"},
+                    new string[] { "R", "Return to Main Menu"},
+                };
+                List<string> options = new List<string>();
+
+                if (userAddedMeasurementUnits.Count == 0)
+                {
+                    editOptions.RemoveAt(1);
+                    editOptions.RemoveAt(1);
+                }
+
+                UserInterface.DisplayCurrentMeasurementUnits(userIO, userAddedMeasurementUnits, true);
+                UserInterface.DisplayOptionsMenu(userIO, editOptions, out options);
+                UserInterface.DisplayLitePrompt(userIO, "Select an editing option");
+
+                string userOption = GetUserInput.GetUserOption(userIO, options);
+
+                userIO.DisplayData();
+                switch (userOption)
+                {
+                    case "A":
+                        ManageMeasurementUnits.AddNewMeasurementUnit(userIO, recipeBookLibrary, userAddedMeasurementUnits);
+                        break;
+                    case "E":
+                        ManageMeasurementUnits.EditExistingMeasurementUnit(userIO, recipeBookLibrary, userAddedMeasurementUnits);
+                        break;
+                    case "D":
+                        ManageMeasurementUnits.DeleteExistingMeasurementUnit(userIO, recipeBookLibrary, userAddedMeasurementUnits);
+                        break;
+                    case "R":
+                        exitMeasurementUnits = true;
+                        break;
+                    default:
+                        break;
+                }
             }
-            else
-            {
-                UserInterface.SuccessfulChange(userIO, false, "new recipe book", "created");
-            }
-        }
-
-        private static void RenameRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
-        {
-            userIO.ClearDisplay();
-            userIO.DisplayData("---------- RENAME RECIPE BOOK ----------");
-            userIO.DisplayData();
-
-            List<string[]> recipeBooksToDisplay = new List<string[]>();
-            List<string> recipeBookOptions = new List<string>();
-
-            for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Count; i++)
-            {
-                recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
-            }
-
-            UserInterface.DisplayOptionsMenu(userIO, recipeBooksToDisplay, out recipeBookOptions);
-            userIO.DisplayData();
-            userIO.DisplayDataLite("Enter the recipe book you would like to rename: ");
-            int userOption = int.Parse(GetUserInput.GetUserOption(userIO, recipeBookOptions));
-
-            RecipeBook recipeBookToRename = recipeBookLibrary.AllRecipeBooks[userOption - 1];
-            string oldName = recipeBookToRename.Name;
-
-            userIO.DisplayData("");
-            userIO.DisplayDataLite($"Enter the new name for the {oldName} recipe book: ");
-            string newName = GetUserInput.GetUserInputString(userIO, false, 120);
-
-            GetUserInput.AreYouSure(userIO, $"rename the {oldName} recipe book to \"{newName}\"", out bool isSure);
-
-            if (isSure)
-            {
-                recipeBookToRename.Name = newName;
-                UserInterface.SuccessfulChange(userIO, true, $"{oldName} recipe book", $"renamed {newName}");
-            }
-            else
-            {
-                UserInterface.SuccessfulChange(userIO, false, "recipe book", "renamed");
-            }
-        }
-
-        private static void DeleteRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
-        {
-            userIO.ClearDisplay();
-            userIO.DisplayData("---------- DELETE RECIPE BOOK ----------");
-            userIO.DisplayData();
-
-            List<string[]> recipeBooksToDisplay = new List<string[]>();
-            List<string> recipeBookOptions = new List<string>();
-
-            for (int i = 0; i < recipeBookLibrary.AllRecipeBooks.Count; i++)
-            {
-                recipeBooksToDisplay.Add(new string[] { (i + 1).ToString(), recipeBookLibrary.AllRecipeBooks[i].Name });
-            }
-
-            UserInterface.DisplayOptionsMenu(userIO, recipeBooksToDisplay, out recipeBookOptions);
-            userIO.DisplayData();
-            userIO.DisplayDataLite("Enter the recipe book you would like to delete: ");
-            int userOption = int.Parse(GetUserInput.GetUserOption(userIO, recipeBookOptions));
-
-            RecipeBook recipeBookToDelete = recipeBookLibrary.AllRecipeBooks[userOption - 1];
-
-            GetUserInput.AreYouSure(userIO, $"delete the {recipeBookToDelete.Name} recipe book", out bool isSure);
-
-            if (isSure)
-            {
-                recipeBookLibrary.DeleteRecipeBook(recipeBookToDelete);
-                UserInterface.SuccessfulChange(userIO, true, $"{recipeBookToDelete.Name} recipe book", "deleted");
-            }
-            else
-            {
-                UserInterface.SuccessfulChange(userIO, false, "recipe book", "deleted");
-            }
+            while (!exitMeasurementUnits);
         }
 
         private static void AddNewRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)

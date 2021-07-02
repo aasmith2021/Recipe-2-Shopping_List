@@ -548,5 +548,10 @@ namespace Recipe2ShoppingList
 
             return newNotes;
         }
+
+        public static string GetNewMeasurementUnitName(IUserIO userIO)
+        {
+            return GetUserInputString(userIO, false, 30);
+        }
     }
 }
