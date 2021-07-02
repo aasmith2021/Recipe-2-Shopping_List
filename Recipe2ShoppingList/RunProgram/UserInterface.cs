@@ -137,7 +137,7 @@ namespace Recipe2ShoppingList
         }
 
         public static void DisplayOpenRecipeBook(IUserIO userIO, RecipeBook recipeBook, out List<string> recipeBookOptions)
-        {
+        {           
             userIO.ClearDisplay();
             userIO.DisplayData(MakeStringConsoleLengthLines($"Recipe Book: {recipeBook.Name}"));
             userIO.DisplayData("----------------------------------------------");
@@ -253,7 +253,7 @@ namespace Recipe2ShoppingList
             }
         }
 
-        public static void DisplayMenuHeader(IUserIO userIO, string header, string additionalMessage = "")
+        public static void DisplayMenuHeader(IUserIO userIO, string header, string additionalMessage = "", bool includeTrailingLineBreak = true)
         {
             userIO.ClearDisplay();
             userIO.DisplayData(header);
@@ -262,7 +262,11 @@ namespace Recipe2ShoppingList
             if (additionalMessage != "")
             {
                 userIO.DisplayData(additionalMessage);
-                userIO.DisplayData();
+
+                if (includeTrailingLineBreak)
+                { 
+                    userIO.DisplayData();
+                }
             }
         }
 
@@ -326,9 +330,9 @@ namespace Recipe2ShoppingList
             }
         }
 
-        public static void DisplayRegularPrompt(IUserIO userIO, string message, bool includeLeadingSpace = true)
+        public static void DisplayRegularPrompt(IUserIO userIO, string message, bool includeLeadingLineBreak = true)
         {
-            if (includeLeadingSpace)
+            if (includeLeadingLineBreak)
             {
                 userIO.DisplayData();
             }
@@ -336,14 +340,29 @@ namespace Recipe2ShoppingList
             userIO.DisplayData($"{message}:");
         }
 
-        public static void DisplayLitePrompt(IUserIO userIO, string message, bool includeLeadingSpace = true)
+        public static void DisplayLitePrompt(IUserIO userIO, string message, bool includeLeadingLineBreak = true)
         {
-            if (includeLeadingSpace)
+            if (includeLeadingLineBreak)
             {
                 userIO.DisplayData();
             }
 
             userIO.DisplayDataLite($"{message}: ");
+        }
+
+        public static void DisplayInformation(IUserIO userIO, string message, bool includeTrailingLineBreak = true)
+        {
+            userIO.DisplayData(MakeStringConsoleLengthLines(message));
+
+            if (includeTrailingLineBreak)
+            {
+                userIO.DisplayData();
+            }
+        }
+
+        public static void InsertBlankLine(IUserIO userIO)
+        {
+            userIO.DisplayData();
         }
     }
 }
