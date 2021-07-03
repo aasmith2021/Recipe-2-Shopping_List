@@ -2,7 +2,7 @@
 
 namespace Recipe2ShoppingList
 {
-    public static class DataHelperMethods
+    public static class FileDataHelperMethods
     {
         public static string GetReadDatabaseFilePath(string alternateFilePath = "")
         {

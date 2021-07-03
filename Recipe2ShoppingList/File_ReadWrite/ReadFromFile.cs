@@ -11,7 +11,7 @@ namespace Recipe2ShoppingList
          public static RecipeBookLibrary GetRecipeBookLibraryFromFile(string alternateFilePath = "")
         {
             RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
-            string allTextFromFile = DataHelperMethods.GetAllDatabaseText(alternateFilePath);
+            string allTextFromFile = FileDataHelperMethods.GetAllDatabaseText(alternateFilePath);
 
             if (allTextFromFile == "")
             {
@@ -60,7 +60,7 @@ namespace Recipe2ShoppingList
         {
             string startMaker = "-START_OF_MEASUREMENT_UNITS-";
             string endMaker = "-END_OF_MEASUREMENT_UNITS-";
-            string allMeasurementUnitsText = DataHelperMethods.GetDataFromStartAndEndMarkers(allTextFromFile, startMaker, endMaker);
+            string allMeasurementUnitsText = FileDataHelperMethods.GetDataFromStartAndEndMarkers(allTextFromFile, startMaker, endMaker);
 
             string[] splitMeasurementUnits = allMeasurementUnitsText.Split("MU:", StringSplitOptions.RemoveEmptyEntries);
 

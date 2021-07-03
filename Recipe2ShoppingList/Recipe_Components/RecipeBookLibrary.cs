@@ -59,7 +59,7 @@ namespace Recipe2ShoppingList
 
             try
             {
-                using (StreamWriter sw = new StreamWriter(DataHelperMethods.GetWriteDatabaseFilePath(alternateFilePath)))
+                using (StreamWriter sw = new StreamWriter(FileDataHelperMethods.GetWriteDatabaseFilePath(alternateFilePath)))
                 {
                     sw.WriteLine(MeasurementUnits.ProduceMeasurementUnitsText(this));
 

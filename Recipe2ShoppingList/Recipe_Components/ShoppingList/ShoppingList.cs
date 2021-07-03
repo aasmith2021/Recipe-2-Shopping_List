@@ -240,7 +240,7 @@ namespace Recipe2ShoppingList
 
             try
             {
-                using (StreamWriter sw = new StreamWriter(DataHelperMethods.GetWriteShoppingListFilePath(alternateFilePath)))
+                using (StreamWriter sw = new StreamWriter(FileDataHelperMethods.GetWriteShoppingListFilePath(alternateFilePath)))
                 {
                     sw.WriteLine(entireShoppingList);
                 }

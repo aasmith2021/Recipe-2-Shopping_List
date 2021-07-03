@@ -42,7 +42,7 @@ namespace Recipe2ShoppingList
             string headingStartMarker = "BLOCK_HEADING:";
             string endMarker = "LINE:";
 
-            this.BlockHeading = DataHelperMethods.GetDataFromStartAndEndMarkers(instructionBlockText, headingStartMarker, endMarker);
+            this.BlockHeading = FileDataHelperMethods.GetDataFromStartAndEndMarkers(instructionBlockText, headingStartMarker, endMarker);
 
             string[] instructionBlockLines = GetLinesForInstructionBlockFromText(instructionBlockText);
 
@@ -56,7 +56,7 @@ namespace Recipe2ShoppingList
         {
             string lineStartMarker = "LINE:";
             string endMarker = "-END_OF_INSTRUCTION_BLOCK-";
-            string linesText = DataHelperMethods.GetDataFromStartAndEndMarkers(instructionBlockText, lineStartMarker, endMarker);
+            string linesText = FileDataHelperMethods.GetDataFromStartAndEndMarkers(instructionBlockText, lineStartMarker, endMarker);
 
             string[] instructionLines = linesText.Split(lineStartMarker, StringSplitOptions.RemoveEmptyEntries);
 

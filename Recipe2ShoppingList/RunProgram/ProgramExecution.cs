@@ -25,13 +25,13 @@ namespace Recipe2ShoppingList
             recipeBookLibrary.WriteRecipeBookLibraryToFile(userIO);
 
             //Delete original database, then rename the "write" database file to become the new master database file
-            DataHelperMethods.DeleteOldFileAndRenameNewFile(DataHelperMethods.GetReadDatabaseFilePath(), DataHelperMethods.GetWriteDatabaseFilePath());
+            FileDataHelperMethods.DeleteOldFileAndRenameNewFile(FileDataHelperMethods.GetReadDatabaseFilePath(), FileDataHelperMethods.GetWriteDatabaseFilePath());
 
             //Save the Shopping List to the Shopping List file before closing the program
             shoppingList.WriteShoppingListToFile(userIO);
 
             //Delete original Shopping List file, then rename the "write" Shopping List file to become the new master Shopping List
-            DataHelperMethods.DeleteOldFileAndRenameNewFile(DataHelperMethods.GetReadShoppingListFilePath(), DataHelperMethods.GetWriteShoppingListFilePath());
+            FileDataHelperMethods.DeleteOldFileAndRenameNewFile(FileDataHelperMethods.GetReadShoppingListFilePath(), FileDataHelperMethods.GetWriteShoppingListFilePath());
         }
 
         private static void RunMainMenu(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, out bool exitProgram)
