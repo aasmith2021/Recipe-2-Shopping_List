@@ -7,56 +7,15 @@ namespace Recipe2ShoppingList
 {
     public static class ManageIngredients
     {
+        public const string editRecipeBanner = "---------- EDIT RECIPE ----------";
+        public const string setStoreLocationBanner = "-------- SET STORE LOCATION FOR INGREDIENT --------";
+        public const string similarIngredientsFoundBanner = "-------- SIMILAR INGREDIENTS FOUND --------";
+
         public static void AddNewIngredient(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
             Ingredient ingredientToAdd = GetUserInput.GetIngredientFromUser(userIO, recipeBookLibrary);
             recipe.IngredientList.AddIngredient(ingredientToAdd);
             UserInterface.SuccessfulChange(userIO, true, "ingredient", "added");
-        }
-
-        public static void EditRecipeIngredients(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
-        {
-            string header = "---------- EDIT RECIPE ----------";
-            string additionalMessage = UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}");
-            UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
-            userIO.DisplayDataLite(recipe.IngredientList.ProduceIngredientsText(true, true));
-
-            List<string[]> menuOptions = new List<string[]>()
-            {
-                new string[] { "A", "Add a New Igredient" },
-                new string[] { "E", "Edit an Ingredient"},
-                new string[] { "D", "Delete an Ingredient"},
-                new string[] { "R", "Return to Previous Menu"},
-            };
-            List<string> options = new List<string>();
-
-            if (recipe.IngredientList.AllIngredients.Count == 0)
-            {
-                menuOptions.RemoveAt(1);
-                menuOptions.RemoveAt(1);
-            }
-
-            userIO.DisplayData();
-            UserInterface.DisplayOptionsMenu(userIO, menuOptions, out options);
-            userIO.DisplayData();
-            userIO.DisplayDataLite("Select an editing option: ");
-            string userOption = GetUserInput.GetUserOption(userIO, options);
-
-            userIO.DisplayData();
-            switch (userOption)
-            {
-                case "A":
-                    AddNewIngredient(userIO, recipeBookLibrary, recipe);
-                    break;
-                case "E":
-                    EditExistingIngredient(userIO, recipeBookLibrary, recipe);
-                    break;
-                case "D":
-                    DeleteExistingIngredient(userIO, recipe);
-                    break;
-                case "R":
-                    return;
-            }
         }
 
         public static void EditExistingIngredient(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
@@ -72,9 +31,9 @@ namespace Recipe2ShoppingList
 
             if (allRecipeIngredients.Count > 1)
             {
-                userIO.DisplayData("Select the ingredient line you would like to edit:");
+                UserInterface.DisplayRegularPrompt(userIO, "Select the ingredient line you would like to edit", false);
                 string userOption = GetUserInput.GetUserOption(userIO, ingredientLineOptions);
-                userIO.DisplayData();
+                UserInterface.InsertBlankLine(userIO);
                 ingredientToEdit = allRecipeIngredients[int.Parse(userOption) - 1];
             }
             else
@@ -91,31 +50,26 @@ namespace Recipe2ShoppingList
             };
             List<string> ingredientComponentOptions = new List<string>();
 
-            userIO.DisplayData("Select the part of the ingredient you would like to edit:");
+            UserInterface.DisplayRegularPrompt(userIO, "Select the part of the ingredient you would like to edit", false);
             UserInterface.DisplayOptionsMenu(userIO, ingredientComponentsForMenu, out ingredientComponentOptions);
             string ingredientComponentToEdit = GetUserInput.GetUserOption(userIO, ingredientComponentOptions);
 
-            userIO.DisplayData();
+            UserInterface.InsertBlankLine(userIO);
             string measurementUnit = "";
             string newPrepNote;
             switch (ingredientComponentToEdit)
             {
                 case "1":
-                    userIO.DisplayDataLite("Enter the new quantity of the ingredient (ex: 1.5): ");
-                    double newQuantity = GetUserInput.GetUserInputDouble(userIO, 2);
-                    while (newQuantity > 1000)
-                    {
-                        userIO.DisplayData();
-                        userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines("An ingredient quantity cannot be more than 1000. Please enter a valid ingredient quantity:"));
-                        newQuantity = GetUserInput.GetUserInputDouble(userIO, 2);
-                    }
+                    UserInterface.DisplayLitePrompt(userIO, "Enter the new quantity of the ingredient (ex: 1.5)", false);
+                    double newQuantity = GetUserInput.GetIngredientQuantityFromUser(userIO);
+
                     ingredientToEdit.Quantity = newQuantity;
                     UserInterface.SuccessfulChange(userIO, true, "ingredient quantity", "updated");
                     break;
                 case "2":
                     List<string[]> measurementUnits = MeasurementUnits.AllMeasurementUnitsForUserInput(recipeBookLibrary);
                     List<string> options = new List<string>();
-                    userIO.DisplayData("Select the new ingredient measurement unit from the list of options:");
+                    UserInterface.DisplayRegularPrompt(userIO, "Select the new ingredient measurement unit from the list of options", false);
                     UserInterface.DisplayOptionsMenu(userIO, measurementUnits, out options);
 
                     int userOptionNumber = int.Parse(GetUserInput.GetUserOption(userIO, options));
@@ -124,8 +78,8 @@ namespace Recipe2ShoppingList
                     {
                         GetUserInput.GetNewMeasurementUnitFromUser(userIO, out measurementUnit);
                         recipeBookLibrary.AddMeasurementUnit(measurementUnit);
-                        userIO.DisplayData();
-                        userIO.DisplayData(UserInterface.MakeStringConsoleLengthLines($"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient."));
+                        UserInterface.InsertBlankLine(userIO);
+                        UserInterface.DisplayInformation(userIO, UserInterface.MakeStringConsoleLengthLines($"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient."), false);
                     }
                     else if (measurementUnits[userOptionNumber - 1][1] != "None")
                     {
@@ -135,14 +89,14 @@ namespace Recipe2ShoppingList
                     UserInterface.SuccessfulChange(userIO, true, "ingredient meaurement unit", "updated");
                     break;
                 case "3":
-                    userIO.DisplayData("Enter the new ingredient name:");
-                    string newName = GetUserInput.GetUserInputString(userIO, false, 100);
+                    UserInterface.DisplayRegularPrompt(userIO, "Enter the new ingredient name", false);
+                    string newName = GetUserInput.GetIngredientNameFromUser(userIO);
                     ingredientToEdit.Name = newName;
                     UserInterface.SuccessfulChange(userIO, true, "ingredient name", "updated");
                     break;
                 case "4":
-                    userIO.DisplayData("Enter the new ingredient preparation note (or press \"Enter\" to leave blank):");
-                    newPrepNote = GetUserInput.GetUserInputString(userIO, true, 120);
+                    UserInterface.DisplayRegularPrompt(userIO, "Enter the new ingredient preparation note (or press \"Enter\" to leave blank)", false);
+                    newPrepNote = GetUserInput.GetIngredientPrepNoteFromUser(userIO);
                     ingredientToEdit.PreparationNote = newPrepNote;
                     UserInterface.SuccessfulChange(userIO, true, "ingredient preparation note", "updated");
                     break;
@@ -153,7 +107,7 @@ namespace Recipe2ShoppingList
 
         public static void DeleteExistingIngredient(IUserIO userIO, Recipe recipe)
         {
-            userIO.DisplayData("Select the ingredient line you would like to delete:");
+            UserInterface.DisplayRegularPrompt(userIO, "Select the ingredient line you would like to delete", false);
 
             List<Ingredient> allRecipeIngredients = recipe.IngredientList.AllIngredients;
             List<string> ingredientLineOptions = new List<string>();
@@ -170,20 +124,15 @@ namespace Recipe2ShoppingList
             if (isSure)
             {
                 recipe.IngredientList.DeleteIngredient(recipe.IngredientList.AllIngredients[indexOfIngredientToDelete]);
-                UserInterface.SuccessfulChange(userIO, true, "ingredient", "deleted");
             }
-            else
-            {
-                UserInterface.SuccessfulChange(userIO, false, "ingredient", "deleted");
-            }
+
+            UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "ingredient", "deleted");
         }
 
         public static void GetStoreLocationForIngredient(IUserIO userIO, ShoppingList shoppingList, Ingredient ingredient)
         {
-            string header = "-------- SET STORE LOCATION FOR INGREDIENT --------";
-            string message = UserInterface.MakeStringConsoleLengthLines($"INGREDIENT: {ingredient.Name}");
-            UserInterface.DisplayMenuHeader(userIO, header, message);
-            userIO.DisplayData("Which department is this ingredient generally found in at the store?");
+            UserInterface.DisplayMenuHeader(userIO, setStoreLocationBanner, UserInterface.MakeStringConsoleLengthLines($"INGREDIENT: {ingredient.Name}"));
+            UserInterface.DisplayInformation(userIO, "Which department is this ingredient generally found in at the store?", false);
 
             List<string[]> menuOptions = new List<string[]>();
             List<string> optionChoices = new List<string>();
@@ -194,10 +143,9 @@ namespace Recipe2ShoppingList
             }
 
             UserInterface.DisplayOptionsMenu(userIO, menuOptions, out optionChoices);
-            userIO.DisplayData();
-            userIO.DisplayData("Select the store location of this ingredient:");
+            UserInterface.DisplayRegularPrompt(userIO, "Select the store location of this ingredient");
             string userOption = GetUserInput.GetUserOption(userIO, optionChoices);
-            userIO.DisplayData();
+            UserInterface.InsertBlankLine(userIO);
 
             string storeLocation = shoppingList.StoreLocations[int.Parse(userOption) - 1];
 
@@ -435,16 +383,12 @@ namespace Recipe2ShoppingList
         public static bool AreIngredientsTheSame(IUserIO userIO, string currentIngredientName, string newIngredientName)
         {
             bool ingredientsAreTheSame = false;
-            string header = "-------- SIMILAR INGREDIENTS FOUND --------";
-            UserInterface.DisplayMenuHeader(userIO, header);
-            userIO.DisplayData();
-            userIO.DisplayData("The following ingredients might match:");
-            userIO.DisplayData();
-            userIO.DisplayData($"<<Ingredient Already On Shopping List>>{Environment.NewLine}{currentIngredientName}");
-            userIO.DisplayData();
-            userIO.DisplayData($"<<New Ingredient>>{Environment.NewLine}{newIngredientName}");
-            userIO.DisplayData();
-            userIO.DisplayData("Are these ingredients the same? Enter \"Y\" for Yes or \"N\" for No:");
+            UserInterface.DisplayMenuHeader(userIO, similarIngredientsFoundBanner);
+            UserInterface.DisplayRegularPrompt(userIO, "The following ingredients might match");
+            UserInterface.InsertBlankLine(userIO);
+            UserInterface.DisplayInformation(userIO, $"<<Ingredient Already On Shopping List>>{Environment.NewLine}{currentIngredientName}");
+            UserInterface.DisplayInformation(userIO, $"<<New Ingredient>>{Environment.NewLine}{newIngredientName}");
+            UserInterface.DisplayRegularPrompt(userIO, "Are these ingredients the same? Enter \"Y\" for Yes or \"N\" for No", false);
             List<string> userOptions = new List<string>() { "Y", "N" };
             string userOption = GetUserInput.GetUserOption(userIO, userOptions);
 

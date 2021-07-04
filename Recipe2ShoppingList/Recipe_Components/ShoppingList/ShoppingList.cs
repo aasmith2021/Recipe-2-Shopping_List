@@ -233,25 +233,5 @@ namespace Recipe2ShoppingList
             this.nonGrocery.RemoveAt(indexOfItemToUpdate);
             this.nonGrocery.Insert(indexOfItemToUpdate, updatedItem);
         }
-
-        public void WriteShoppingListToFile(IUserIO userIO, bool includeHeader = true, string alternateFilePath = "")
-        {
-            string entireShoppingList = this.GetEntireShoppingList(includeHeader);
-
-            try
-            {
-                using (StreamWriter sw = new StreamWriter(FileDataHelperMethods.GetWriteShoppingListFilePath(alternateFilePath)))
-                {
-                    sw.WriteLine(entireShoppingList);
-                }
-            }
-            catch (IOException exception)
-            {
-                userIO.DisplayData("Cannot open Shopping List file to save data.");
-                userIO.DisplayData();
-                userIO.DisplayData("Press \"Enter\" to continue...");
-                userIO.GetInput();
-            }
-        }
     }
 }

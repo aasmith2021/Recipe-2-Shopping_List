@@ -238,7 +238,7 @@ namespace Recipe2ShoppingList
             }
             userIO.DisplayData();
             userIO.DisplayData("Press \"Enter\" to continue...");
-            userIO.GetInput();
+            GetUserInput.GetEnterFromUser(userIO);
         }
 
         public static void DisplaySuccessfulChangeMessage(IUserIO userIO, bool isSure, string changeNoun, string changeVerb, bool isPluralNoun = false)
@@ -306,7 +306,7 @@ namespace Recipe2ShoppingList
 
             userIO.DisplayData();
             userIO.DisplayData("Press \"Enter\" to return to the main menu...");
-            userIO.GetInput();
+            GetUserInput.GetEnterFromUser(userIO);
         }
 
         public static void DisplayCurrentMeasurementUnits(IUserIO userIO, List<string> userAddedMeasurementUnits, bool addExtraLineBreak = false)

@@ -32,7 +32,7 @@ CREATE TABLE recipe_book
 
 CREATE TABLE times
 (
-	tms_id			INT				IDENTITY(1,1),
+	tms_id			 INT		IDENTITY(1,1),
 	prep_time	SMALLINT		NOT NULL,
 	cook_time	SMALLINT		NOT NULL,
 	CONSTRAINT PK_times PRIMARY KEY (tms_id)
@@ -56,7 +56,7 @@ CREATE TABLE servings
 
 CREATE TABLE metadata
 (
-	m_id				INT				IDENTITY(1,1),
+	m_id			INT				IDENTITY(1,1),
 	title			VARCHAR (200)	NOT NULL,
 	notes			VARCHAR (1200)	NOT NULL,
 	times_id		INT				NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE cooking_instructions
 
 CREATE TABLE instruction_block
 (
-	ib_id						INT				IDENTITY(1,1),
+	ib_id					INT				IDENTITY(1,1),
 	cooking_instructions_id	INT				NOT NULL,
 	block_heading			VARCHAR (100)	NOT NULL,
 	CONSTRAINT PK_instruction_block PRIMARY KEY (ib_id),
@@ -119,7 +119,7 @@ CREATE TABLE instruction_block_instruction
 
 CREATE TABLE recipe
 (
-	r_id				INT		IDENTITY(1,1),
+	r_id					INT		IDENTITY(1,1),
 	recipe_number			INT		NOT NULL,
 	recipe_book_id			INT		NOT NULL,
 	metadata_id				INT		NOT NULL,

@@ -11,7 +11,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayMenuHeader(userIO, "---------- ADD NEW RECIPE BOOK ----------");
 
             UserInterface.DisplayLitePrompt(userIO, "Enter a name for the new recipe book", false);
-            string bookName = GetUserInput.GetUserInputString(userIO, false, 120);
+            string bookName = GetUserInput.GetRecipeBookNameFromUser(userIO);
 
             GetUserInput.AreYouSure(userIO, $"create a new recipe book named {bookName}", out bool isSure);
 
@@ -44,7 +44,7 @@ namespace Recipe2ShoppingList
             string oldName = recipeBookToRename.Name;
 
             UserInterface.DisplayLitePrompt(userIO, "Enter the new name for the recipe book");
-            string newName = GetUserInput.GetUserInputString(userIO, false, 120);
+            string newName = GetUserInput.GetRecipeBookNameFromUser(userIO);
 
             GetUserInput.AreYouSure(userIO, $"rename the {oldName} recipe book to \"{newName}\"", out bool isSure);
 

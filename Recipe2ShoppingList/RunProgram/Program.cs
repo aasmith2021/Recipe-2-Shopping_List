@@ -9,12 +9,13 @@ namespace Recipe2ShoppingList
         static void Main(string[] args)
         {
             IUserIO userIO = new ConsoleIO();
+            IDataIO dataIO = new FileIO();
             
             bool exitProgram = false;
 
             while (!exitProgram)
             {
-                ProgramExecution.RunProgram(userIO, out exitProgram);
+                ProgramExecution.RunProgram(userIO, dataIO, out exitProgram);
             }
         }
     }

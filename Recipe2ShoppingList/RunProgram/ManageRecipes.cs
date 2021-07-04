@@ -76,8 +76,7 @@ namespace Recipe2ShoppingList
             }
 
             UserInterface.DisplayOptionsMenu(userIO, recipesToDisplay, out recipeOptions);
-            userIO.DisplayData();
-            userIO.DisplayDataLite("Enter the recipe you would like to delete: ");
+            UserInterface.DisplayLitePrompt(userIO, "Enter the recipe you would like to delete");
             int userOption = int.Parse(GetUserInput.GetUserOption(userIO, recipeOptions));
 
             Recipe recipeToDelete = recipeBook.Recipes[userOption - 1];
@@ -88,12 +87,9 @@ namespace Recipe2ShoppingList
             if (isSure)
             {
                 recipeBook.DeleteRecipe(recipeToDelete);
-                UserInterface.SuccessfulChange(userIO, true, $"recipe", "deleted");
             }
-            else
-            {
-                UserInterface.SuccessfulChange(userIO, false, "recipe", "deleted");
-            }
+
+            UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "recipe", "deleted");
         }
 
         public static void AddRecipeToShoppingList(IUserIO userIO, ShoppingList shoppingList, Recipe recipe)

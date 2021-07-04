@@ -107,8 +107,8 @@ namespace Recipe2ShoppingList.Test
             alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile(userIO, "alternate_test_database");
 
             //Act
-            string allDatabaseText = DataHelperMethods.GetAllDatabaseText("test_database");
-            string allAlternateText = DataHelperMethods.GetAllDatabaseText("alternate_test_database");
+            string allDatabaseText = FileDataHelperMethods.GetAllDatabaseText("test_database");
+            string allAlternateText = FileDataHelperMethods.GetAllDatabaseText("alternate_test_database");
 
             //Assert
             Assert.AreEqual(allDatabaseText, allAlternateText, "Writing a RecipeBookLibrary to file, reading it back, and writing it to a new file did not produce the same data in both files.");
@@ -126,8 +126,8 @@ namespace Recipe2ShoppingList.Test
             alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile(userIO, "alternate_test_database");
 
             //Act
-            string allDatabaseText = DataHelperMethods.GetAllDatabaseText("test_database");
-            string allAlternateText = DataHelperMethods.GetAllDatabaseText("alternate_test_database");
+            string allDatabaseText = FileDataHelperMethods.GetAllDatabaseText("test_database");
+            string allAlternateText = FileDataHelperMethods.GetAllDatabaseText("alternate_test_database");
 
             //Assert
             Assert.AreNotEqual(allDatabaseText, allAlternateText, "Writing a RecipeBookLibrary to a file, reading it back, changing it and writing it to a new file incorrectly produced the same data in both files.");

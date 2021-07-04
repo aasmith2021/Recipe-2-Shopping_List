@@ -13,7 +13,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayMenuHeader(userIO, header, additionalMessage);
 
             UserInterface.DisplayLitePrompt(userIO, "Enter the new title for this recipe", false);
-            string newTitle = GetUserInput.GetUserInputString(userIO, false, 200);
+            string newTitle = GetUserInput.GetRecipeTitleFromUser(userIO);
 
             GetUserInput.AreYouSure(userIO, $"change the name of this recipe to {newTitle}", out bool isSure);
 
@@ -98,22 +98,12 @@ namespace Recipe2ShoppingList
                 if (i == 0)
                 {
                     UserInterface.DisplayLitePrompt(userIO, "Enter the new Prep Time in minutes");
-                    newPrepTime = GetUserInput.GetUserInputInt(userIO, 1);
-                    while (newPrepTime > 2880)
-                    {
-                        UserInterface.DisplayRegularPrompt(userIO, UserInterface.MakeStringConsoleLengthLines("A recipe cannot have a prep time of more than 2,880 minutes. Please enter a valid prep time"));
-                        newPrepTime = GetUserInput.GetUserInputInt(userIO, 1);
-                    }
+                    newPrepTime = GetUserInput.GetRecipePrepTimeFromUser(userIO);
                 }
                 else
                 {
                     UserInterface.DisplayLitePrompt(userIO, "Enter the new Cook Time in minutes");
-                    newCookTime = GetUserInput.GetUserInputInt(userIO, 1);
-                    while (newCookTime > 1440)
-                    {
-                        UserInterface.DisplayRegularPrompt(userIO, UserInterface.MakeStringConsoleLengthLines("A recipe cannot have a cook time of more than 1,440 minutes. Please enter a valid cook time"));
-                        newCookTime = GetUserInput.GetUserInputInt(userIO, 1);
-                    }
+                    newCookTime = GetUserInput.GetRecipeCookTimeFromUser(userIO);
                 }
             }
 
@@ -175,22 +165,12 @@ namespace Recipe2ShoppingList
                 if (i == 0)
                 {
                     UserInterface.DisplayLitePrompt(userIO, "Enter the new Low # of Servings");
-                    newLowServings = GetUserInput.GetUserInputInt(userIO, 1);
-                    while (newLowServings > 500)
-                    {
-                        UserInterface.DisplayRegularPrompt(userIO, UserInterface.MakeStringConsoleLengthLines("A recipe cannot have more than 500 servings. Please enter a valid number of servings"));
-                        newLowServings = GetUserInput.GetUserInputInt(userIO, 1);
-                    }
+                    newLowServings = GetUserInput.GetRecipeLowServingsFromUser(userIO);
                 }
                 else
                 {
-                    UserInterface.DisplayLitePrompt(userIO, "Enter the new High # of Servings");
-                    newHighServings = GetUserInput.GetUserInputInt(userIO, 1);
-                    while (newHighServings > 500)
-                    {
-                        UserInterface.DisplayRegularPrompt(userIO, UserInterface.MakeStringConsoleLengthLines("A recipe cannot have more than 500 servings. Please enter a valid number of servings"));
-                        newHighServings = GetUserInput.GetUserInputInt(userIO, 1);
-                    }
+                    UserInterface.DisplayLitePrompt(userIO, "Enter the new High # of Servings (or press \"Enter\" to leave blank)");
+                    newHighServings = GetUserInput.GetRecipeHighServingsFromUser(userIO);
                 }
             }
 
@@ -252,12 +232,12 @@ namespace Recipe2ShoppingList
                 if (i == 0)
                 {
                     UserInterface.DisplayLitePrompt(userIO, "Enter the new Food Type");
-                    newFoodType = GetUserInput.GetUserInputString(userIO, true, 100);
+                    newFoodType = GetUserInput.GetRecipeFoodTypeFromUser(userIO);
                 }
                 else
                 {
                     UserInterface.DisplayLitePrompt(userIO, "Enter the new Food Genre");
-                    newFoodGenre = GetUserInput.GetUserInputString(userIO, true, 100);
+                    newFoodGenre = GetUserInput.GetRecipeFoodGenreFromUser(userIO);
                 }
             }
 

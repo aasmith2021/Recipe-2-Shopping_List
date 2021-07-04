@@ -133,7 +133,7 @@ namespace Recipe2ShoppingList
             string cookingInstructionsMarker = "-START_OF_INSTRUCTIONS-";
             string endMarker = $"-END_OF_RECIPE-";
 
-            string cookingInstructionsText = FileDataHelperMethods.GetDataFromStartAndEndMarkers(recipeText, cookingInstructionsMarker, endMarker);
+            string cookingInstructionsText = FileIO.GetDataFromStartAndEndMarkers(recipeText, cookingInstructionsMarker, endMarker);
 
             string[] instructionBlocksText = cookingInstructionsText.Split("-NEW_INSTRUCTION_BLOCK-", StringSplitOptions.RemoveEmptyEntries);
 
@@ -151,7 +151,7 @@ namespace Recipe2ShoppingList
         {
             string recipeDataStartMarker = "-START_OF_INGREDIENTS-";
             string endMarker = "-START_OF_INSTRUCTIONS-";
-            string ingredientsText = FileDataHelperMethods.GetDataFromStartAndEndMarkers(recipeText, recipeDataStartMarker, endMarker);
+            string ingredientsText = FileIO.GetDataFromStartAndEndMarkers(recipeText, recipeDataStartMarker, endMarker);
 
             IngredientList allRecipeIngredients = new IngredientList();
 

@@ -94,8 +94,6 @@ namespace Recipe2ShoppingList
         {
             Recipe recipeToAdd = new Recipe();
 
-            
-
             recipeToAdd.AddMetadataFromFile(recipeText);
             recipeToAdd.AddCookingInstructionsFromFile(recipeText);
             recipeToAdd.AddIngredientsFromFile(recipeText);

@@ -7,12 +7,15 @@ namespace Recipe2ShoppingList
 {
     public class ProgramExecution
     {
-        public static void RunProgram(IUserIO userIO, out bool exitProgram)
+        public const string manageSavedMeasurementUnitsBanner = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
+        public const string editRecipeBanner = "---------- EDIT RECIPE ----------";
+
+        public static void RunProgram(IUserIO userIO, IDataIO dataIO, out bool exitProgram)
         {
             exitProgram = false;
 
-            //Load <recipeBookLibrary> into the program from the database file
-            RecipeBookLibrary recipeBookLibrary = ReadFromFile.GetRecipeBookLibraryFromFile();
+            //Load <recipeBookLibrary> into the program from the database
+            RecipeBookLibrary recipeBookLibrary = dataIO.GetRecipeBookLibraryFromDataSource();
 
             ShoppingList shoppingList = new ShoppingList();
 
@@ -21,17 +24,11 @@ namespace Recipe2ShoppingList
                 RunMainMenu(userIO, recipeBookLibrary, shoppingList, out exitProgram);
             }
 
-            //Save <recipeBookLibrary> to the "write" database file before closing program
-            recipeBookLibrary.WriteRecipeBookLibraryToFile(userIO);
+            //Save <recipeBookLibrary> to database file before closing program
+            dataIO.WriteRecipeBookLibraryToDataSource(userIO, recipeBookLibrary);
 
-            //Delete original database, then rename the "write" database file to become the new master database file
-            FileDataHelperMethods.DeleteOldFileAndRenameNewFile(FileDataHelperMethods.GetReadDatabaseFilePath(), FileDataHelperMethods.GetWriteDatabaseFilePath());
-
-            //Save the Shopping List to the Shopping List file before closing the program
-            shoppingList.WriteShoppingListToFile(userIO);
-
-            //Delete original Shopping List file, then rename the "write" Shopping List file to become the new master Shopping List
-            FileDataHelperMethods.DeleteOldFileAndRenameNewFile(FileDataHelperMethods.GetReadShoppingListFilePath(), FileDataHelperMethods.GetWriteShoppingListFilePath());
+            //Save the Shopping List before closing the program
+            dataIO.WriteShoppingListToDataSource(userIO, shoppingList);
         }
 
         private static void RunMainMenu(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, out bool exitProgram)
@@ -172,7 +169,7 @@ namespace Recipe2ShoppingList
 
             do
             {
-                UserInterface.DisplayMenuHeader(userIO, "---------- MANAGE SAVED MEASUREMENT UNITS ----------");
+                UserInterface.DisplayMenuHeader(userIO, manageSavedMeasurementUnitsBanner);
 
                 int allStandardMeasurementUnitsLength = MeasurementUnits.AllStandardMeasurementUnits().Count;
                 string[] allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits;
@@ -202,7 +199,7 @@ namespace Recipe2ShoppingList
 
                 string userOption = GetUserInput.GetUserOption(userIO, options);
 
-                userIO.DisplayData();
+                UserInterface.InsertBlankLine(userIO);
                 switch (userOption)
                 {
                     case "A":
@@ -258,13 +255,200 @@ namespace Recipe2ShoppingList
                     ManageMetadata.EditRecipeFoodTypeGenre(userIO, recipe);
                     break;
                 case "6":
-                    ManageIngredients.EditRecipeIngredients(userIO, recipeBookLibrary, recipe);
+                    RunEditRecipeIngredients(userIO, recipeBookLibrary, recipe);
                     break;
                 case "7":
-                    ManageCookingInstructions.EditRecipeInstructions(userIO, recipe);
+                    RunEditRecipeInstructions(userIO, recipe);
                     break;
                 case "R":
                     return;
+            }
+        }
+
+        public static void RunEditRecipeIngredients(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
+        {
+            UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
+            UserInterface.DisplayInformation(userIO, recipe.IngredientList.ProduceIngredientsText(true, true), false);
+
+            List<string[]> menuOptions = new List<string[]>()
+            {
+                new string[] { "A", "Add a New Igredient" },
+                new string[] { "E", "Edit an Ingredient"},
+                new string[] { "D", "Delete an Ingredient"},
+                new string[] { "R", "Return to Previous Menu"},
+            };
+            List<string> options = new List<string>();
+
+            if (recipe.IngredientList.AllIngredients.Count == 0)
+            {
+                menuOptions.RemoveAt(1);
+                menuOptions.RemoveAt(1);
+            }
+
+            UserInterface.InsertBlankLine(userIO);
+            UserInterface.DisplayOptionsMenu(userIO, menuOptions, out options);
+            UserInterface.DisplayLitePrompt(userIO, "Select an editing option");
+            string userOption = GetUserInput.GetUserOption(userIO, options);
+
+            UserInterface.InsertBlankLine(userIO);
+            switch (userOption)
+            {
+                case "A":
+                    ManageIngredients.AddNewIngredient(userIO, recipeBookLibrary, recipe);
+                    break;
+                case "E":
+                    ManageIngredients.EditExistingIngredient(userIO, recipeBookLibrary, recipe);
+                    break;
+                case "D":
+                    ManageIngredients.DeleteExistingIngredient(userIO, recipe);
+                    break;
+                case "R":
+                    return;
+            }
+        }
+
+        public static void RunEditRecipeInstructions(IUserIO userIO, Recipe recipe)
+        {
+            UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
+            UserInterface.DisplayInformation(userIO, recipe.CookingInstructions.ProduceInstructionsText(true));
+
+            List<string[]> menuOptions = new List<string[]>()
+            {
+                new string[] { "A", "Add New Instruction Block" },
+                new string[] { "E", "Edit an Instruction Block"},
+                new string[] { "D", "Delete an Instruction Block"},
+                new string[] { "R", "Return to Previous Menu"},
+            };
+            List<string> options = new List<string>();
+
+            if (recipe.CookingInstructions.InstructionBlocks.Count == 0)
+            {
+                menuOptions.RemoveAt(1);
+                menuOptions.RemoveAt(1);
+            }
+
+            UserInterface.DisplayOptionsMenu(userIO, menuOptions, out options);
+            UserInterface.DisplayLitePrompt(userIO, "Select an editing option");
+            string userOption = GetUserInput.GetUserOption(userIO, options);
+
+            UserInterface.InsertBlankLine(userIO);
+            switch (userOption)
+            {
+                case "A":
+                    ManageCookingInstructions.AddNewInstructionBlock(userIO, recipe);
+                    break;
+                case "E":
+                    RunEditExistingInstructionBlock(userIO, recipe);
+                    break;
+                case "D":
+                    ManageCookingInstructions.DeleteExistingInstructionBlock(userIO, recipe);
+                    break;
+                case "R":
+                    return;
+            }
+        }
+
+        public static void RunEditExistingInstructionBlock(IUserIO userIO, Recipe recipe)
+        {
+            UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
+
+            UserInterface.DisplayInformation(userIO, recipe.CookingInstructions.ProduceInstructionsText(true, true), false);
+
+            InstructionBlock instructionBlockToEdit;
+            int numberOfInstructionBlocks = recipe.CookingInstructions.InstructionBlocks.Count;
+            List<string> instructionBlockOptions = new List<string>();
+            for (int i = 1; i <= numberOfInstructionBlocks; i++)
+            {
+                instructionBlockOptions.Add(i.ToString());
+            }
+
+            if (numberOfInstructionBlocks > 1)
+            {
+                UserInterface.DisplayRegularPrompt(userIO, "Enter the instruction block you would like to edit");
+
+                string userBlockSelection = GetUserInput.GetUserOption(userIO, instructionBlockOptions);
+                int instructionBlockIndex = int.Parse(userBlockSelection);
+
+                instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex - 1];
+            }
+            else if (numberOfInstructionBlocks == 1)
+            {
+                instructionBlockToEdit = recipe.CookingInstructions.InstructionBlocks[0];
+            }
+            else
+            {
+                UserInterface.DisplayInformation(userIO, UserInterface.MakeStringConsoleLengthLines("This recipe does not have any instruction blocks. Add a new instruction block in order to edit the recipe."));
+                UserInterface.DisplayInformation(userIO, "Press \"Enter\" to continue...", false);
+                GetUserInput.GetEnterFromUser(userIO);
+
+                return;
+            }
+
+            List<string[]> editBlockMenuOptions = new List<string[]>()
+            {
+                new string[] { "", "Add Instruction Line" },
+                new string[] { "", "Edit Instruction Line" },
+                new string[] { "", "Delete Instruction Line" },
+                new string[] { "", "Add Block Heading" },
+                new string[] { "", "Edit Block Heading" },
+                new string[] { "", "Delete Block Heading" },
+            };
+            List<string> editBlockOptions = new List<string>();
+
+            bool instructionLinesAreBlank = instructionBlockToEdit.InstructionLines.Count == 0;
+            bool blockHeadingIsBlank = instructionBlockToEdit.BlockHeading == "";
+
+            if (instructionLinesAreBlank)
+            {
+                editBlockMenuOptions.RemoveAt(1);
+                editBlockMenuOptions.RemoveAt(1);
+            }
+
+            if (blockHeadingIsBlank)
+            {
+                editBlockMenuOptions.RemoveAt(editBlockMenuOptions.Count - 1);
+                editBlockMenuOptions.RemoveAt(editBlockMenuOptions.Count - 1);
+            }
+
+            if (!blockHeadingIsBlank)
+            {
+                editBlockMenuOptions.RemoveAt(editBlockMenuOptions.Count - 3);
+            }
+
+            for (int i = 0; i < editBlockMenuOptions.Count; i++)
+            {
+                editBlockMenuOptions[i][0] = (i + 1).ToString();
+            }
+
+            UserInterface.InsertBlankLine(userIO);
+            UserInterface.DisplayOptionsMenu(userIO, editBlockMenuOptions, out editBlockOptions);
+            UserInterface.DisplayLitePrompt(userIO, "Enter an editing option from the menu");
+            string editBlockOption = GetUserInput.GetUserOption(userIO, editBlockOptions);
+            string menuSelection = editBlockMenuOptions[int.Parse(editBlockOption) - 1][1];
+
+            UserInterface.InsertBlankLine(userIO);
+            switch (menuSelection)
+            {
+                case "Add Instruction Line":
+                    ManageCookingInstructions.AddInstructionLine(userIO, instructionBlockToEdit, recipe);
+                    break;
+                case "Edit Instruction Line":
+                    ManageCookingInstructions.EditInstructionLine(userIO, instructionBlockToEdit, recipe);
+                    break;
+                case "Delete Instruction Line":
+                    ManageCookingInstructions.DeleteInstructionLine(userIO, instructionBlockToEdit, recipe);
+                    break;
+                case "Add Block Heading":
+                    ManageCookingInstructions.AddInstructionBlockHeading(userIO, instructionBlockToEdit, recipe);
+                    break;
+                case "Edit Block Heading":
+                    ManageCookingInstructions.EditInstructionBlockHeading(userIO, instructionBlockToEdit, recipe);
+                    break;
+                case "Delete Block Heading":
+                    ManageCookingInstructions.DeleteInstructionBlockHeading(userIO, instructionBlockToEdit, recipe);
+                    break;
+                default:
+                    break;
             }
         }
     }

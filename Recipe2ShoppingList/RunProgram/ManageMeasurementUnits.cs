@@ -6,9 +6,11 @@ namespace Recipe2ShoppingList
 {
     public static class ManageMeasurementUnits
     {
+        public const string manageSavedMeasurementUnitsBanner = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
+
         public static void AddNewMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
         {
-            UserInterface.DisplayMenuHeader(userIO, "---------- MANAGE SAVED MEASUREMENT UNITS ----------");
+            UserInterface.DisplayMenuHeader(userIO, manageSavedMeasurementUnitsBanner);
 
             UserInterface.DisplayCurrentMeasurementUnits(userIO, userAddedMeasurementUnits);
 
@@ -22,12 +24,12 @@ namespace Recipe2ShoppingList
                 recipeBookLibrary.AddMeasurementUnit(measurementUnit);
             }
 
-            UserInterface.DisplaySuccessfulChangeMessage(userIO, false, "measurement unit", "added");
+            UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "measurement unit", "added");
         }
 
         public static void EditExistingMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
         {
-            UserInterface.DisplayMenuHeader(userIO, "---------- MANAGE SAVED MEASUREMENT UNITS ----------");
+            UserInterface.DisplayMenuHeader(userIO, manageSavedMeasurementUnitsBanner);
 
             List<string> userOptions = new List<string>();
 
@@ -50,7 +52,7 @@ namespace Recipe2ShoppingList
 
         public static void DeleteExistingMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
         {
-            UserInterface.DisplayMenuHeader(userIO, "---------- MANAGE SAVED MEASUREMENT UNITS ----------");
+            UserInterface.DisplayMenuHeader(userIO, manageSavedMeasurementUnitsBanner);
 
             List<string> userOptions = new List<string>();
 

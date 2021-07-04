@@ -51,10 +51,15 @@ namespace Recipe2ShoppingList
                         ingredientLine += $", {this.AllIngredients[i].PreparationNote}";
                     }
 
-                    ingredientsText += UserInterface.MakeStringConsoleLengthLines($"{ingredientLine}{Environment.NewLine}");
-                }
+                    ingredientsText += UserInterface.MakeStringConsoleLengthLines($"{ingredientLine}");
 
-                ingredientsText += $"{Environment.NewLine}";
+                    ingredientsText += $"{Environment.NewLine}";
+
+                    if (i == this.AllIngredients.Count - 1)
+                    {
+                        ingredientsText += $"{Environment.NewLine}";
+                    }
+                }
             }
             else
             {
