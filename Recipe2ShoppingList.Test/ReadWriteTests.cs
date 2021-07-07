@@ -101,14 +101,15 @@ namespace Recipe2ShoppingList.Test
         {
             //Arrange
             IUserIO userIO = new FakeUserIO("X");
+            FileIO fileIO = new FileIO();
             RecipeBookLibrary test1RecipeBookLibrary = GetTestRecipeBookLibrary();
-            test1RecipeBookLibrary.WriteRecipeBookLibraryToFile(userIO, "test_database");
-            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("test_database");
-            alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile(userIO, "alternate_test_database");
+            fileIO.WriteRecipeBookLibraryToDataSource(userIO, test1RecipeBookLibrary, "test_database");
+            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = fileIO.GetRecipeBookLibraryFromDataSource("test_database");
+            fileIO.WriteRecipeBookLibraryToDataSource(userIO, alternateRecipeBookLibraryReadFromFile, "alternate_test_database");
 
             //Act
-            string allDatabaseText = FileDataHelperMethods.GetAllDatabaseText("test_database");
-            string allAlternateText = FileDataHelperMethods.GetAllDatabaseText("alternate_test_database");
+            string allDatabaseText = fileIO.GetAllDatabaseText("test_database");
+            string allAlternateText = fileIO.GetAllDatabaseText("alternate_test_database");
 
             //Assert
             Assert.AreEqual(allDatabaseText, allAlternateText, "Writing a RecipeBookLibrary to file, reading it back, and writing it to a new file did not produce the same data in both files.");
@@ -119,15 +120,16 @@ namespace Recipe2ShoppingList.Test
         {
             //Arrange
             IUserIO userIO = new FakeUserIO("X");
+            FileIO fileIO = new FileIO();
             RecipeBookLibrary databaseRecipeBookLibraryToWrite = GetTestRecipeBookLibrary();
-            databaseRecipeBookLibraryToWrite.WriteRecipeBookLibraryToFile(userIO, "test_database");
-            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = ReadFromFile.GetRecipeBookLibraryFromFile("test_database");
+            fileIO.WriteRecipeBookLibraryToDataSource(userIO, databaseRecipeBookLibraryToWrite, "test_database");
+            RecipeBookLibrary alternateRecipeBookLibraryReadFromFile = fileIO.GetRecipeBookLibraryFromDataSource("test_database");
             alternateRecipeBookLibraryReadFromFile.AllRecipeBooks[0].Name = "My Other Cook Book";
-            alternateRecipeBookLibraryReadFromFile.WriteRecipeBookLibraryToFile(userIO, "alternate_test_database");
+            fileIO.WriteRecipeBookLibraryToDataSource(userIO, alternateRecipeBookLibraryReadFromFile, "alternate_test_database");
 
             //Act
-            string allDatabaseText = FileDataHelperMethods.GetAllDatabaseText("test_database");
-            string allAlternateText = FileDataHelperMethods.GetAllDatabaseText("alternate_test_database");
+            string allDatabaseText = fileIO.GetAllDatabaseText("test_database");
+            string allAlternateText = fileIO.GetAllDatabaseText("alternate_test_database");
 
             //Assert
             Assert.AreNotEqual(allDatabaseText, allAlternateText, "Writing a RecipeBookLibrary to a file, reading it back, changing it and writing it to a new file incorrectly produced the same data in both files.");

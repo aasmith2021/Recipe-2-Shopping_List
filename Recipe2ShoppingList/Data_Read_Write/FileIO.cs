@@ -74,7 +74,7 @@ namespace Recipe2ShoppingList
 
             try
             {
-                using (StreamWriter sw = new StreamWriter(GetWriteDatabaseFilePath(alternateFilePath)))
+                using (StreamWriter sw = new StreamWriter(GetWriteDatabaseFilePath()))
                 {
                     sw.WriteLine(MeasurementUnits.ProduceMeasurementUnitsText(recipeBookLibrary));
 
@@ -91,8 +91,8 @@ namespace Recipe2ShoppingList
                 GetUserInput.GetEnterFromUser(userIO);
             }
 
-            //Delete original database, then rename the "write" database file to become the new master database file
-            DeleteOldFileAndRenameNewFile(GetReadDatabaseFilePath(), GetWriteDatabaseFilePath());
+            //Delete original database file, then rename the "write" database file to become the new master database file
+            DeleteOldFileAndRenameNewFile(GetReadDatabaseFilePath(alternateFilePath), GetWriteDatabaseFilePath());
         }
 
         public void WriteShoppingListToDataSource(IUserIO userIO, ShoppingList shoppingList, string alternateFilePath = "")
@@ -101,7 +101,7 @@ namespace Recipe2ShoppingList
 
             try
             {
-                using (StreamWriter sw = new StreamWriter(GetWriteShoppingListFilePath(alternateFilePath)))
+                using (StreamWriter sw = new StreamWriter(GetWriteShoppingListFilePath()))
                 {
                     sw.WriteLine(entireShoppingList);
                 }
@@ -114,7 +114,7 @@ namespace Recipe2ShoppingList
             }
 
             //Delete original Shopping List file, then rename the "write" Shopping List file to become the new master Shopping List
-            DeleteOldFileAndRenameNewFile(GetReadShoppingListFilePath(), GetWriteShoppingListFilePath());
+            DeleteOldFileAndRenameNewFile(GetReadShoppingListFilePath(alternateFilePath), GetWriteShoppingListFilePath());
         }
 
         private string GetReadDatabaseFilePath(string alternateFilePath = "")
@@ -181,7 +181,7 @@ namespace Recipe2ShoppingList
             return filePath;
         }
 
-        private string GetAllDatabaseText(string alternateFilePath = "")
+        public string GetAllDatabaseText(string alternateFilePath = "")
         {
             string databaseText = "";
             string currentLineOfText = "";
