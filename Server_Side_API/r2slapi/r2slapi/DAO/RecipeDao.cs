@@ -12,7 +12,7 @@ namespace r2slapi.DAO
     public class RecipeDao : IRecipeDao
     {
         private readonly string connectionString;
-        
+
         public RecipeDao()
         {
             connectionString = GetConnectionString();
@@ -43,7 +43,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlSelectRecipeBookLibrary = "SELECT rbl.rbl_id AS 'recipe_book_library_id', rb.rb_id AS 'recipe_book_id' " +
+                    string sqlSelectRecipeBookLibrary = "SELECT DISTINCT rbl.rbl_id AS 'recipe_book_library_id', rb.rb_id AS 'recipe_book_id' " +
                                                         "FROM recipe_book_library rbl " +
                                                         "JOIN recipe_book rb ON rbl.rbl_id = rb.recipe_book_library_id " +
                                                         "JOIN recipe r ON rb.rb_id = r.recipe_book_id " +
@@ -54,22 +54,14 @@ namespace r2slapi.DAO
 
                     SqlDataReader reader = sqlCmd.ExecuteReader();
 
-                    if (reader.HasRows == false)
+                    while (reader.Read())
                     {
-                        recipeBookLibrary.Id = recipeBookLibraryId;
-                    }
-                    else
-                    {
+                        int recipeBookLibraryIdFromDatabase = Convert.ToInt32(reader["recipe_book_library_id"]);
+                        recipeBookIds.Add(Convert.ToInt32(reader["recipe_book_id"]));
 
-                        while (reader.Read())
+                        if (recipeBookLibraryIdFromDatabase != 0)
                         {
-                            int recipeBookLibraryIdFromDatabase = Convert.ToInt32(reader["recipe_book_library_id"]);
-                            recipeBookIds.Add(Convert.ToInt32(reader["recipe_book_id"]));
-
-                            if (recipeBookLibraryIdFromDatabase != 0)
-                            {
-                                recipeBookLibrary.Id = recipeBookLibraryIdFromDatabase;
-                            }
+                            recipeBookLibrary.Id = recipeBookLibraryIdFromDatabase;
                         }
                     }
                 }
@@ -102,7 +94,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlSelectRecipeBook = "SELECT rb.rb_id AS 'recipe_book_id', rb.name AS 'recipe_book_name', r.r_id AS 'recipe_id' " +
+                    string sqlSelectRecipeBook = "SELECT DISTINCT rb.rb_id AS 'recipe_book_id', rb.name AS 'recipe_book_name', r.r_id AS 'recipe_id' " +
                                                 "FROM recipe_book rb " +
                                                 "JOIN recipe r ON rb.rb_id = r.recipe_book_id " +
                                                 "WHERE recipe_book_id = @recipe_book_id;";
@@ -211,12 +203,12 @@ namespace r2slapi.DAO
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
                     sqlConn.Open();
-                    
-                    string sqlSelectRecipeMetadata =    "SELECT m.m_id AS 'metadata_id', m.title AS 'title', m.notes AS 'notes' " +
+
+                    string sqlSelectRecipeMetadata = "SELECT m.m_id AS 'metadata_id', m.title AS 'title', m.notes AS 'notes' " +
                                                         "FROM recipe r " +
                                                         "JOIN metadata m ON r.metadata_id = m.m_id " +
                                                         "WHERE r.r_id = @recipe_id";
-                    
+
                     SqlCommand sqlCmd = new SqlCommand(sqlSelectRecipeMetadata, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_id", recipeId);
 
@@ -287,7 +279,7 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlSelectRecipeTags =    "SELECT tgs.tgs_id AS 'tags_id', tgs.food_type AS 'food_type', tgs.food_genre AS 'food_genre'" +
+                    string sqlSelectRecipeTags = "SELECT tgs.tgs_id AS 'tags_id', tgs.food_type AS 'food_type', tgs.food_genre AS 'food_genre'" +
                                                     "FROM recipe r " +
                                                     "JOIN metadata m ON r.metadata_id = m.m_id " +
                                                     "JOIN tags tgs ON m.tags_id = tgs.tgs_id " +
@@ -487,7 +479,7 @@ namespace r2slapi.DAO
         }
 
         public RecipeBook CreateRecipeBook(int recipeBookLibraryId, RecipeBook recipeBook)
-        {          
+        {
             try
             {
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
@@ -515,7 +507,7 @@ namespace r2slapi.DAO
 
             return recipeBook;
         }
-        
+
         public Recipe CreateRecipe(int recipeBookId, Recipe recipe)
         {
             int? metadataIdFromDatabase = CreateMetadata(recipe);
@@ -556,7 +548,7 @@ namespace r2slapi.DAO
         }
 
         private int? CreateMetadata(Recipe recipe)
-        {           
+        {
             try
             {
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
@@ -569,7 +561,7 @@ namespace r2slapi.DAO
                                                     "INSERT INTO servings(low_servings, high_servings) VALUES(@low_servings, @high_servings) DECLARE @servings_id INT = (SELECT @@IDENTITY); " +
                                                     "INSERT INTO metadata(title, notes, times_id, tags_id, servings_id) OUTPUT INSERTED.M_ID VALUES(@title, @notes, @times_id, @tags_id, @servings_id); " +
                                                     "COMMIT;";
-                    
+
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertNewMetadata, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@prep_time", recipe.Metadata.PrepTimes.PrepTime);
                     sqlCmd.Parameters.AddWithValue("@cook_time", recipe.Metadata.PrepTimes.CookTime);
@@ -632,7 +624,7 @@ namespace r2slapi.DAO
         }
 
         private int? CreateCookingInstructions(Recipe recipe)
-        {           
+        {
             try
             {
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
@@ -641,7 +633,7 @@ namespace r2slapi.DAO
 
                     string sqlInsertNewCookingInstructions = "INSERT INTO cooking_instructions OUTPUT INSERTED.CI_ID DEFAULT VALUES;";
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertNewCookingInstructions, sqlConn);
-                    
+
                     recipe.CookingInstructions.Id = Convert.ToInt32(sqlCmd.ExecuteScalar());
 
                     for (int i = 0; i < recipe.CookingInstructions.InstructionBlocks.Count; i++)
@@ -673,7 +665,7 @@ namespace r2slapi.DAO
                     sqlConn.Open();
 
                     string sqlInsertInstructionBlock = "INSERT INTO instruction_block (cooking_instructions_id, block_heading) OUTPUT INSERTED.IB_ID VALUES(@cooking_instructions_id, @block_heading);";
-                    
+
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertInstructionBlock, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@cooking_instructions_id", recipe.CookingInstructions.Id);
                     sqlCmd.Parameters.AddWithValue("@block_heading", recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex].BlockHeading);
@@ -693,7 +685,7 @@ namespace r2slapi.DAO
         private bool? CreateInstructionLine(Recipe recipe, int instructionBlockIndex, int instructionLineIndex)
         {
             bool isSuccessful = false;
-            
+
             try
             {
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
@@ -702,15 +694,15 @@ namespace r2slapi.DAO
 
                     //Create the new instruction in the Database
                     string sqlInsertInstructionLine = "INSERT INTO instruction (text) OUTPUT INSERTED.INST_ID VALUES (@text);";
-                    
+
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertInstructionLine, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@text", recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex].InstructionLines[instructionLineIndex]);
-                    
+
                     int instructionId = Convert.ToInt32(sqlCmd.ExecuteScalar());
 
                     //Create the new entry in the instruction_block_instruction associative table to link the new instruction to its instruction block
                     string sqlInsertIntoInstructionBlockInstruction = "INSERT INTO instruction_block_instruction (instruction_block_id, instruction_id) VALUES (@instruction_block_id, @instruction_id);";
-                    
+
                     sqlCmd = new SqlCommand(sqlInsertIntoInstructionBlockInstruction, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@instruction_block_id", recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex].Id);
                     sqlCmd.Parameters.AddWithValue("@instruction_id", instructionId);
@@ -780,11 +772,11 @@ namespace r2slapi.DAO
 
             return (recipeBookUpdated && allRecipesUpdated);
         }
-        
+
         public bool? UpdateRecipe(int recipeBookId, int recipeId, Recipe recipe)
         {
             bool recipeUpdated = false;
-            
+
             bool? metadataUpdated = UpdateMetadata(recipe);
             bool? ingredientListUpdated = UpdateIngredientList(recipe);
             bool? cookingInstructionsUpdated = UpdateCookingInstructions(recipe);
@@ -835,7 +827,7 @@ namespace r2slapi.DAO
                                                 "UPDATE times SET prep_time = @prep_time, cook_time = @cook_time WHERE tms_id = @times_id; " +
                                                 "UPDATE tags SET food_type = @food_type, food_genre = @food_genre WHERE tgs_id = @tags_id; " +
                                                 "UPDATE servings SET low_servings = @low_servings, high_servings = @high_servings WHERE svgs_id = @servings_id;";
-                    
+
                     SqlCommand sqlCmd = new SqlCommand(sqlUpdateMetadata, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@title", recipe.Metadata.Title);
                     sqlCmd.Parameters.AddWithValue("@notes", recipe.Metadata.Notes);
@@ -891,7 +883,7 @@ namespace r2slapi.DAO
 
                         sqlCmd.ExecuteNonQuery();
                     }
-                    
+
                     ingredientListUpdated = true;
                 }
             }
@@ -922,7 +914,7 @@ namespace r2slapi.DAO
 
                     //Loops through all of the instruction blocks and updates them
                     for (int i = 0; i < allInstructionBlocksToUpdate.Count; i++)
-                    {                        
+                    {
                         SqlCommand sqlCmd = new SqlCommand(sqlUpdateInstructionBlock, sqlConn);
                         sqlCmd.Parameters.AddWithValue("@block_heading", allInstructionBlocksToUpdate[i].BlockHeading);
                         sqlCmd.Parameters.AddWithValue("@instruction_block_id", allInstructionBlocksToUpdate[i].Id);
@@ -989,7 +981,7 @@ namespace r2slapi.DAO
                     sqlConn.Open();
 
                     string sqlDeleteRecipeBook = "DELETE FROM recipe_book WHERE rb_id = @recipe_book_id;";
-                    
+
                     SqlCommand sqlCmd = new SqlCommand(sqlDeleteRecipeBook, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
 

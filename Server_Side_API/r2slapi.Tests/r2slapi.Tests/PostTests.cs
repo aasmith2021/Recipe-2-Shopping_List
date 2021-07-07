@@ -27,7 +27,7 @@ namespace r2slapi.Tests
             Tags tags = new Tags("Salads", "European");
             Servings servings = new Servings(4, 8);
             Metadata metadata = new Metadata("Cobb Salad", times, tags, servings, "Excellent side-salad option");
-
+            
             IngredientList ingredientList = new IngredientList();
 
             Ingredient ingredient1 = new Ingredient(4, "Cup", "dark leafy greens", "cut into bite-sized pieces", "Produce");
@@ -51,6 +51,7 @@ namespace r2slapi.Tests
             cookingInstructions.AddInstructionBlock(instructionBlock2);
 
             Recipe recipe = new Recipe(metadata, cookingInstructions, ingredientList);
+            recipe.RecipeNumber = 2;
 
             return recipe;
         }

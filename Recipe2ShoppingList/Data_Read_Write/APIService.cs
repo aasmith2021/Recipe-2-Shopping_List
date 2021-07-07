@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using RestSharp;
-using Microsoft.Extensions.Configuration;
 using System.IO;
 
 namespace Recipe2ShoppingList
@@ -12,6 +11,8 @@ namespace Recipe2ShoppingList
         private readonly string baseApiUrl;
         private readonly IRestClient client;
 
+        //When the ApiService is instantiated, the <baseApiUrl> is set from the appsettings.json
+        //file, and the <client> is created and it's base url is set to the value of the <baseApiUrl>
         public ApiService()
         {
             baseApiUrl = GetBaseApiUrl();
@@ -19,7 +20,7 @@ namespace Recipe2ShoppingList
         }
 
         // Get the API URL from the appsettings.json file
-        public static string GetBaseApiUrl()
+        private string GetBaseApiUrl()
         {
             string apiUrl = "";
 
@@ -44,7 +45,21 @@ namespace Recipe2ShoppingList
 
         public RecipeBookLibrary GetRecipeBookLibraryFromDataSource(string alternatePath = "")
         {
-            throw new NotImplementedException();
+            RestRequest request = new RestRequest("", DataFormat.Json);
+            IRestResponse<RecipeBookLibrary> response = client.Get<RecipeBookLibrary>(request);
+
+            if (response.ResponseStatus != ResponseStatus.Completed)
+            {
+                throw new Exception("Error: Unable to reach server. Please try again later.", response.ErrorException);
+            }
+            else if (!response.IsSuccessful)
+            {
+                throw new Exception("Error: Unable to retrieve data from the server; error code: " + response.StatusCode);
+            }
+            else
+            {
+                return response.Data;
+            }
         }
 
         public void WriteRecipeBookLibraryToDataSource(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, string alternatePath = "")

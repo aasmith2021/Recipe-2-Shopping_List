@@ -81,7 +81,6 @@ namespace r2slapi.Controllers
             }
         }
 
-
         [HttpPost]
         public ActionResult<RecipeBook> CreateRecipeBook(RecipeBook recipeBook, int recipeBookLibraryId = RECIPE_BOOK_LIBRARY_ID)
         {           
