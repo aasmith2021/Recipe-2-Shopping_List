@@ -43,10 +43,9 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlSelectRecipeBookLibrary = "SELECT DISTINCT rbl.rbl_id AS 'recipe_book_library_id', rb.rb_id AS 'recipe_book_id' " +
+                    string sqlSelectRecipeBookLibrary = "SELECT rbl.rbl_id AS 'recipe_book_library_id', rb.rb_id AS 'recipe_book_id' " +
                                                         "FROM recipe_book_library rbl " +
                                                         "JOIN recipe_book rb ON rbl.rbl_id = rb.recipe_book_library_id " +
-                                                        "JOIN recipe r ON rb.rb_id = r.recipe_book_id " +
                                                         "WHERE recipe_book_library_id = @recipe_book_library_id;";
 
                     SqlCommand sqlCmd = new SqlCommand(sqlSelectRecipeBookLibrary, sqlConn);
@@ -94,12 +93,11 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlSelectRecipeBook = "SELECT DISTINCT rb.rb_id AS 'recipe_book_id', rb.name AS 'recipe_book_name', r.r_id AS 'recipe_id' " +
-                                                "FROM recipe_book rb " +
-                                                "JOIN recipe r ON rb.rb_id = r.recipe_book_id " +
-                                                "WHERE recipe_book_id = @recipe_book_id;";
 
-                    SqlCommand sqlCmd = new SqlCommand(sqlSelectRecipeBook, sqlConn);
+                    //First, the code is getting the recipe book's id and name from the database
+                    string sqlSelectRecipeBookInformation = "SELECT rb_id AS 'recipe_book_id', name AS 'recipe_book_name' FROM recipe_book WHERE rb_id = @recipe_book_id;";
+
+                    SqlCommand sqlCmd = new SqlCommand(sqlSelectRecipeBookInformation, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
 
                     SqlDataReader reader = sqlCmd.ExecuteReader();
@@ -108,12 +106,31 @@ namespace r2slapi.DAO
                     {
                         int recipeBookIdFromDatabase = Convert.ToInt32(reader["recipe_book_id"]);
                         recipeBook.Name = Convert.ToString(reader["recipe_book_name"]);
-                        recipeIds.Add(Convert.ToInt32(reader["recipe_id"]));
 
                         if (recipeBookIdFromDatabase != 0)
                         {
                             recipeBook.Id = recipeBookIdFromDatabase;
                         }
+                    }
+
+                    reader.Close();
+
+                    //Second, the code is getting all of the recipe IDs for the recipe book from the database
+                    string sqlSelectRecipeBookRecipes = "SELECT r.r_id AS 'recipe_id' " +
+                                                        "FROM recipe_book rb " +
+                                                        "JOIN recipe r ON rb.rb_id = r.recipe_book_id " +
+                                                        "WHERE recipe_book_id = @recipe_book_id;";
+                    
+                    sqlCmd = new SqlCommand(sqlSelectRecipeBookRecipes, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
+
+                    reader = sqlCmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        recipeIds.Add(Convert.ToInt32(reader["recipe_id"]));
+
+
                     }
                 }
             }
@@ -1011,7 +1028,8 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlDeleteRecipe = "DELETE FROM recipe WHERE r_id = @recipe_id AND recipe_book_id = @recipe_book_id; " +
+                    string sqlDeleteRecipe = "BEGIN TRANSACTION; " +
+                                             "DELETE FROM recipe WHERE r_id = @recipe_id AND recipe_book_id = @recipe_book_id; " +
                                              "DELETE FROM metadata WHERE m_id = @metadata_id; " +
                                              "DELETE FROM times WHERE tms_id = @times_id; " +
                                              "DELETE FROM tags WHERE tgs_id = @tags_id; " +
@@ -1021,7 +1039,8 @@ namespace r2slapi.DAO
                                              "DELETE FROM instruction_block_instruction WHERE instruction_block_id IN (SELECT ib_id FROM instruction_block WHERE cooking_instructions_id = @cooking_instructions_id); " +
                                              "DELETE FROM instruction_block WHERE cooking_instructions_id = @cooking_instructions_id; " +
                                              "DELETE FROM cooking_instructions WHERE ci_id = @cooking_instructions_id; " +
-                                             "DELETE FROM instruction WHERE inst_id IN(SELECT instruction_id FROM instruction_block_instruction WHERE instruction_block_id IN (SELECT ib_id FROM instruction_block WHERE cooking_instructions_id = @cooking_instructions_id));";
+                                             "DELETE FROM instruction WHERE inst_id IN(SELECT instruction_id FROM instruction_block_instruction WHERE instruction_block_id IN (SELECT ib_id FROM instruction_block WHERE cooking_instructions_id = @cooking_instructions_id)) " +
+                                             "COMMIT;";
 
                     SqlCommand sqlCmd = new SqlCommand(sqlDeleteRecipe, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_id", recipeId);

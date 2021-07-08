@@ -24,7 +24,7 @@ namespace Recipe2ShoppingList
             {
                 Console.WriteLine(recipeBookLibrary.AllRecipeBooks[i].Name);
             }
-            
+            Console.ReadLine();
             
             IUserIO userIO = new ConsoleIO();
             IDataIO dataIO = new FileIO();

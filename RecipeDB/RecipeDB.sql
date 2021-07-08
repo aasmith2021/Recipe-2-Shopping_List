@@ -361,11 +361,11 @@ INSERT INTO cooking_instructions DEFAULT VALUES
 DECLARE @cooking_instructions_id4 INT = (SELECT @@IDENTITY);
 
 INSERT INTO instruction_block (cooking_instructions_id, block_heading)
-VALUES (@cooking_instructions_id3, 'How to make it')
+VALUES (@cooking_instructions_id4, 'How to make it')
 DECLARE @block_id_14 INT = (SELECT @@IDENTITY);
 
 INSERT INTO instruction_block (cooking_instructions_id, block_heading)
-VALUES (@cooking_instructions_id3, 'How to eat it')
+VALUES (@cooking_instructions_id4, 'How to eat it')
 DECLARE @block_id_24 INT = (SELECT @@IDENTITY);
 
 INSERT INTO instruction (text)
