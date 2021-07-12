@@ -10,12 +10,34 @@ namespace Recipe2ShoppingList
         public const string manageSavedMeasurementUnitsBanner = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
         public const string editRecipeBanner = "---------- EDIT RECIPE ----------";
 
-        public static void RunProgram(IUserIO userIO, IDataIO dataIO, out bool exitProgram)
+        public static void RunProgram(IUserIO userIO, IDataIO dataIO, IDataIO backupIO, IDataIO shoppingListIO, out bool exitProgram)
         {
             exitProgram = false;
+            RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
+            RecipeBookLibrary databaseData = new RecipeBookLibrary();
+            RecipeBookLibrary backupData = new RecipeBookLibrary();
 
-            //Load <recipeBookLibrary> into the program from the database
-            RecipeBookLibrary recipeBookLibrary = dataIO.GetRecipeBookLibraryFromDataSource();
+            //Get <recipeBookLibrary> from the database and the local backup file
+            try
+            {
+                backupData = backupIO.GetRecipeBookLibraryFromDataSource();
+                databaseData = dataIO.GetRecipeBookLibraryFromDataSource();
+            }
+            catch (Exception ex)
+            {
+                UserInterface.DisplayErrorMessage(userIO, ex.Message, "open backup file from computer");
+            }
+
+            //Checks to see which version of data was saved most recently and sets the recipeBookLibraryToUseForProgram
+            //to the most recent version of saved data
+            if (databaseData.LastSaved > backupData.LastSaved)
+            {
+                recipeBookLibrary = databaseData;
+            }
+            else
+            {
+                recipeBookLibrary = backupData;
+            }
 
             ShoppingList shoppingList = new ShoppingList();
 
@@ -24,11 +46,52 @@ namespace Recipe2ShoppingList
                 RunMainMenu(userIO, recipeBookLibrary, shoppingList, out exitProgram);
             }
 
-            //Save <recipeBookLibrary> to database file before closing program
-            dataIO.WriteRecipeBookLibraryToDataSource(userIO, recipeBookLibrary);
+            bool writeRecipeBookLibrarySuccessful = false;
+            bool writeShoppingListSuccessful = false;
+            bool writeToBackupFileSuccessful = false;
 
-            //Save the Shopping List before closing the program
-            dataIO.WriteShoppingListToDataSource(userIO, shoppingList);
+            try
+            {
+                //Save <recipeBookLibrary> to local file on computer as a backup before closing program
+                writeToBackupFileSuccessful = backupIO.WriteRecipeBookLibraryToDataSource(userIO, recipeBookLibrary);
+
+                //Save the Shopping List to file before closing the program
+                writeShoppingListSuccessful = shoppingListIO.WriteShoppingListToDataSource(userIO, shoppingList);
+
+                //Save <recipeBookLibrary> to database file before closing program
+                writeRecipeBookLibrarySuccessful = dataIO.WriteRecipeBookLibraryToDataSource(userIO, recipeBookLibrary);
+            }
+            catch (Exception ex)
+            {
+                UserInterface.DisplayErrorMessage(userIO, ex.Message, "save data to a local file on your computer");
+                writeRecipeBookLibrarySuccessful = false;
+            }
+
+            string exitMessage = "";
+
+            if (writeRecipeBookLibrarySuccessful && writeShoppingListSuccessful)
+            {
+                exitMessage = "All data saved. Have a great day!";
+            }
+            else if (writeRecipeBookLibrarySuccessful == true)
+            {
+                exitMessage = "Recipe data saved, but shopping list was not able to be saved to your computer.";
+            }
+            else if (writeRecipeBookLibrarySuccessful == false)
+            {
+                if (writeToBackupFileSuccessful)
+                {
+                    exitMessage = "Data saved to local file on your computer, and will be loaded into the program the next time you open it.";
+                }
+            }
+            else
+            {
+                exitMessage = "Unfortunately, data could not be saved to the remote database or your local computer. All changes made during this session will be lost.";
+            }
+
+            UserInterface.DisplayInformation(userIO, exitMessage);
+            UserInterface.DisplayInformation(userIO, "Press \"Enter\" to exit program...", false);
+            GetUserInput.GetEnterFromUser(userIO);
         }
 
         private static void RunMainMenu(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, out bool exitProgram)
@@ -172,7 +235,7 @@ namespace Recipe2ShoppingList
                 UserInterface.DisplayMenuHeader(userIO, manageSavedMeasurementUnitsBanner);
 
                 int allStandardMeasurementUnitsLength = MeasurementUnits.AllStandardMeasurementUnits().Count;
-                string[] allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits;
+                List<string> allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits;
 
                 List<string> userAddedMeasurementUnits = new List<string>();
                 userAddedMeasurementUnits.AddRange(allMeasurementUnits);

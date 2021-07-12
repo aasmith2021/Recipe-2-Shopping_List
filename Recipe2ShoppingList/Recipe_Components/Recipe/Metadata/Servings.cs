@@ -53,6 +53,7 @@ namespace Recipe2ShoppingList
             }
             else
             {
+                servingsText += $"SERVINGS_ID:{this.Id}{Environment.NewLine}";
                 servingsText += $"LOW_SERVINGS:{this.LowNumberOfServings}{Environment.NewLine}";
                 servingsText += $"HIGH_SERVINGS:{this.HighNumberOfServings}{Environment.NewLine}";
             }

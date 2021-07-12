@@ -49,6 +49,7 @@ namespace Recipe2ShoppingList
             }
             else
             {
+                metadataText += $"METADATA_ID:{this.Id}{Environment.NewLine}";
                 metadataText += $"RECIPE_TITLE:{this.Title}{Environment.NewLine}";
                 metadataText += $"USER_NOTES:{this.Notes}{Environment.NewLine}";
             }

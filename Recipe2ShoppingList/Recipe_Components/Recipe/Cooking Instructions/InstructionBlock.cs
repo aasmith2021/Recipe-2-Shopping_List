@@ -39,9 +39,11 @@ namespace Recipe2ShoppingList
 
         public void GetInstructionBlockFromText(string instructionBlockText)
         {
+            string idStartMarker = "INSTRUCTION_BLOCK_ID:";
             string headingStartMarker = "BLOCK_HEADING:";
             string endMarker = "LINE:";
 
+            this.Id = Convert.ToInt32(FileIO.GetDataFromStartAndEndMarkers(instructionBlockText, idStartMarker, headingStartMarker));
             this.BlockHeading = FileIO.GetDataFromStartAndEndMarkers(instructionBlockText, headingStartMarker, endMarker);
 
             string[] instructionBlockLines = GetLinesForInstructionBlockFromText(instructionBlockText);

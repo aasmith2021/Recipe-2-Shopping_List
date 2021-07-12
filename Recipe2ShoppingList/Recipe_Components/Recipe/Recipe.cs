@@ -36,6 +36,7 @@ namespace Recipe2ShoppingList
             if (!printVersion)
             {
                 recipeText += $"RECIPE_#:{this.RecipeNumber}{Environment.NewLine}";
+                recipeText += $"RECIPE_ID:{this.Id}{Environment.NewLine}";
             }
             recipeText += this.Metadata.ProduceMetadataText(printVersion);
             recipeText += this.IngredientList.ProduceIngredientsText(printVersion);
@@ -47,25 +48,35 @@ namespace Recipe2ShoppingList
         public void AddMetadataFromFile(string recipeText)
         {
             Dictionary<string, string> metadataRegexDictionary = new Dictionary<string, string>();
-            metadataRegexDictionary["recipeNumber"] = @"RECIPE_#:(.*?)RECIPE_TITLE:";
+            metadataRegexDictionary["recipeNumber"] = @"RECIPE_#:(.*?)RECIPE_ID:";
+            metadataRegexDictionary["recipeId"] = @"RECIPE_ID:(.*?)METADATA_ID:";
+            metadataRegexDictionary["metadataId"] = @"METADATA_ID:(.*?)RECIPE_TITLE:";
             metadataRegexDictionary["title"] = @"RECIPE_TITLE:(.*?)USER_NOTES:";
-            metadataRegexDictionary["notes"] = @"USER_NOTES:(.*?)FOOD_TYPE:";
+            metadataRegexDictionary["notes"] = @"USER_NOTES:(.*?)TAGS_ID:";
+            metadataRegexDictionary["tagsId"] = @"TAGS_ID:(.*?)FOOD_TYPE:";
             metadataRegexDictionary["foodType"] = @"FOOD_TYPE:(.*?)FOOD_GENRE:";
-            metadataRegexDictionary["foodGenre"] = @"FOOD_GENRE:(.*?)PREP_TIME:";
+            metadataRegexDictionary["foodGenre"] = @"FOOD_GENRE:(.*?)PREP_TIME_ID:";
+            metadataRegexDictionary["prepTimeId"] = @"PREP_TIME_ID:(.*?)PREP_TIME:";
             metadataRegexDictionary["prepTime"] = @"PREP_TIME:(.*?)COOK_TIME:";
-            metadataRegexDictionary["cookTime"] = @"COOK_TIME:(.*?)LOW_SERVINGS:";
+            metadataRegexDictionary["cookTime"] = @"COOK_TIME:(.*?)SERVINGS_ID:";
+            metadataRegexDictionary["servingsId"] = @"SERVINGS_ID:(.*?)LOW_SERVINGS:";
             metadataRegexDictionary["lowServings"] = @"LOW_SERVINGS:(.*?)HIGH_SERVINGS:";
             metadataRegexDictionary["highServings"] = @"HIGH_SERVINGS:(.*?)-START_OF_INGREDIENTS-";
 
             string regexExpression;
             string regexResult;
             int recipeNumber = 0;
+            int recipeId = 0;
+            int metadataId = 0;
             string title = "";
             string notes = "";
+            int tagsId = 0;
             string foodType = "";
             string foodGenre = "";
+            int prepTimeId = 0;
             int prepTime = 0;
             int cookTime = 0;
+            int servingsId = 0;
             int lowServings = 0;
             int highServings = 0;
 
@@ -79,13 +90,25 @@ namespace Recipe2ShoppingList
                     case "recipeNumber":
                         recipeNumber = int.Parse(regexResult);
                         break;
-                    
+
+                    case "recipeId":
+                        recipeId = int.Parse(regexResult);
+                        break;
+
+                    case "metadataId":
+                        metadataId = int.Parse(regexResult);
+                        break;
+
                     case "title":
                         title = regexResult;
                         break;
 
                     case "notes":
                         notes = regexResult;
+                        break;
+
+                    case "tagsId":
+                        tagsId = int.Parse(regexResult);
                         break;
 
                     case "foodType":
@@ -96,12 +119,20 @@ namespace Recipe2ShoppingList
                         foodGenre = regexResult;
                         break;
 
+                    case "prepTimeId":
+                        prepTimeId = int.Parse(regexResult);
+                        break;
+
                     case "prepTime":
                         prepTime = int.Parse(regexResult);
                         break;
 
                     case "cookTime":
                         cookTime = int.Parse(regexResult);
+                        break;
+
+                    case "servingsId":
+                        servingsId = int.Parse(regexResult);
                         break;
 
                     case "lowServings":
@@ -118,18 +149,27 @@ namespace Recipe2ShoppingList
             }
 
             this.RecipeNumber = recipeNumber;
+            this.Id = recipeId;
+            this.Metadata.Id = metadataId;
             this.Metadata.Title = title;
             this.Metadata.Notes = notes;
+            this.Metadata.Tags.Id = tagsId;
             this.Metadata.Tags.FoodType = foodType;
             this.Metadata.Tags.FoodGenre = foodGenre;
+            this.Metadata.PrepTimes.Id = prepTimeId;
             this.Metadata.PrepTimes.PrepTime = prepTime;
             this.Metadata.PrepTimes.CookTime = cookTime;
+            this.Metadata.Servings.Id = servingsId;
             this.Metadata.Servings.LowNumberOfServings = lowServings;
             this.Metadata.Servings.HighNumberOfServings = highServings;
         }
 
         public void AddCookingInstructionsFromFile(string recipeText)
         {
+            string regexExpression = @"COOKING_INSTRUCTIONS_ID:(.*?)-START_OF_INSTRUCTIONS-";
+            int cookingInstructionsId = Convert.ToInt32(Regex.Match(recipeText, regexExpression).Groups[1].Value.ToString());
+            this.CookingInstructions.Id = cookingInstructionsId;
+
             string cookingInstructionsMarker = "-START_OF_INSTRUCTIONS-";
             string endMarker = $"-END_OF_RECIPE-";
 
@@ -154,6 +194,7 @@ namespace Recipe2ShoppingList
             string ingredientsText = FileIO.GetDataFromStartAndEndMarkers(recipeText, recipeDataStartMarker, endMarker);
 
             IngredientList allRecipeIngredients = new IngredientList();
+            allRecipeIngredients.Id = GetIngredientListIdFromText(ingredientsText);
 
             Ingredient[] ingredientsToAdd = GetIngredientsFromText(ingredientsText);
 
@@ -165,28 +206,43 @@ namespace Recipe2ShoppingList
             this.IngredientList = allRecipeIngredients;
         }
 
-        private Ingredient[] GetIngredientsFromText(string ingredientsText)
+        private int GetIngredientListIdFromText(string ingredientsText)
         {
-            string[] splitMarkers = new string[] { "INGREDIENT_NAME:", "QTY:", "UNIT:", "PREP_NOTE:", "STORE_LOC:" };
+            string idStartMarker = "INGREDIENT_LIST_ID:";
+            string endMarker = "-START_OF_INGREDIENTS-";
+            int ingredientListId = Convert.ToInt32(FileIO.GetDataFromStartAndEndMarkers(ingredientsText, idStartMarker, endMarker));
+
+            return ingredientListId;
+        }
+
+        private Ingredient[] GetIngredientsFromText(string ingredientsText)
+        {            
+            string[] splitMarkers = new string[] { "INGREDIENT_ID:", "INGREDIENT_NAME:", "QTY:", "UNIT:", "PREP_NOTE:", "STORE_LOC:" };
             string[] ingredientsAsComponents = ingredientsText.Split(splitMarkers, StringSplitOptions.RemoveEmptyEntries);
 
             List<Ingredient> allIngredients = new List<Ingredient>();
 
-            for (int i = 0; i < ingredientsAsComponents.Length; i += 5)
+            for (int i = 0; i < ingredientsAsComponents.Length; i += 6)
             {
-                string ingredientName = ingredientsAsComponents[i];
+                int ingredientId = 0;
+                if(int.TryParse(ingredientsAsComponents[i], out int intResult))
+                {
+                    ingredientId = intResult;
+                }
+                
+                string ingredientName = ingredientsAsComponents[i + 1];
 
                 double ingredientQty = 0;
-                if (double.TryParse(ingredientsAsComponents[i + 1], out double result))
+                if (double.TryParse(ingredientsAsComponents[i + 2], out double doubleResult))
                 {
-                    ingredientQty = result;
+                    ingredientQty = doubleResult;
                 }
 
-                string ingredientUnit = ingredientsAsComponents[i + 2] == "NONE" ? "" : ingredientsAsComponents[i + 2];
+                string ingredientUnit = ingredientsAsComponents[i + 3] == "NONE" ? "" : ingredientsAsComponents[i + 2];
 
-                string ingredientPrepNote = ingredientsAsComponents[i + 3] == "NONE" ? "" : ingredientsAsComponents[i + 3];
+                string ingredientPrepNote = ingredientsAsComponents[i + 4] == "NONE" ? "" : ingredientsAsComponents[i + 3];
 
-                string ingredientStoreLocation = ingredientsAsComponents[i + 4] == "NONE" ? "" : ingredientsAsComponents[i + 4];
+                string ingredientStoreLocation = ingredientsAsComponents[i + 5] == "NONE" ? "" : ingredientsAsComponents[i + 4];
 
                 Ingredient newIngredientToAdd = new Ingredient(ingredientQty, ingredientUnit, ingredientName, ingredientPrepNote, ingredientStoreLocation);
 

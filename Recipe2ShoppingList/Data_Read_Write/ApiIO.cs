@@ -6,14 +6,14 @@ using System.IO;
 
 namespace Recipe2ShoppingList
 {
-    public class ApiService : IDataIO
+    public class ApiIO : IDataIO
     {
         private readonly string baseApiUrl;
         private readonly IRestClient client;
 
         //When the ApiService is instantiated, the <baseApiUrl> is set from the appsettings.json
         //file, and the <client> is created and it's base url is set to the value of the <baseApiUrl>
-        public ApiService()
+        public ApiIO()
         {
             baseApiUrl = GetBaseApiUrl();
             client = new RestClient(baseApiUrl);
@@ -50,11 +50,11 @@ namespace Recipe2ShoppingList
 
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
-                throw new Exception("Error: Unable to reach server. Please try again later.", response.ErrorException);
+                throw new Exception($"Unable to connect to server. Please try again later. Error code: {response.StatusCode}", response.ErrorException);
             }
             else if (!response.IsSuccessful)
             {
-                throw new Exception("Error: Unable to retrieve data from the server; error code: " + response.StatusCode);
+                throw new Exception($"Error: Unable to retrieve data from the server. Error code: {response.StatusCode}");
             }
             else
             {
@@ -62,14 +62,33 @@ namespace Recipe2ShoppingList
             }
         }
 
-        public void WriteRecipeBookLibraryToDataSource(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, string alternatePath = "")
+        public bool WriteRecipeBookLibraryToDataSource(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, string alternatePath = "")
         {
-            throw new NotImplementedException();
+            bool writeSuccessful = false;
+            RestRequest request = new RestRequest("", DataFormat.Json);
+            request.AddJsonBody(recipeBookLibrary);
+
+            IRestResponse response = client.Put(request);
+
+            if (response.ResponseStatus != ResponseStatus.Completed)
+            {
+                throw new Exception($"Unable to connect to server. Error code: {response.StatusCode}", response.ErrorException);
+            }
+            else if (!response.IsSuccessful)
+            {
+                throw new Exception($"Error: Unable to retrieve data from the server. Error code: {response.StatusCode}");
+            }
+            else
+            {
+                writeSuccessful = true;
+                return writeSuccessful;
+            }
         }
 
-        public void WriteShoppingListToDataSource(IUserIO userIO, ShoppingList shoppingList, string alternatePath = "")
+        //This method is unused because writing the shopping list uses a FileIO to write the shoppping list onto the local computer
+        public bool WriteShoppingListToDataSource(IUserIO userIO, ShoppingList shoppingList, string alternatePath = "")
         {
-            throw new NotImplementedException();
+            return false;
         }
     }
     

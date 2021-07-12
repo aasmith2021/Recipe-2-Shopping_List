@@ -58,6 +58,7 @@ namespace Recipe2ShoppingList
             else
             {
                 recipeBookText += $"-NEW_RECIPE_BOOK-{Environment.NewLine}";
+                recipeBookText += $"RECIPE_BOOK_ID:{this.Id}{Environment.NewLine}";
                 recipeBookText += $"RECIPE_BOOK_NAME:{this.Name}{Environment.NewLine}";
 
 

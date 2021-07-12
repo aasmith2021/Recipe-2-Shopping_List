@@ -6,26 +6,19 @@ using System.Text;
 namespace r2slapi.Models
 {
     public class RecipeBookLibrary
-    {
-        private List<string> allMeasurementUnits = new List<string>();
-        
+    {       
         public RecipeBookLibrary()
         {
-            allMeasurementUnits.AddRange(MeasurementUnits.AllStandardMeasurementUnits());
+            AllMeasurementUnits.AddRange(MeasurementUnits.AllStandardMeasurementUnits());
         }
 
         public int? Id { get; set; }
 
+        public DateTime LastSaved { get; set; }
+
         public List<RecipeBook> AllRecipeBooks { get; set; } = new List<RecipeBook>();
 
-        public string[] AllMeasurementUnits
-        {
-            get
-            {
-                string[] allMeasurementUnitsArray = allMeasurementUnits.ToArray();
-                return allMeasurementUnitsArray;
-            }
-        }
+        public List<string> AllMeasurementUnits { get; set; } = new List<string>();
 
         public void AddRecipeBook(RecipeBook recipeBook)
         {
@@ -39,17 +32,17 @@ namespace r2slapi.Models
 
         public void AddMeasurementUnit(string measurementUnit)
         {
-            allMeasurementUnits.Add(measurementUnit);
+            AllMeasurementUnits.Add(measurementUnit);
         }
 
         public void DeleteMeasurementUnit(string measurementUnit)
         {
-            allMeasurementUnits.Remove(measurementUnit);
+            AllMeasurementUnits.Remove(measurementUnit);
         }
 
         public void EditMeasurementUnit (string measurementUnit, string newMeasurementUnit)
         {
-            allMeasurementUnits[allMeasurementUnits.IndexOf(measurementUnit)] = newMeasurementUnit;
+            AllMeasurementUnits[AllMeasurementUnits.IndexOf(measurementUnit)] = newMeasurementUnit;
         }
     }
 }

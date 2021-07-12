@@ -115,6 +115,7 @@ namespace Recipe2ShoppingList
             }
             else
             {
+                prepTimesText += $"PREP_TIME_ID:{this.Id}{Environment.NewLine}";
                 prepTimesText += $"PREP_TIME:{this.PrepTime}{Environment.NewLine}";
                 prepTimesText += $"COOK_TIME:{this.CookTime}{Environment.NewLine}";
             }

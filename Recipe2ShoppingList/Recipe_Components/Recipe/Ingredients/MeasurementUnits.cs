@@ -290,14 +290,14 @@ namespace Recipe2ShoppingList
         {
             List<string[]> allMeasurementUnitsForUserInput = new List<string[]>();
 
-            for (int i = 0; i < recipeBookLibrary.AllMeasurementUnits.Length; i++)
+            for (int i = 0; i < recipeBookLibrary.AllMeasurementUnits.Count; i++)
             {
                 string[] measurementUnitToAdd = new string[] { (i + 1).ToString(), recipeBookLibrary.AllMeasurementUnits[i] };
                 allMeasurementUnitsForUserInput.Add(measurementUnitToAdd);
             }
 
             //Add a "Add New Measurement Unit" option to the list
-            string optionNumber = (recipeBookLibrary.AllMeasurementUnits.Length + 1).ToString();
+            string optionNumber = (recipeBookLibrary.AllMeasurementUnits.Count + 1).ToString();
             string[] newOption = new string[] { optionNumber, "Add New Measurement Unit" };
             allMeasurementUnitsForUserInput.Add(newOption);
 
@@ -310,7 +310,7 @@ namespace Recipe2ShoppingList
 
             measurementUnitsText += $"-START_OF_MEASUREMENT_UNITS-{Environment.NewLine}";
             
-            for (int i = AllStandardMeasurementUnits().Count; i < recipeBookLibrary.AllMeasurementUnits.Length; i++)
+            for (int i = AllStandardMeasurementUnits().Count; i < recipeBookLibrary.AllMeasurementUnits.Count; i++)
             {
                 
                 measurementUnitsText += $"MU:{recipeBookLibrary.AllMeasurementUnits[i]}{Environment.NewLine}";

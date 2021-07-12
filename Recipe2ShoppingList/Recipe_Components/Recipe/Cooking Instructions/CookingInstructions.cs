@@ -59,6 +59,7 @@ namespace Recipe2ShoppingList
             }
             else
             {
+                instructionsText += $"COOKING_INSTRUCTIONS_ID:{this.Id}{Environment.NewLine}";
                 instructionsText += $"-START_OF_INSTRUCTIONS-{Environment.NewLine}";
                 
                 for (int i = 0; i < this.InstructionBlocks.Count; i++)
@@ -66,6 +67,7 @@ namespace Recipe2ShoppingList
                     InstructionBlock currentInstructionBlock = this.InstructionBlocks[i];
 
                     instructionsText += $"-NEW_INSTRUCTION_BLOCK-{Environment.NewLine}";
+                    instructionsText += $"INSTRUCTION_BLOCK_ID:{this.InstructionBlocks[i].Id}{Environment.NewLine}";
                     instructionsText += $"BLOCK_HEADING:{currentInstructionBlock.BlockHeading}{Environment.NewLine}";
 
                     foreach (string instructionLine in currentInstructionBlock.InstructionLines)

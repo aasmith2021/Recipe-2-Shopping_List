@@ -122,7 +122,40 @@ namespace r2slapi.Controllers
                 return Created($"/recipes/{recipeBookId}/{newRecipe.Id}", newRecipe);
             }
         }
-        
+
+
+        [HttpPut]
+        public ActionResult UpdateRecipeBookLibrary(RecipeBookLibrary updatedRecipeBookLibrary)
+        {
+            RecipeBookLibrary currentRecipeBookLibrary = dao.GetRecipeBookLibrary(RECIPE_BOOK_LIBRARY_ID);
+
+            if (currentRecipeBookLibrary == null)
+            {
+                return StatusCode(500, "Error: Unable to complete request. Please try again later.");
+            }
+            else if (currentRecipeBookLibrary.Id == -1)
+            {
+                return NotFound();
+            }
+            else
+            {
+                bool? recipeBookLibraryUpdated = dao.UpdateRecipeBookLibrary(RECIPE_BOOK_LIBRARY_ID, updatedRecipeBookLibrary);
+
+                if (recipeBookLibraryUpdated == null)
+                {
+                    return StatusCode(500, "Error: Unable to complete request. Please try again later.");
+                }
+                else if (recipeBookLibraryUpdated == false)
+                {
+                    return StatusCode(500, "Error: An error occurred while processing your request, and all of the Recipe Books were not updated. Please try again later.");
+                }
+                else
+                {
+                    return NoContent();
+                }
+            }
+        }
+
 
         [HttpPut("{recipeBookId}")]
         public ActionResult UpdateRecipeBook(int recipeBookId, RecipeBook recipeBook)
@@ -147,7 +180,7 @@ namespace r2slapi.Controllers
                 }
                 else if (recipeBookUpdated == false)
                 {
-                    return StatusCode(500, "Error: Problem processin request. Please try again later.");
+                    return StatusCode(500, "Error: Unable to update all recipes in this recipe book. Please try again later.");
                 }
                 else
                 {

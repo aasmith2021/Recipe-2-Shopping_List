@@ -8,8 +8,8 @@ namespace Recipe2ShoppingList
 {
     public class FileIO : IDataIO
     {
-         public RecipeBookLibrary GetRecipeBookLibraryFromDataSource(string alternateFilePath = "")
-         {
+        public RecipeBookLibrary GetRecipeBookLibraryFromDataSource(string alternateFilePath = "")
+        {
             RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
             string allTextFromFile = GetAllDatabaseText(alternateFilePath);
 
@@ -18,16 +18,25 @@ namespace Recipe2ShoppingList
                 return recipeBookLibrary;
             }
 
+            recipeBookLibrary.LastSaved = GetLastSavedFromText(allTextFromFile);
+            recipeBookLibrary.Id = GetRecipeBookLibraryIdFromText(allTextFromFile);
+
             string[] allCustomMeasurementUnits = GetCustomMeasurementUnitsFromText(allTextFromFile);
             for (int i = 0; i < allCustomMeasurementUnits.Length; i++)
             {
                 recipeBookLibrary.AddMeasurementUnit(allCustomMeasurementUnits[i]);
             }
 
-            string allRecipeBooksTextFromFile = allTextFromFile.Split("-END_OF_MEASUREMENT_UNITS-", StringSplitOptions.RemoveEmptyEntries)[1];
+            string[] allPossibleRecipeBooksTextFromFile = allTextFromFile.Split("-END_OF_MEASUREMENT_UNITS-", StringSplitOptions.RemoveEmptyEntries);
+            string allRecipeBooksTextFromFile = "";
 
-            //Only add recipe books if the database file has data in it
-            if (allTextFromFile != "")
+            if (allPossibleRecipeBooksTextFromFile.Length > 1)
+            {
+                allRecipeBooksTextFromFile = allPossibleRecipeBooksTextFromFile[1];
+            }
+
+            //Only add recipe books if the database file has recipe book data in it
+            if (allRecipeBooksTextFromFile != "")
             {
                 string[] separateRecipeBooks = allRecipeBooksTextFromFile.Split("-NEW_RECIPE_BOOK-", StringSplitOptions.RemoveEmptyEntries);
 
@@ -36,6 +45,7 @@ namespace Recipe2ShoppingList
                     RecipeBook newRecipeBookToAdd = new RecipeBook();
                     string recipeBookText = separateRecipeBooks[i];
 
+                    newRecipeBookToAdd.Id = GetRecipeBookIdFromData(recipeBookText);
                     newRecipeBookToAdd.Name = GetRecipeBookNameFromData(recipeBookText);
 
                     newRecipeBookToAdd.AddAllRecipesToRecipeBook(recipeBookText);
@@ -43,8 +53,17 @@ namespace Recipe2ShoppingList
                     recipeBookLibrary.AddRecipeBook(newRecipeBookToAdd);
                 }
             }
-            
+
             return recipeBookLibrary;
+        }
+
+        private int GetRecipeBookIdFromData(string recipeBookText)
+        {
+            string regexExpression = @"RECIPE_BOOK_ID:(.*?)RECIPE_BOOK_NAME:";
+
+            int recipeBookId = Convert.ToInt32(Regex.Match(recipeBookText, regexExpression).Groups[1].Value.ToString());
+
+            return recipeBookId;
         }
 
         private string GetRecipeBookNameFromData(string recipeBookText)
@@ -54,6 +73,34 @@ namespace Recipe2ShoppingList
             string recipeBookName = Regex.Match(recipeBookText, regexExpression).Groups[1].Value.ToString();
 
             return recipeBookName;
+        }
+
+        private DateTime GetLastSavedFromText(string allTextFromFile)
+        {
+            string startMaker = "LAST_SAVED:";
+            string endMaker = "RECIPE_BOOK_LIBRARY_ID:";
+            string lastSavedText = GetDataFromStartAndEndMarkers(allTextFromFile, startMaker, endMaker);
+            DateTime lastSaved = Convert.ToDateTime("1800-01-01");
+
+            try
+            {
+                lastSaved = Convert.ToDateTime(lastSavedText);
+            }
+            catch (Exception)
+            {
+            }
+
+            return lastSaved;
+        }
+
+        private int GetRecipeBookLibraryIdFromText(string allTextFromFile)
+        {
+            string startMaker = "RECIPE_BOOK_LIBRARY_ID:";
+            string endMaker = "-START_OF_MEASUREMENT_UNITS-";
+            string idText = GetDataFromStartAndEndMarkers(allTextFromFile, startMaker, endMaker);
+            int id = Convert.ToInt32(idText);
+
+            return id;
         }
 
         private string[] GetCustomMeasurementUnitsFromText(string allTextFromFile)
@@ -67,15 +114,18 @@ namespace Recipe2ShoppingList
             return splitMeasurementUnits;
         }
 
-        public void WriteRecipeBookLibraryToDataSource(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, string alternateFilePath = "")
+        public bool WriteRecipeBookLibraryToDataSource(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, string alternateFilePath = "")
         {
-            string[] allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits;
+            bool writeSuccessful = false;
             RecipeBook[] allRecipeBooks = recipeBookLibrary.AllRecipeBooks.ToArray();
+
+            recipeBookLibrary.LastSaved = DateTime.Now;
 
             try
             {
                 using (StreamWriter sw = new StreamWriter(GetWriteDatabaseFilePath()))
                 {
+                    sw.WriteLine(recipeBookLibrary.ProduceLastSavedAndIdText());
                     sw.WriteLine(MeasurementUnits.ProduceMeasurementUnitsText(recipeBookLibrary));
 
                     foreach (RecipeBook recipeBook in allRecipeBooks)
@@ -86,17 +136,22 @@ namespace Recipe2ShoppingList
             }
             catch (IOException exception)
             {
-                UserInterface.DisplayInformation(userIO, "Cannot open Recipe Database file to save data.");
+                UserInterface.DisplayInformation(userIO, "Error: Unable to write Recipe Database to a file. Unfortunately, all current changes will be lost.");
                 UserInterface.DisplayInformation(userIO, "Press \"Enter\" to continue...", false);
                 GetUserInput.GetEnterFromUser(userIO);
             }
 
             //Delete original database file, then rename the "write" database file to become the new master database file
             DeleteOldFileAndRenameNewFile(GetReadDatabaseFilePath(alternateFilePath), GetWriteDatabaseFilePath());
+
+            writeSuccessful = true;
+
+            return writeSuccessful;
         }
 
-        public void WriteShoppingListToDataSource(IUserIO userIO, ShoppingList shoppingList, string alternateFilePath = "")
+        public bool WriteShoppingListToDataSource(IUserIO userIO, ShoppingList shoppingList, string alternateFilePath = "")
         {
+            bool writeSuccessful = false;
             string entireShoppingList = shoppingList.GetEntireShoppingList(true);
 
             try
@@ -115,6 +170,10 @@ namespace Recipe2ShoppingList
 
             //Delete original Shopping List file, then rename the "write" Shopping List file to become the new master Shopping List
             DeleteOldFileAndRenameNewFile(GetReadShoppingListFilePath(alternateFilePath), GetWriteShoppingListFilePath());
+
+            writeSuccessful = true;
+
+            return writeSuccessful;
         }
 
         private string GetReadDatabaseFilePath(string alternateFilePath = "")

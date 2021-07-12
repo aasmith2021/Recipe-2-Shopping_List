@@ -63,10 +63,12 @@ namespace Recipe2ShoppingList
             }
             else
             {
+                ingredientsText += $"INGREDIENT_LIST_ID:{this.Id}{Environment.NewLine}";
                 ingredientsText += $"-START_OF_INGREDIENTS-{Environment.NewLine}";
                 
                 foreach (Ingredient ingredient in this.AllIngredients)
                 {
+                    ingredientsText += $"INGREDIENT_ID:{ingredient.Id}{Environment.NewLine}";
                     ingredientsText += $"INGREDIENT_NAME:{ingredient.Name}{Environment.NewLine}";
                     ingredientsText += $"QTY:{ingredient.Quantity}{Environment.NewLine}";
 

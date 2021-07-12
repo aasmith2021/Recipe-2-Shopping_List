@@ -364,5 +364,12 @@ namespace Recipe2ShoppingList
         {
             userIO.DisplayData();
         }
+
+        public static void DisplayErrorMessage(IUserIO userIO, string errorMessage, string action)
+        {
+            DisplayInformation(userIO, errorMessage);
+            userIO.DisplayData($"Press \"Enter\" to {action}...");
+            GetUserInput.GetEnterFromUser(userIO);
+        }
     }
 }

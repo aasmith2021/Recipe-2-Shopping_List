@@ -358,7 +358,7 @@ namespace Recipe2ShoppingList
                     GetNewMeasurementUnitFromUser(userIO, out measurementUnit);
                     recipeBookLibrary.AddMeasurementUnit(measurementUnit);
                     UserInterface.InsertBlankLine(userIO);
-                    UserInterface.DisplayInformation(userIO, UserInterface.MakeStringConsoleLengthLines($"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient."), false);
+                    UserInterface.DisplayInformation(userIO, $"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient.", false);
                 }
                 else if (measurementUnits[userOptionNumber - 1][1] != "None")
                 {
@@ -412,7 +412,7 @@ namespace Recipe2ShoppingList
                 GetNewMeasurementUnitFromUser(userIO, out measurementUnit);
                 recipeBookLibrary.AddMeasurementUnit(measurementUnit);
                 UserInterface.InsertBlankLine(userIO);
-                UserInterface.DisplayInformation(userIO, UserInterface.MakeStringConsoleLengthLines($"Success! New measurement unit, {measurementUnit}, was added and will be used for this ingredient."), false);
+                UserInterface.DisplayInformation(userIO, "Success! New measurement unit, " + measurementUnit + " was added and will be used for this ingredient.", false);
             }
             else if (measurementUnits[userOptionNumber - 1][1] != "None")
             {

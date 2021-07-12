@@ -18,6 +18,8 @@ namespace r2slapi.DAO
 
         public Recipe CreateRecipe(int recipeBookId, Recipe recipe);
 
+        public bool? UpdateRecipeBookLibrary(int recipeBookLibraryId, RecipeBookLibrary recipeBookLibrary);
+
         public bool? UpdateRecipeBook(int recipeBookId, RecipeBook recipeBook);
 
         public bool? UpdateRecipe(int recipeBookId, int recipeId, Recipe recipe);

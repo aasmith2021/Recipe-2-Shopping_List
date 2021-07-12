@@ -43,24 +43,46 @@ namespace r2slapi.DAO
                 {
                     sqlConn.Open();
 
-                    string sqlSelectRecipeBookLibrary = "SELECT rbl.rbl_id AS 'recipe_book_library_id', rb.rb_id AS 'recipe_book_id' " +
-                                                        "FROM recipe_book_library rbl " +
-                                                        "JOIN recipe_book rb ON rbl.rbl_id = rb.recipe_book_library_id " +
-                                                        "WHERE recipe_book_library_id = @recipe_book_library_id;";
+                    //Check to see if recipe book library is in the database. If it is, get the Id and LastSaved values
+                    string sqlSelectRecipeBookLibaray = "SELECT rbl_id, last_saved FROM recipe_book_library WHERE rbl_id = @recipe_book_library_id;";
 
-                    SqlCommand sqlCmd = new SqlCommand(sqlSelectRecipeBookLibrary, sqlConn);
+                    SqlCommand sqlCmd = new SqlCommand(sqlSelectRecipeBookLibaray, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_library_id", recipeBookLibraryId);
 
                     SqlDataReader reader = sqlCmd.ExecuteReader();
 
+                    int? recipeBookLibraryIdFromDatabase = 0;
+
                     while (reader.Read())
                     {
-                        int recipeBookLibraryIdFromDatabase = Convert.ToInt32(reader["recipe_book_library_id"]);
-                        recipeBookIds.Add(Convert.ToInt32(reader["recipe_book_id"]));
+                        recipeBookLibraryIdFromDatabase = Convert.ToInt32(reader["rbl_id"]);
+                        recipeBookLibrary.LastSaved = Convert.ToDateTime(reader["last_saved"]);
+                    }
 
-                        if (recipeBookLibraryIdFromDatabase != 0)
+                    reader.Close();
+
+
+                    //If the recipe book library exists in the database, get the custom measurement units and get all
+                    //the recipe book ids for the recipe books in that recipe book library
+                    if (recipeBookLibraryIdFromDatabase != null && recipeBookLibraryIdFromDatabase != 0)
+                    {
+                        recipeBookLibrary.Id = recipeBookLibraryIdFromDatabase;
+
+                        GetCustomMeasurementUnits(recipeBookLibrary);
+
+                        string sqlSelectRecipeBookLibraryRecipes = "SELECT rb_id AS 'recipe_book_id'" +
+                                                                    "FROM recipe_book rbl " +
+                                                                    "WHERE recipe_book_library_id = @recipe_book_library_id;";
+
+                        sqlCmd = new SqlCommand(sqlSelectRecipeBookLibraryRecipes, sqlConn);
+                        sqlCmd.Parameters.AddWithValue("@recipe_book_library_id", recipeBookLibraryId);
+
+                        reader = sqlCmd.ExecuteReader();
+
+                        //Select all recipe books for current recipe book library
+                        while (reader.Read())
                         {
-                            recipeBookLibrary.Id = recipeBookLibraryIdFromDatabase;
+                            recipeBookIds.Add(Convert.ToInt32(reader["recipe_book_id"]));
                         }
                     }
                 }
@@ -78,6 +100,42 @@ namespace r2slapi.DAO
             }
 
             return recipeBookLibrary;
+        }
+
+        public bool? GetCustomMeasurementUnits(RecipeBookLibrary recipeBookLibrary)
+        {
+            bool? customMeasurementUnitsAdded = false;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlSelectCustomMeasurementUnits = "SELECT measurement_unit_name FROM custom_measurement_units WHERE recipe_book_library_id = @recipe_book_library_id;";
+
+                    SqlCommand sqlCmd = new SqlCommand(sqlSelectCustomMeasurementUnits, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_library_id", recipeBookLibrary.Id);
+
+                    SqlDataReader reader = sqlCmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        string measurementUnit = Convert.ToString(reader["measurement_unit_name"]);
+
+                        recipeBookLibrary.AddMeasurementUnit(measurementUnit);
+                    }
+
+                    customMeasurementUnitsAdded = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return customMeasurementUnitsAdded;
         }
 
         public RecipeBook GetRecipeBook(int recipeBookId)
@@ -120,7 +178,7 @@ namespace r2slapi.DAO
                                                         "FROM recipe_book rb " +
                                                         "JOIN recipe r ON rb.rb_id = r.recipe_book_id " +
                                                         "WHERE recipe_book_id = @recipe_book_id;";
-                    
+
                     sqlCmd = new SqlCommand(sqlSelectRecipeBookRecipes, sqlConn);
                     sqlCmd.Parameters.AddWithValue("@recipe_book_id", recipeBookId);
 
@@ -158,10 +216,25 @@ namespace r2slapi.DAO
             CookingInstructions cookingInstructions = GetRecipeCookingInstructions(recipeId);
 
             Recipe recipe = new Recipe(metadata, cookingInstructions, ingredientList);
-            recipe.Id = recipeId;
-            recipe.RecipeNumber = GetRecipeNumber(recipeId);
+            recipe.Id = -1;
 
-            if (recipe != null && metadata != null && ingredientList != null && cookingInstructions != null && recipe.RecipeNumber != null)
+            int? recipeIdFromDatabase = GetRecipeId(recipeId);
+            int? recipeNumberFromDatabase = GetRecipeNumber(recipeId);
+
+            if (recipeNumberFromDatabase > 0)
+            {
+                recipe.RecipeNumber = recipeNumberFromDatabase;
+            }
+
+            if (recipeIdFromDatabase > 0)
+            {
+                int result;
+                int.TryParse(recipeIdFromDatabase.ToString(), out result);
+
+                recipe.Id = result;
+            }
+
+            if (recipe != null && metadata != null && ingredientList != null && cookingInstructions != null)
             {
                 return recipe;
             }
@@ -206,6 +279,38 @@ namespace r2slapi.DAO
             }
 
             return recipeNumber;
+        }
+
+        private int? GetRecipeId(int recipeId)
+        {
+            int? recipeIdToReturn = -1;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlSelectRecipeNumber = "SELECT r_id FROM recipe WHERE r_id = @recipe_id;";
+
+                    SqlCommand sqlCmd = new SqlCommand(sqlSelectRecipeNumber, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_id", recipeId);
+
+                    int? recipeIdFromDatabase = Convert.ToInt32(sqlCmd.ExecuteScalar());
+
+                    if (recipeIdFromDatabase > 0)
+                    {
+                        recipeIdToReturn = recipeIdFromDatabase;
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return recipeIdToReturn;
         }
 
         private Metadata GetRecipeMetadata(int recipeId)
@@ -613,21 +718,9 @@ namespace r2slapi.DAO
                     SqlCommand sqlCmd = new SqlCommand(sqlInsertNewIngredientList, sqlConn);
                     recipe.IngredientList.Id = Convert.ToInt32(sqlCmd.ExecuteScalar());
 
-                    string sqlInsertIngredient;
-
                     for (int i = 0; i < recipe.IngredientList.AllIngredients.Count; i++)
                     {
-                        sqlInsertIngredient = "INSERT INTO ingredient (ingredient_list_id, quantity, measurement_unit, name, prep_note, store_location) " +
-                                                "VALUES(@ingredient_list_id, @quantity, @measurment_unit, @name, @prep_note, @store_location);";
-                        sqlCmd = new SqlCommand(sqlInsertIngredient, sqlConn);
-                        sqlCmd.Parameters.AddWithValue("@ingredient_list_id", recipe.IngredientList.Id);
-                        sqlCmd.Parameters.AddWithValue("@quantity", recipe.IngredientList.AllIngredients[i].Quantity);
-                        sqlCmd.Parameters.AddWithValue("@measurment_unit", recipe.IngredientList.AllIngredients[i].MeasurementUnit);
-                        sqlCmd.Parameters.AddWithValue("@name", recipe.IngredientList.AllIngredients[i].Name);
-                        sqlCmd.Parameters.AddWithValue("@prep_note", recipe.IngredientList.AllIngredients[i].PreparationNote);
-                        sqlCmd.Parameters.AddWithValue("@store_location", recipe.IngredientList.AllIngredients[i].StoreLocation);
-
-                        sqlCmd.ExecuteNonQuery();
+                        CreateIngredient(recipe.IngredientList.Id, recipe.IngredientList.AllIngredients[i]);
                     }
                 }
             }
@@ -638,6 +731,40 @@ namespace r2slapi.DAO
             }
 
             return recipe.IngredientList.Id;
+        }
+
+        private bool? CreateIngredient(int ingredientListId, Ingredient ingredient)
+        {
+            bool? ingredientSucessfullyCreated = false;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlInsertIngredient = "INSERT INTO ingredient (ingredient_list_id, quantity, measurement_unit, name, prep_note, store_location) " +
+                                                 "VALUES(@ingredient_list_id, @quantity, @measurment_unit, @name, @prep_note, @store_location);";
+                    SqlCommand sqlCmd = new SqlCommand(sqlInsertIngredient, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@ingredient_list_id", ingredientListId);
+                    sqlCmd.Parameters.AddWithValue("@quantity", ingredient.Quantity);
+                    sqlCmd.Parameters.AddWithValue("@measurment_unit", ingredient.MeasurementUnit);
+                    sqlCmd.Parameters.AddWithValue("@name", ingredient.Name);
+                    sqlCmd.Parameters.AddWithValue("@prep_note", ingredient.PreparationNote);
+                    sqlCmd.Parameters.AddWithValue("@store_location", ingredient.StoreLocation);
+
+                    sqlCmd.ExecuteNonQuery();
+                }
+
+                ingredientSucessfullyCreated = true;
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return ingredientSucessfullyCreated;
         }
 
         private int? CreateCookingInstructions(Recipe recipe)
@@ -738,6 +865,179 @@ namespace r2slapi.DAO
             return isSuccessful;
         }
 
+        public bool? UpdateRecipeBookLibrary(int recipeBookLibraryId, RecipeBookLibrary recipeBookLibrary)
+        {
+            bool allRecipeBooksUpdated = false;
+            int recipeBookUpdateCount = 0;
+            int numberOfRecipeBooksToUpdate = recipeBookLibrary.AllRecipeBooks.Count;
+
+            //Loops through all the recipe books in the recipe book library and updates each one
+            for (int i = 0; i < numberOfRecipeBooksToUpdate; i++)
+            {
+                bool? recipeBookUpdated = false;
+
+                RecipeBook recipeBook = recipeBookLibrary.AllRecipeBooks[i];
+
+                RecipeBook recipeBookInDatabase = GetRecipeBook(recipeBook.Id);
+
+                if (recipeBookInDatabase == null)
+                {
+                    return null;
+                }
+                else if (recipeBookInDatabase.Id == -1)
+                {
+                    RecipeBook createdRecipeBook = CreateRecipeBook(recipeBookLibraryId, recipeBook);
+
+                    //If the recipe book to add was created without an error, set recipeBookUpdated to true
+                    if (createdRecipeBook != null)
+                    {
+                        recipeBookUpdated = true;
+                    }
+                }
+                else
+                {
+                    recipeBookUpdated = UpdateRecipeBook(recipeBook.Id, recipeBook);
+                }
+
+                if (recipeBookUpdated == null)
+                {
+                    return null;
+                }
+                else if (recipeBookUpdated == true)
+                {
+                    recipeBookUpdateCount++;
+                }
+            }
+
+            //Validates that every recipe book in the recipe book library was updated
+            if (numberOfRecipeBooksToUpdate == recipeBookUpdateCount)
+            {
+                allRecipeBooksUpdated = true;
+            }
+
+            //Update the recipe book library's custom measurement units
+            bool customMeasurementUnitsUpdated = UpdateCustomMeasurementUnits(recipeBookLibrary);
+
+            //Updates the last_saved time of the RecipeBookLibrary in the database
+            bool lastSavedTimeUpdated = false;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlUpdateLastSaved = "UPDATE recipe_book_library SET last_saved = CURRENT_TIMESTAMP WHERE rbl_id = @recipe_book_library_id;";
+
+                    SqlCommand sqlCmd = new SqlCommand(sqlUpdateLastSaved, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_library_id", recipeBookLibraryId);
+
+                    sqlCmd.ExecuteNonQuery();
+
+                    lastSavedTimeUpdated = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return (allRecipeBooksUpdated && customMeasurementUnitsUpdated && lastSavedTimeUpdated);
+        }
+
+        public bool UpdateCustomMeasurementUnits(RecipeBookLibrary recipeBookLibrary)
+        {
+            bool customMeasurementUnitsUpdated = false;
+
+            string[] allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits.ToArray();
+            string[] allStandardMeasurementUnits = MeasurementUnits.AllStandardMeasurementUnits().ToArray();
+            string[] allCustomMeasurementUnits = new string[allMeasurementUnits.Length - allStandardMeasurementUnits.Length];
+
+            int measurementUnitUpdateCounter = 0;
+            int measurementUnitsToUpdate = allCustomMeasurementUnits.Length;
+
+            //Gets all the custom measurement units from the recipeBookLibrary and put them in the allCustomMeasurementUnits array
+            for (int i = 0; i < allCustomMeasurementUnits.Length; i++)
+            {
+                allCustomMeasurementUnits[i] = allMeasurementUnits[allStandardMeasurementUnits.Length + i];
+            }
+
+            //Removes all custom measurement units currently in the database
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    //Deletes all measurement units in the database and replaces 
+                    string sqlSelectCustomMeasurementUnit = "DELETE FROM custom_measurement_units WHERE recipe_book_library_id = @recipe_book_library_id;";
+
+                    SqlCommand sqlCmd = new SqlCommand(sqlSelectCustomMeasurementUnit, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_library_id", recipeBookLibrary.Id);
+
+                    sqlCmd.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                customMeasurementUnitsUpdated = false;
+                return customMeasurementUnitsUpdated;
+            }
+
+            //Update each measurementUnit in allCustomMeasurementUnits
+            foreach (string measurementUnit in allCustomMeasurementUnits)
+            {
+                bool measurementUnitUpdated = UpdateCustomMeasurementUnit(recipeBookLibrary.Id, measurementUnit);
+
+                if (measurementUnitUpdated)
+                {
+                    measurementUnitUpdateCounter++;
+                }
+            }
+
+            //Verify that all of the measurement units were updated
+            if (measurementUnitUpdateCounter == measurementUnitsToUpdate)
+            {
+                customMeasurementUnitsUpdated = true;
+            }
+
+            return customMeasurementUnitsUpdated;
+        }
+
+        public bool UpdateCustomMeasurementUnit(int? recipeBookLibraryId, string measurementUnitName)
+        {
+            bool customMeasurementUnitUpdated = false;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    //Inserts the custom measurement unit into the database
+
+                    string sqlInsertCustomMeasurementUnit = "INSERT INTO custom_measurement_units (recipe_book_library_id, measurement_unit_name) VALUES (@recipe_book_library_id, @measurement_unit_name);";
+
+                    SqlCommand sqlCmd = new SqlCommand(sqlInsertCustomMeasurementUnit, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@recipe_book_library_id", recipeBookLibraryId);
+                    sqlCmd.Parameters.AddWithValue("@measurement_unit_name", measurementUnitName);
+
+                    sqlCmd.ExecuteNonQuery();
+
+                    customMeasurementUnitUpdated = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                customMeasurementUnitUpdated = false;
+            }
+
+            return customMeasurementUnitUpdated;
+        }
+
         public bool? UpdateRecipeBook(int recipeBookId, RecipeBook recipeBook)
         {
             bool recipeBookUpdated = false;
@@ -745,14 +1045,36 @@ namespace r2slapi.DAO
             int recipeUpdateCount = 0;
             int numberOfRecipesToUpdate = recipeBook.Recipes.Count;
 
-            //Loops through all the recipes in the recipe book and updates each one
-            for (int i = 0; i < recipeBook.Recipes.Count; i++)
+            //Loops through all the recipes in the recipe book and, if a recipe doesn't exist, creates a new recipe.
+            //If a recipe does exist, the recipe is updated
+            for (int i = 0; i < numberOfRecipesToUpdate; i++)
             {
+                bool? recipeUpdated = false;
+
                 Recipe recipe = recipeBook.Recipes[i];
 
-                bool? recipeUpdated = UpdateRecipe(recipeBookId, recipe.Id, recipe);
+                Recipe recipeInDatabase = GetRecipe(recipe.Id);
 
-                if (recipeUpdated != null && recipeUpdated != false)
+                if (recipeInDatabase == null)
+                {
+                    return null;
+                }
+                else if (recipeInDatabase.Id == -1)
+                {
+                    Recipe createdRecipe = CreateRecipe(recipeBookId, recipe);
+
+                    //If the recipe to add was created without an error, set recipeUpdated to true
+                    if (createdRecipe != null)
+                    {
+                        recipeUpdated = true;
+                    }
+                }
+                else
+                {
+                    recipeUpdated = UpdateRecipe(recipeBookId, recipe.Id, recipe);
+                }
+
+                if (recipeUpdated == true)
                 {
                     recipeUpdateCount++;
                 }
@@ -764,6 +1086,7 @@ namespace r2slapi.DAO
                 allRecipesUpdated = true;
             }
 
+            //Updates the name of the recipe book
             try
             {
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
@@ -803,6 +1126,7 @@ namespace r2slapi.DAO
                 return null;
             }
 
+            //Update the recipe book id and recipe number of the recipe
             try
             {
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
@@ -876,83 +1200,79 @@ namespace r2slapi.DAO
         private bool? UpdateIngredientList(Recipe recipe)
         {
             bool ingredientListUpdated = false;
+            int ingredientUpdateCount = 0;
 
             List<Ingredient> allIngredientsToUpdate = recipe.IngredientList.AllIngredients;
 
-            try
+            for (int i = 0; i < allIngredientsToUpdate.Count; i++)
             {
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                try
                 {
-                    sqlConn.Open();
+                    bool? ingredientUpdated = UpdateIngredient(recipe.IngredientList.Id, allIngredientsToUpdate[i]);
 
-                    string sqlUpdateIngrientList = "UPDATE ingredient SET quantity = @quantity, measurement_unit = @measurement_unit, name = @name, prep_note = @prep_note, store_location = @store_location WHERE ingredient_list_id = @ingredient_list_id AND i_id = @ingredient_id;";
-
-                    for (int i = 0; i < allIngredientsToUpdate.Count; i++)
+                    if (ingredientUpdated == true)
                     {
-                        SqlCommand sqlCmd = new SqlCommand(sqlUpdateIngrientList, sqlConn);
-                        sqlCmd.Parameters.AddWithValue("@quantity", allIngredientsToUpdate[i].Quantity);
-                        sqlCmd.Parameters.AddWithValue("@measurement_unit", allIngredientsToUpdate[i].MeasurementUnit);
-                        sqlCmd.Parameters.AddWithValue("@name", allIngredientsToUpdate[i].Name);
-                        sqlCmd.Parameters.AddWithValue("@prep_note", allIngredientsToUpdate[i].PreparationNote);
-                        sqlCmd.Parameters.AddWithValue("@store_location", allIngredientsToUpdate[i].StoreLocation);
-                        sqlCmd.Parameters.AddWithValue("@ingredient_list_id", recipe.IngredientList.Id);
-                        sqlCmd.Parameters.AddWithValue("@ingredient_id", allIngredientsToUpdate[i].Id);
-
-                        sqlCmd.ExecuteNonQuery();
+                        ingredientUpdateCount++;
                     }
 
-                    ingredientListUpdated = true;
+                }
+                catch (SqlException ex)
+                {
+                    string errorMessage = ex.Message;
+                    return null;
                 }
             }
-            catch (SqlException ex)
+
+            if (ingredientUpdateCount == allIngredientsToUpdate.Count)
             {
-                string errorMessage = ex.Message;
-                return null;
+                ingredientListUpdated = true;
             }
 
             return ingredientListUpdated;
         }
 
-        private bool? UpdateCookingInstructions(Recipe recipe)
+        private bool? UpdateIngredient(int ingredientListId, Ingredient ingredient)
         {
-            bool cookingInstructionsUpdated = false;
+            bool? ingredientUpdated = false;
 
-            List<InstructionBlock> allInstructionBlocksToUpdate = recipe.CookingInstructions.InstructionBlocks;
-
+            //Check to see if an ingredient is in the database. If so, the ingredient is updated. If the ingredient is not in the database, it is created.
             try
             {
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
                     sqlConn.Open();
 
-                    string sqlUpdateInstructionBlock = "UPDATE instruction_block SET block_heading = @block_heading WHERE ib_id = @instruction_block_id AND cooking_instructions_id = @cooking_instructions_id;";
-                    string sqlDeleteInstructionsFromBlock = "DELETE FROM instruction_block_instruction WHERE instruction_block_id = @instruction_block_id; " +
-                                                            "DELETE FROM instruction WHERE inst_id IN (SELECT i.inst_id FROM instruction i JOIN instruction_block_instruction ibi ON i.inst_id = ibi.instruction_id JOIN instruction_block ib ON ibi.instruction_block_id = ib.ib_id WHERE ib.ib_id = @instruction_block_id);";
+                    string sqlSelectIngredient = "SELECT i_id FROM ingredient WHERE i_id = @ingredient_id;";
 
-                    //Loops through all of the instruction blocks and updates them
-                    for (int i = 0; i < allInstructionBlocksToUpdate.Count; i++)
+                    SqlCommand sqlCmd = new SqlCommand(sqlSelectIngredient, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@ingredient_id", ingredient.Id);
+
+                    int? ingredientIdFromDatabase = Convert.ToInt32(sqlCmd.ExecuteScalar());
+
+                    //If the ingredientIdFromDatabase is null or 0, the ingredient is not in the database and needs to be created
+                    if (ingredientIdFromDatabase == null || ingredientIdFromDatabase == 0)
                     {
-                        SqlCommand sqlCmd = new SqlCommand(sqlUpdateInstructionBlock, sqlConn);
-                        sqlCmd.Parameters.AddWithValue("@block_heading", allInstructionBlocksToUpdate[i].BlockHeading);
-                        sqlCmd.Parameters.AddWithValue("@instruction_block_id", allInstructionBlocksToUpdate[i].Id);
-                        sqlCmd.Parameters.AddWithValue("@cooking_instructions_id", recipe.CookingInstructions.Id);
-
-                        sqlCmd.ExecuteNonQuery();
-
-                        //This command deletes all of the instruction lines from the current instruction block in the database
-                        //so that the new, updated instruction lines can be created in the for loop below.
-                        sqlCmd = new SqlCommand(sqlDeleteInstructionsFromBlock, sqlConn);
-                        sqlCmd.Parameters.AddWithValue("@instruction_block_id", allInstructionBlocksToUpdate[i].Id);
-
-                        sqlCmd.ExecuteNonQuery();
-
-                        for (int j = 0; j < allInstructionBlocksToUpdate[i].InstructionLines.Count; j++)
-                        {
-                            bool? instructionLineCreated = CreateInstructionLine(recipe, i, j);
-                        }
+                        ingredientUpdated = CreateIngredient(ingredientListId, ingredient);
                     }
+                    else
+                    {
+                        //If the ingredient is in the database, the commands in this "else" statement update it
 
-                    cookingInstructionsUpdated = true;
+                        string sqlUpdateIngrient = "UPDATE ingredient SET quantity = @quantity, measurement_unit = @measurement_unit, name = @name, prep_note = @prep_note, store_location = @store_location WHERE ingredient_list_id = @ingredient_list_id AND i_id = @ingredient_id;";
+
+                        sqlCmd = new SqlCommand(sqlUpdateIngrient, sqlConn);
+                        sqlCmd.Parameters.AddWithValue("@quantity", ingredient.Quantity);
+                        sqlCmd.Parameters.AddWithValue("@measurement_unit", ingredient.MeasurementUnit);
+                        sqlCmd.Parameters.AddWithValue("@name", ingredient.Name);
+                        sqlCmd.Parameters.AddWithValue("@prep_note", ingredient.PreparationNote);
+                        sqlCmd.Parameters.AddWithValue("@store_location", ingredient.StoreLocation);
+                        sqlCmd.Parameters.AddWithValue("@ingredient_list_id", ingredientListId);
+                        sqlCmd.Parameters.AddWithValue("@ingredient_id", ingredient.Id);
+
+                        sqlCmd.ExecuteNonQuery();
+
+                        ingredientUpdated = true;
+                    }
                 }
             }
             catch (SqlException ex)
@@ -961,7 +1281,137 @@ namespace r2slapi.DAO
                 return null;
             }
 
+            return ingredientUpdated;
+        }
+
+        private bool? UpdateCookingInstructions(Recipe recipe)
+        {
+            bool cookingInstructionsUpdated = false;
+            int instructionBlockUpdateCount = 0;
+
+            List<InstructionBlock> allInstructionBlocksToUpdate = recipe.CookingInstructions.InstructionBlocks;
+
+            for (int i = 0; i < allInstructionBlocksToUpdate.Count; i++)
+            {
+                try
+                {
+                    int instructionBlockIndex = i;
+
+                    bool? instructionBlockUpdated = UpdateInstructionBlock(recipe, instructionBlockIndex);
+
+                    if (instructionBlockUpdated == true)
+                    {
+                        instructionBlockUpdateCount++;
+                    }
+                }
+                catch (SqlException ex)
+                {
+                    string errorMessage = ex.Message;
+                    return null;
+                }
+            }
+
+            if (instructionBlockUpdateCount == allInstructionBlocksToUpdate.Count)
+            {
+                cookingInstructionsUpdated = true;
+            }
+
             return cookingInstructionsUpdated;
+        }
+
+        private bool? UpdateInstructionBlock(Recipe recipe, int instructionBlockIndex)
+        {
+            bool? instructionBlockUpdated = false;
+            InstructionBlock instructionBlockToUpdate = recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex];
+
+            bool? instructionLineCreated = false;
+            int instructionLinesCreatedCount = 0;
+
+            //Check to see if the instruction block exists. If it doesn't exist, create it. If it does exist, update it.
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlSelectInstructionBlock = "SELECT ib_id FROM instruction_block WHERE ib_id = @instruction_block_id;";
+                    SqlCommand sqlCmd = new SqlCommand(sqlSelectInstructionBlock, sqlConn);
+                    sqlCmd.Parameters.AddWithValue("@instruction_block_id", instructionBlockToUpdate.Id);
+
+                    int? instructionBlockIdFromDatabase = Convert.ToInt32(sqlCmd.ExecuteScalar());
+
+                    //If the instructionBlockIdFromDatabase is null or 0, the InstructionBlock is not in the database and needs to be created
+                    if (instructionBlockIdFromDatabase == null || instructionBlockIdFromDatabase == 0)
+                    {
+                        int? newInstructionBlockId = CreateInstructionBlock(recipe, instructionBlockIndex);
+
+                        //Once the new instruction block is created, its instruction lines also need to be created
+                        for (int i = 0; i < instructionBlockToUpdate.InstructionLines.Count; i++)
+                        {
+                            instructionLineCreated = false;
+
+                            instructionLineCreated = CreateInstructionLine(recipe, instructionBlockIndex, i);
+
+                            if (instructionLineCreated == true)
+                            {
+                                instructionLinesCreatedCount++;
+                            }
+                        }
+
+                        if (newInstructionBlockId != null && newInstructionBlockId > 0 && (instructionLinesCreatedCount == instructionBlockToUpdate.InstructionLines.Count))
+                        {
+                            instructionBlockUpdated = true;
+                        }
+                    }
+                    else
+                    {
+                        //If the instruction block is already in the database, the code below updates it
+
+                        string sqlUpdateInstructionBlock = "UPDATE instruction_block SET block_heading = @block_heading WHERE ib_id = @instruction_block_id AND cooking_instructions_id = @cooking_instructions_id;";
+                        sqlCmd = new SqlCommand(sqlUpdateInstructionBlock, sqlConn);
+                        sqlCmd.Parameters.AddWithValue("@block_heading", instructionBlockToUpdate.BlockHeading);
+                        sqlCmd.Parameters.AddWithValue("@instruction_block_id", instructionBlockToUpdate.Id);
+                        sqlCmd.Parameters.AddWithValue("@cooking_instructions_id", recipe.CookingInstructions.Id);
+
+                        sqlCmd.ExecuteNonQuery();
+
+                        string sqlDeleteInstructionsFromBlock = "DELETE FROM instruction_block_instruction WHERE instruction_block_id = @instruction_block_id; " +
+                                                                "DELETE FROM instruction WHERE inst_id IN (SELECT i.inst_id FROM instruction i JOIN instruction_block_instruction ibi ON i.inst_id = ibi.instruction_id JOIN instruction_block ib ON ibi.instruction_block_id = ib.ib_id WHERE ib.ib_id = @instruction_block_id);";
+
+                        //This command deletes all of the instruction lines from the current instruction block in the database
+                        //so that the new, updated instruction lines can be created in the "for" loop below.
+                        //This simplifies updating instruction lines in the database.
+                        sqlCmd = new SqlCommand(sqlDeleteInstructionsFromBlock, sqlConn);
+                        sqlCmd.Parameters.AddWithValue("@instruction_block_id", instructionBlockToUpdate.Id);
+
+                        sqlCmd.ExecuteNonQuery();
+
+                        for (int j = 0; j < instructionBlockToUpdate.InstructionLines.Count; j++)
+                        {
+                            instructionLineCreated = false;
+
+                            instructionLineCreated = CreateInstructionLine(recipe, instructionBlockIndex, j);
+
+                            if (instructionLineCreated == true)
+                            {
+                                instructionLinesCreatedCount++;
+                            }
+                        }
+
+                        if (instructionLinesCreatedCount == instructionBlockToUpdate.InstructionLines.Count)
+                        {
+                            instructionBlockUpdated = true;
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                string errorMessage = ex.Message;
+                return null;
+            }
+
+            return instructionBlockUpdated;
         }
 
         public bool? DeleteRecipeBook(int recipeBookId)

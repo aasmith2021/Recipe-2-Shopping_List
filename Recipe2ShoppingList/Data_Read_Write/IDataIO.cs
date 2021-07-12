@@ -8,8 +8,8 @@ namespace Recipe2ShoppingList
     {
         public RecipeBookLibrary GetRecipeBookLibraryFromDataSource(string alternatePath = "");
 
-        public void WriteRecipeBookLibraryToDataSource(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, string alternatePath = "");
+        public bool WriteRecipeBookLibraryToDataSource(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, string alternatePath = "");
 
-        public void WriteShoppingListToDataSource(IUserIO userIO, ShoppingList shoppingList, string alternatePath = "");
+        public bool WriteShoppingListToDataSource(IUserIO userIO, ShoppingList shoppingList, string alternatePath = "");
     }
 }
