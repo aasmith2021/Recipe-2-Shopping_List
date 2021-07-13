@@ -371,5 +371,34 @@ namespace Recipe2ShoppingList
             userIO.DisplayData($"Press \"Enter\" to {action}...");
             GetUserInput.GetEnterFromUser(userIO);
         }
+
+        public static void DisplayExitMessage(IUserIO userIO, bool writeRecipeBookLibrarySuccessful, bool writeShoppingListSuccessful, bool writeToBackupFileSuccessful)
+        {
+            string exitMessage = "";
+
+            if (writeRecipeBookLibrarySuccessful && writeShoppingListSuccessful)
+            {
+                exitMessage = "All data saved. Have a great day!";
+            }
+            else if (writeRecipeBookLibrarySuccessful == true)
+            {
+                exitMessage = "Recipe data saved, but shopping list was not able to be saved to your computer.";
+            }
+            else if (writeRecipeBookLibrarySuccessful == false)
+            {
+                if (writeToBackupFileSuccessful)
+                {
+                    exitMessage = "Data saved to local file on your computer, and will be loaded into the program the next time you open it.";
+                }
+            }
+            else
+            {
+                exitMessage = "Unfortunately, data could not be saved to the remote database or your local computer. All changes made during this session will be lost.";
+            }
+
+            DisplayInformation(userIO, exitMessage);
+            DisplayInformation(userIO, "Press \"Enter\" to exit program...", false);
+            GetUserInput.GetEnterFromUser(userIO);
+        }
     }
 }

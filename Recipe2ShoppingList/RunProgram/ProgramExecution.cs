@@ -5,22 +5,53 @@ using System.Text.RegularExpressions;
 
 namespace Recipe2ShoppingList
 {
-    public class ProgramExecution
+    public static class ProgramExecution
     {
+        //Text banners to display as a title on different menu pages
         public const string manageSavedMeasurementUnitsBanner = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
         public const string editRecipeBanner = "---------- EDIT RECIPE ----------";
 
-        public static void RunProgram(IUserIO userIO, IDataIO dataIO, IDataIO backupIO, IDataIO shoppingListIO, out bool exitProgram)
+        //Runs the program overall by loading in program data from the data source, running the program menus,
+        //and saving the program data at close of the program
+        public static void RunProgram(IUserIO userIO, IDataIO dataIO, FileIO fileBackupIO, out bool exitProgram)
         {
             exitProgram = false;
+            
+            //Creates a new shopping list to be used in the program that will hold the shopping list data
+            ShoppingList shoppingList = new ShoppingList();
+
+            //Gets the program data from the database or local file backup to use in the program
+            RecipeBookLibrary recipeBookLibrary = GetProgramData(userIO, dataIO, fileBackupIO);
+
+            //Runs the program's main menu until the user chooses to exit the program
+            while (!exitProgram)
+            {
+                RunMainMenu(userIO, recipeBookLibrary, shoppingList, out exitProgram);
+            }
+
+            //On exiting the program, the program's data is saved and the booleans to indicate which files
+            //were successfully saved are set
+            bool writeShoppingListSuccessful;
+            bool writeToBackupFileSuccessful;
+            bool writeRecipeBookLibrarySuccessful = SaveProgramData(userIO, dataIO, fileBackupIO, recipeBookLibrary, shoppingList, out writeShoppingListSuccessful, out writeToBackupFileSuccessful);
+
+            //Displays exit message to the user describing what data was sucessfully saved
+            UserInterface.DisplayExitMessage(userIO, writeRecipeBookLibrarySuccessful, writeShoppingListSuccessful, writeToBackupFileSuccessful);
+        }
+
+        //Loads program data from the backup file and the database
+        private static RecipeBookLibrary GetProgramData(IUserIO userIO, IDataIO dataIO, FileIO fileBackupIO)
+        {
             RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
             RecipeBookLibrary databaseData = new RecipeBookLibrary();
             RecipeBookLibrary backupData = new RecipeBookLibrary();
 
-            //Get <recipeBookLibrary> from the database and the local backup file
+            //Get <recipeBookLibrary> from the database and the local backup file. If there's an error
+            //communicating with the server, let the user know that the backup file from the computer will
+            //be used to load the program
             try
             {
-                backupData = backupIO.GetRecipeBookLibraryFromDataSource();
+                backupData = fileBackupIO.GetRecipeBookLibraryFromDataSource();
                 databaseData = dataIO.GetRecipeBookLibraryFromDataSource();
             }
             catch (Exception ex)
@@ -28,7 +59,7 @@ namespace Recipe2ShoppingList
                 UserInterface.DisplayErrorMessage(userIO, ex.Message, "open backup file from computer");
             }
 
-            //Checks to see which version of data was saved most recently and sets the recipeBookLibraryToUseForProgram
+            //Checks to see which version of data was saved most recently and sets the recipeBookLibrary
             //to the most recent version of saved data
             if (databaseData.LastSaved > backupData.LastSaved)
             {
@@ -39,26 +70,25 @@ namespace Recipe2ShoppingList
                 recipeBookLibrary = backupData;
             }
 
-            ShoppingList shoppingList = new ShoppingList();
+            return recipeBookLibrary;
+        }
 
-            while (!exitProgram)
-            {
-                RunMainMenu(userIO, recipeBookLibrary, shoppingList, out exitProgram);
-            }
-
+        //Saves program data to the backup file and the database and returns which save operations were successful
+        private static bool SaveProgramData(IUserIO userIO, IDataIO dataIO, FileIO fileBackupIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, out bool writeShoppingListSuccessful, out bool writeToBackupFileSuccessful)
+        {
             bool writeRecipeBookLibrarySuccessful = false;
-            bool writeShoppingListSuccessful = false;
-            bool writeToBackupFileSuccessful = false;
+            writeShoppingListSuccessful = false;
+            writeToBackupFileSuccessful = false;
 
             try
             {
-                //Save <recipeBookLibrary> to local file on computer as a backup before closing program
-                writeToBackupFileSuccessful = backupIO.WriteRecipeBookLibraryToDataSource(userIO, recipeBookLibrary);
+                //Saves <recipeBookLibrary> to local file on computer as a backup before closing program
+                writeToBackupFileSuccessful = fileBackupIO.WriteRecipeBookLibraryToDataSource(userIO, recipeBookLibrary);
 
-                //Save the Shopping List to file before closing the program
-                writeShoppingListSuccessful = shoppingListIO.WriteShoppingListToDataSource(userIO, shoppingList);
+                //Saves the Shopping List to local Shopping List backup file before closing the program
+                writeShoppingListSuccessful = fileBackupIO.WriteShoppingListToDataSource(userIO, shoppingList);
 
-                //Save <recipeBookLibrary> to database file before closing program
+                //Saves <recipeBookLibrary> to database file before closing program
                 writeRecipeBookLibrarySuccessful = dataIO.WriteRecipeBookLibraryToDataSource(userIO, recipeBookLibrary);
             }
             catch (Exception ex)
@@ -67,33 +97,10 @@ namespace Recipe2ShoppingList
                 writeRecipeBookLibrarySuccessful = false;
             }
 
-            string exitMessage = "";
-
-            if (writeRecipeBookLibrarySuccessful && writeShoppingListSuccessful)
-            {
-                exitMessage = "All data saved. Have a great day!";
-            }
-            else if (writeRecipeBookLibrarySuccessful == true)
-            {
-                exitMessage = "Recipe data saved, but shopping list was not able to be saved to your computer.";
-            }
-            else if (writeRecipeBookLibrarySuccessful == false)
-            {
-                if (writeToBackupFileSuccessful)
-                {
-                    exitMessage = "Data saved to local file on your computer, and will be loaded into the program the next time you open it.";
-                }
-            }
-            else
-            {
-                exitMessage = "Unfortunately, data could not be saved to the remote database or your local computer. All changes made during this session will be lost.";
-            }
-
-            UserInterface.DisplayInformation(userIO, exitMessage);
-            UserInterface.DisplayInformation(userIO, "Press \"Enter\" to exit program...", false);
-            GetUserInput.GetEnterFromUser(userIO);
+            return writeRecipeBookLibrarySuccessful;
         }
 
+        //Runs the logic of displaying and running the Main Menu
         private static void RunMainMenu(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, out bool exitProgram)
         {
             exitProgram = false;
@@ -138,6 +145,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Runs the logic of displaying and running the options for viewing a Recipe Book
         private static void RunRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, int recipeBookOptionNumber, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
@@ -188,6 +196,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Runs the logic of displaying and running the options for viewing a Recipe
         private static void RunRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, RecipeBook recipeBook, int recipeOptionNumber, out bool exitRecipeSection, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
@@ -226,6 +235,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Runs the logic of displaying and running the options for editing custom measurment units
         private static void RunManageSavedMeasurementUnits(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
             bool exitMeasurementUnits = false;

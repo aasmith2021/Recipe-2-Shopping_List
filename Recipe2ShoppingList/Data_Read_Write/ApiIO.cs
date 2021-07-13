@@ -84,12 +84,6 @@ namespace Recipe2ShoppingList
                 return writeSuccessful;
             }
         }
-
-        //This method is unused because writing the shopping list uses a FileIO to write the shoppping list onto the local computer
-        public bool WriteShoppingListToDataSource(IUserIO userIO, ShoppingList shoppingList, string alternatePath = "")
-        {
-            return false;
-        }
     }
     
     //Used to deserialize the json data from the appsettings.json file to get the base API URL
