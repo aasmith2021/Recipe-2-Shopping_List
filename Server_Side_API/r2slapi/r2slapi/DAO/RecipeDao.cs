@@ -13,11 +13,13 @@ namespace r2slapi.DAO
     {
         private readonly string connectionString;
 
+        //When a RecipeDao object is created, the connection string is set
         public RecipeDao()
         {
             connectionString = GetConnectionString();
         }
 
+        //Gets the database connection string from the appsettings.json file
         private string GetConnectionString()
         {
             // Get the connection string from the appsettings.json file
@@ -30,6 +32,7 @@ namespace r2slapi.DAO
             return configuration.GetConnectionString("RecipeDB");
         }
 
+        //Gets an entire recipe book library from the database
         public RecipeBookLibrary GetRecipeBookLibrary(int recipeBookLibraryId)
         {
             RecipeBookLibrary recipeBookLibrary = new RecipeBookLibrary();
@@ -102,6 +105,8 @@ namespace r2slapi.DAO
             return recipeBookLibrary;
         }
 
+        //Gets custom measurement units from the database and adds them to the recipeBookLibrary.
+        //Returns "true" if successful, returns "null" if a SqlException was thrown.
         public bool? GetCustomMeasurementUnits(RecipeBookLibrary recipeBookLibrary)
         {
             bool? customMeasurementUnitsAdded = false;
@@ -138,6 +143,9 @@ namespace r2slapi.DAO
             return customMeasurementUnitsAdded;
         }
 
+        //Gets a recipe book from the database by recipebookId.
+        //Returns the retrieved recipe book if successful, returns a recipe book with an ID of -1 if unsuccessful,
+        //and returns "null" if a SqlException was thrown.
         public RecipeBook GetRecipeBook(int recipeBookId)
         {
             RecipeBook recipeBook = new RecipeBook();
@@ -207,6 +215,9 @@ namespace r2slapi.DAO
             return recipeBook;
         }
 
+        //Gets a recipe from the database by recipeId.
+        //Returns the retrieved recipe if successful, returns a recipe with an ID of -1 if unsuccessful,
+        //and returns "null" if a SqlException was thrown.
         public Recipe GetRecipe(int recipeId)
         {
             Metadata metadata = GetRecipeMetadata(recipeId);
@@ -244,6 +255,9 @@ namespace r2slapi.DAO
             }
         }
 
+        //Gets a recipe number from the database by recipeId.
+        //Returns the retrieved recipe number if successful, returns -1 if unsuccessful,
+        //and returns "null" if a SqlException was thrown.
         private int? GetRecipeNumber(int recipeId)
         {
             int? recipeNumber = -1;
@@ -281,6 +295,9 @@ namespace r2slapi.DAO
             return recipeNumber;
         }
 
+        //Gets a recipe ID from the database by recipeId.
+        //Returns the retrieved recipe ID if successful, returns -1 if unsuccessful,
+        //and returns "null" if a SqlException was thrown.
         private int? GetRecipeId(int recipeId)
         {
             int? recipeIdToReturn = -1;
@@ -313,6 +330,9 @@ namespace r2slapi.DAO
             return recipeIdToReturn;
         }
 
+        //Gets a recipe metadata from the database by recipeId.
+        //Returns the retrieved metadata if successful
+        //and returns "null" if a SqlException was thrown.
         private Metadata GetRecipeMetadata(int recipeId)
         {
             Metadata metadata = new Metadata();
@@ -353,6 +373,9 @@ namespace r2slapi.DAO
             return metadata;
         }
 
+        //Gets a recipe metadata prep times from the database by recipeId.
+        //Returns the retrieved prep times if successful
+        //and returns "null" if a SqlException was thrown.
         private Times GetRecipeMetadataPrepTimes(int recipeId)
         {
             Times prepTimes = new Times();
@@ -391,6 +414,9 @@ namespace r2slapi.DAO
             return prepTimes;
         }
 
+        //Gets a recipe metadata tags from the database by recipeId.
+        //Returns the retrieved tags if successful
+        //and returns "null" if a SqlException was thrown.
         private Tags GetRecipeMetadataTags(int recipeId)
         {
             Tags tags = new Tags();
@@ -429,6 +455,9 @@ namespace r2slapi.DAO
             return tags;
         }
 
+        //Gets a recipe metadata servings from the database by recipeId.
+        //Returns the retrieved servings if successful
+        //and returns "null" if a SqlException was thrown.
         private Servings GetRecipeMetadataServings(int recipeId)
         {
             Servings servings = new Servings();
@@ -467,6 +496,9 @@ namespace r2slapi.DAO
             return servings;
         }
 
+        //Gets a recipe ingredient list from the database by recipeId.
+        //Returns the retrieved ingredient list if successful
+        //and returns "null" if a SqlException was thrown.
         private IngredientList GetRecipeIngriedients(int recipeId)
         {
             IngredientList ingredientList = new IngredientList();
@@ -513,6 +545,9 @@ namespace r2slapi.DAO
             return ingredientList;
         }
 
+        //Gets a recipe cooking instructions from the database by recipeId.
+        //Returns the retrieved cooking instructions if successful
+        //and returns "null" if a SqlException was thrown.
         private CookingInstructions GetRecipeCookingInstructions(int recipeId)
         {
             CookingInstructions cookingInstructions = new CookingInstructions();
@@ -562,6 +597,9 @@ namespace r2slapi.DAO
             return cookingInstructions;
         }
 
+        //Gets a cooking instructions instruction block from the database by recipeId.
+        //Returns the retrieved instruction block if successful
+        //and returns "null" if a SqlException was thrown.
         private InstructionBlock GetRecipeInstructionBlock(int instructionBlockId, string instructionBlockHeading)
         {
             InstructionBlock instructionBlock = new InstructionBlock();
@@ -600,6 +638,9 @@ namespace r2slapi.DAO
             return instructionBlock;
         }
 
+        //Creates a new recipe book in the database.
+        //Returns the newly created recipe book if successful
+        //and returns "null" if a SqlException was thrown.
         public RecipeBook CreateRecipeBook(int recipeBookLibraryId, RecipeBook recipeBook)
         {
             try
@@ -630,6 +671,9 @@ namespace r2slapi.DAO
             return recipeBook;
         }
 
+        //Creates a new recipe in the database.
+        //Returns the newly recipe book if successful
+        //and returns "null" if a SqlException was thrown.
         public Recipe CreateRecipe(int recipeBookId, Recipe recipe)
         {
             int? metadataIdFromDatabase = CreateMetadata(recipe);
@@ -669,6 +713,9 @@ namespace r2slapi.DAO
             return recipe;
         }
 
+        //Creates a new metadata in the database.
+        //Returns the newly created metadata ID if successful
+        //and returns "null" if a SqlException was thrown.
         private int? CreateMetadata(Recipe recipe)
         {
             try
@@ -706,6 +753,9 @@ namespace r2slapi.DAO
             return recipe.Metadata.Id;
         }
 
+        //Creates a new ingredient list in the database.
+        //Returns the newly created ingredient list ID if successful
+        //and returns "null" if a SqlException was thrown.
         private int? CreateIngredientList(Recipe recipe)
         {
             try
@@ -733,6 +783,9 @@ namespace r2slapi.DAO
             return recipe.IngredientList.Id;
         }
 
+        //Creates a new ingredient in the database.
+        //Returns "true" if the ingredient was successfuly created, "false" if it was not successfully created,
+        //and returns "null" if a SqlException was thrown.
         private bool? CreateIngredient(int ingredientListId, Ingredient ingredient)
         {
             bool? ingredientSucessfullyCreated = false;
@@ -767,6 +820,9 @@ namespace r2slapi.DAO
             return ingredientSucessfullyCreated;
         }
 
+        //Creates new recipe cooking instructions in the database.
+        //Returns the newly created cooking instructions ID if successful
+        //and returns "null" if a SqlException was thrown.
         private int? CreateCookingInstructions(Recipe recipe)
         {
             try
@@ -800,6 +856,9 @@ namespace r2slapi.DAO
             return recipe.CookingInstructions.Id;
         }
 
+        //Creates a new cooking instructions instruction block in the database.
+        //Returns the newly created instruction block ID if successful
+        //and returns "null" if a SqlException was thrown.
         private int? CreateInstructionBlock(Recipe recipe, int instructionBlockIndex)
         {
             try
@@ -826,6 +885,10 @@ namespace r2slapi.DAO
             return recipe.CookingInstructions.InstructionBlocks[instructionBlockIndex].Id;
         }
 
+        //Creates a new instruction line in the database and adds an entry in the associative table
+        //to connect the new instruction line with it's parent instruction block in the database.
+        //Returns "true" if the instruction line and associative table entry were successfully created, "false" if it was unsuccessful,
+        //and returns "null" if a SqlException was thrown.
         private bool? CreateInstructionLine(Recipe recipe, int instructionBlockIndex, int instructionLineIndex)
         {
             bool isSuccessful = false;
@@ -865,6 +928,9 @@ namespace r2slapi.DAO
             return isSuccessful;
         }
 
+        //Updates an entire RecipeBookLibrary in the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         public bool? UpdateRecipeBookLibrary(int recipeBookLibraryId, RecipeBookLibrary recipeBookLibrary)
         {
             bool allRecipeBooksUpdated = false;
@@ -946,6 +1012,9 @@ namespace r2slapi.DAO
             return (allRecipeBooksUpdated && customMeasurementUnitsUpdated && lastSavedTimeUpdated);
         }
 
+        //Updates all of the custom measurement units in the database for a given recipe book library
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         public bool UpdateCustomMeasurementUnits(RecipeBookLibrary recipeBookLibrary)
         {
             bool customMeasurementUnitsUpdated = false;
@@ -1006,6 +1075,8 @@ namespace r2slapi.DAO
             return customMeasurementUnitsUpdated;
         }
 
+        //Update a SINGLE custom measurement units in the database for a given recipe book library ID
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful.
         public bool UpdateCustomMeasurementUnit(int? recipeBookLibraryId, string measurementUnitName)
         {
             bool customMeasurementUnitUpdated = false;
@@ -1038,6 +1109,9 @@ namespace r2slapi.DAO
             return customMeasurementUnitUpdated;
         }
 
+        //Updates an entire RecipeBook in the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         public bool? UpdateRecipeBook(int recipeBookId, RecipeBook recipeBook)
         {
             bool recipeBookUpdated = false;
@@ -1113,6 +1187,9 @@ namespace r2slapi.DAO
             return (recipeBookUpdated && allRecipesUpdated);
         }
 
+        //Updates an entire Recipe in the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         public bool? UpdateRecipe(int recipeBookId, int recipeId, Recipe recipe)
         {
             bool recipeUpdated = false;
@@ -1154,6 +1231,9 @@ namespace r2slapi.DAO
             return recipeUpdated;
         }
 
+        //Updates a set of metadata for a given recipe in the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         private bool? UpdateMetadata(Recipe recipe)
         {
             bool metadataUpdated = false;
@@ -1197,6 +1277,9 @@ namespace r2slapi.DAO
             return metadataUpdated;
         }
 
+        //Updates the ingredient list for a given recipe in the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         private bool? UpdateIngredientList(Recipe recipe)
         {
             bool ingredientListUpdated = false;
@@ -1231,6 +1314,9 @@ namespace r2slapi.DAO
             return ingredientListUpdated;
         }
 
+        //Updates an ingredient in the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         private bool? UpdateIngredient(int ingredientListId, Ingredient ingredient)
         {
             bool? ingredientUpdated = false;
@@ -1284,6 +1370,9 @@ namespace r2slapi.DAO
             return ingredientUpdated;
         }
 
+        //Updates the cooking instructions for a given recipe in the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         private bool? UpdateCookingInstructions(Recipe recipe)
         {
             bool cookingInstructionsUpdated = false;
@@ -1319,6 +1408,11 @@ namespace r2slapi.DAO
             return cookingInstructionsUpdated;
         }
 
+        //Updates an instruction block for a given recipe and a specific instruction block index
+        //(which references the index in the cookingInstructions.InstructionBlocks array where the instruction
+        //block is found) in the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         private bool? UpdateInstructionBlock(Recipe recipe, int instructionBlockIndex)
         {
             bool? instructionBlockUpdated = false;
@@ -1414,6 +1508,9 @@ namespace r2slapi.DAO
             return instructionBlockUpdated;
         }
 
+        //Deletes an entire recipe book from the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         public bool? DeleteRecipeBook(int recipeBookId)
         {
             RecipeBook recipeBookToDelete = GetRecipeBook(recipeBookId);
@@ -1466,6 +1563,9 @@ namespace r2slapi.DAO
             return (recipeBookDeleted && allRecipesDeleted);
         }
 
+        //Deletes an entire recipe from the database.
+        //Returns "true" if the update was succcessful, "false" if the update was unsuccessful,
+        //and "null" if a SqlException was thrown.
         public bool? DeleteRecipe(int recipeBookId, int recipeId)
         {
             bool recipeDeleted = false;
