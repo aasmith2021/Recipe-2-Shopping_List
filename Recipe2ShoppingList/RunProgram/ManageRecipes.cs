@@ -10,6 +10,7 @@ namespace Recipe2ShoppingList
         private const string deleteRecipeBanner = "---------- DELETE RECIPE ----------";
         private const string addRecipeToShoppingListBanner = "-------- ADD RECIPE TO SHOPPING LIST --------";
 
+        //Prompts user and captures input to add a new recipe to a recipe book
         public static void AddNewRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)
         {
             Metadata recipeMetadata = GetUserInput.GetMetadataFromUser(userIO);
@@ -28,6 +29,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "new recipe", "added to the recipe book");
         }
 
+        //Prompts user and captures input to edit an existing recipe
         public static void EditExistingRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, RecipeBook recipeBook)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner);
@@ -49,6 +51,7 @@ namespace Recipe2ShoppingList
             ProgramExecution.RunEditRecipe(userIO, recipeBookLibrary, recipeToEdit);
         }
 
+        //Prompts user and captures input to delete the recipe currently being displayed to the user
         public static void DeleteOpenRecipe(IUserIO userIO, RecipeBook recipeBook, Recipe recipeToDelete)
         {
             UserInterface.DisplayMenuHeader(userIO, deleteRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe Title: {recipeToDelete.Metadata.Title}"), false);
@@ -63,6 +66,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "recipe", "deleted");
         }
 
+        //Prompts user and captures input to delete an existing recipe
         public static void DeleteExistingRecipe(IUserIO userIO, RecipeBook recipeBook)
         {
             UserInterface.DisplayMenuHeader(userIO, deleteRecipeBanner);
@@ -92,6 +96,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "recipe", "deleted");
         }
 
+        //Prompts user and captures input to add the recipe currently displayed to the shopping list
         public static void AddRecipeToShoppingList(IUserIO userIO, ShoppingList shoppingList, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, addRecipeToShoppingListBanner);
@@ -111,6 +116,7 @@ namespace Recipe2ShoppingList
             UserInterface.SuccessfulChange(userIO, true, "recipe", "added to the shopping list");
         }
 
+        //Prompts user and captures input to add an existing recipe in a recipe book to the shopping list
         public static void AddExistingRecipeToShoppingList(IUserIO userIO, RecipeBook recipeBook, ShoppingList shoppingList)
         {
             UserInterface.DisplayMenuHeader(userIO, addRecipeToShoppingListBanner);

@@ -11,6 +11,7 @@ namespace Recipe2ShoppingList
         public const string setStoreLocationBanner = "-------- SET STORE LOCATION FOR INGREDIENT --------";
         public const string similarIngredientsFoundBanner = "-------- SIMILAR INGREDIENTS FOUND --------";
 
+        //Prompts user and captures input to add a new ingredient to a recipe
         public static void AddNewIngredient(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
             Ingredient ingredientToAdd = GetUserInput.GetIngredientFromUser(userIO, recipeBookLibrary);
@@ -18,6 +19,7 @@ namespace Recipe2ShoppingList
             UserInterface.SuccessfulChange(userIO, true, "ingredient", "added");
         }
 
+        //Prompts user and captures input to edit an existing ingredient in a recipe
         public static void EditExistingIngredient(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
             List<Ingredient> allRecipeIngredients = recipe.IngredientList.AllIngredients;
@@ -105,6 +107,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Prompts user and captures input to delete an existing ingredient in a recipe
         public static void DeleteExistingIngredient(IUserIO userIO, Recipe recipe)
         {
             UserInterface.DisplayRegularPrompt(userIO, "Select the ingredient line you would like to delete", false);
@@ -129,6 +132,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "ingredient", "deleted");
         }
 
+        //Prompts user and captures input to set the store location of an ingredient (i.e., "Bakery")
         public static void GetStoreLocationForIngredient(IUserIO userIO, ShoppingList shoppingList, Ingredient ingredient)
         {
             UserInterface.DisplayMenuHeader(userIO, setStoreLocationBanner, UserInterface.MakeStringConsoleLengthLines($"INGREDIENT: {ingredient.Name}"));
@@ -152,6 +156,7 @@ namespace Recipe2ShoppingList
             ingredient.StoreLocation = storeLocation;
         }
 
+        //Runs the logic of adding an ingredient to a specific store location in the Shopping List
         public static void AddIngredientToStoreLocation(IUserIO userIO, ShoppingList shoppingList, Ingredient ingredient)
         {
             string storeLocation = ingredient.StoreLocation;
@@ -333,11 +338,18 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Compares an ingredient being added to the shopping list with another ingredient already on the shopping list,
+        //and uses the number of matching letters to determine what percent similar the two ingredients are
         public static double GetSimilarityPercentage(string firstIngredientName, string secondIngredientName)
         {
+            //Ultimately, this method is trying to find out how many characters two ingredient names share,
+            //and how similar they are by percentage value.
+            //(i.e. how similar "raw chicken breast" and "boneless, skinless chicken breasts" might be to one another)
             int countOfCharactersTheSame = 0;
             double percentSimilar = 0;
 
+            //This section sets a shorter phrase and a longer phrase so that the shorter phrase is compared to the
+            //longer phrase to avoid any indexOutOfBounds errors
             string shorterPhrase;
             string longerPhrase;
 
@@ -352,12 +364,20 @@ namespace Recipe2ShoppingList
                 longerPhrase = firstIngredientName.ToLower();
             }
 
+            //The words in the shorter phrase are split apart into elements of an array
             string[] shorterPhraseWords = shorterPhrase.Split(" ");
             string wordToCheck = "";
             string testString = "";
             string regexExpression = "";
             bool matchFound = false;
 
+            //This "for loop" loops through the shorter phrase word by work,
+            //and then checks each word letter-by-letter to find a match with the longer
+            //phrase. Each time a match is found, the countOfCharactersTheSame increments.
+
+            //So, while "raw" doesn't match anything in "boneless, skinless chicken breasts", these loops
+            //find that "chicken breast" in the first, shorter phrase matches "chicken breast" in the longer
+            //phrase, and that they share 14 characters in common.
             for (int i = 0; i < shorterPhraseWords.Length; i++)
             {
                 wordToCheck = shorterPhraseWords[i];
@@ -375,20 +395,27 @@ namespace Recipe2ShoppingList
                 }
             }
 
+
+            //The percent similar is calculated by dividing the number of characters that are the same
+            //by the length of the longer phrase.
             percentSimilar = (double)countOfCharactersTheSame / longerPhrase.Length;
 
             return percentSimilar;
         }
 
+        //Displays a prompt asking the user if two ingrients that appear to be similar are the same so the two separate
+        //ingredients can be combined on the shopping list.
         public static bool AreIngredientsTheSame(IUserIO userIO, string currentIngredientName, string newIngredientName)
         {
             bool ingredientsAreTheSame = false;
+
             UserInterface.DisplayMenuHeader(userIO, similarIngredientsFoundBanner);
             UserInterface.DisplayRegularPrompt(userIO, "The following ingredients might match");
             UserInterface.InsertBlankLine(userIO);
             UserInterface.DisplayInformation(userIO, $"<<Ingredient Already On Shopping List>>{Environment.NewLine}{currentIngredientName}");
             UserInterface.DisplayInformation(userIO, $"<<New Ingredient>>{Environment.NewLine}{newIngredientName}");
             UserInterface.DisplayRegularPrompt(userIO, "Are these ingredients the same? Enter \"Y\" for Yes or \"N\" for No", false);
+
             List<string> userOptions = new List<string>() { "Y", "N" };
             string userOption = GetUserInput.GetUserOption(userIO, userOptions);
 

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
+    //Used to specifically run the program as a console application
     public class ConsoleIO : IUserIO
     {
         public string GetInput()

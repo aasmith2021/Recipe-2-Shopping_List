@@ -6,6 +6,7 @@ namespace Recipe2ShoppingList
 {
     public static class ManageMetadata
     {
+        //Prompts user and captures input to edit a recipe's title
         public static void EditRecipeTitle(IUserIO userIO, Recipe recipe)
         {
             string header = ManageRecipes.editRecipeBanner;
@@ -25,6 +26,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "recipe", "renamed");
         }
 
+        //Prompts user and captures input to edit a recipe's user notes
         public static void EditRecipeNotes(IUserIO userIO, Recipe recipe)
         {
             string header = ManageRecipes.editRecipeBanner;
@@ -57,6 +59,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "recipe notes", "updated", true);
         }
 
+        //Prompts user and captures input to edit a recipe's prep times (prep time and cook time)
         public static void EditRecipePrepTimes(IUserIO userIO, Recipe recipe)
         {
             string header = ManageRecipes.editRecipeBanner;
@@ -125,6 +128,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "recipe preparation times", "updated", true);
         }
 
+        //Prompts user and captures input to edit a recipe's estimated number of servings (low number of servings and high number of servings)
         public static void EditRecipeEstimatedServings(IUserIO userIO, Recipe recipe)
         {
             string header = ManageRecipes.editRecipeBanner;
@@ -192,6 +196,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "recipe estimated servings", "updated", true);
         }
 
+        //Prompts user and captures input to edit a recipe's food type and/or food genre
         public static void EditRecipeFoodTypeGenre(IUserIO userIO, Recipe recipe)
         {
             string header = ManageRecipes.editRecipeBanner;

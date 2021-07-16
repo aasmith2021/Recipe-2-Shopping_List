@@ -37,6 +37,9 @@ namespace Recipe2ShoppingList
             Recipes.Remove(recipeToDelete);
         }
 
+        //Creates a string of an entire recipe book's text. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public string ProduceRecipeBookText(bool printVersion)
         {
             string recipeBookText = "";

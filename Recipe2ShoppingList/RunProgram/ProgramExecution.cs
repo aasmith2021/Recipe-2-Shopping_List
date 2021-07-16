@@ -108,6 +108,9 @@ namespace Recipe2ShoppingList
             UserInterface.DisplayMainMenu(userIO, recipeBookLibrary, out List<string> mainMenuOptions);
             string userOption = GetUserInput.GetUserOption(userIO, mainMenuOptions);
 
+            //If the menu options selected by the user is a number of a recipe book to open, this "if" block runs
+            //the recipe book menu. Otherwise, if the user selected an option letter, the else block runs the
+            //appropriate menu based on the user's selection.
             if (int.TryParse(userOption, out int userOptionNumber))
             {
                 bool exitRecipeBookSection = false;
@@ -145,12 +148,14 @@ namespace Recipe2ShoppingList
             }
         }
 
-        //Runs the logic of displaying and running the options for viewing a Recipe Book
+        //Runs the logic of viewing a Recipe Book and making changes to it
         private static void RunRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, int recipeBookOptionNumber, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
             exitRecipeBookSection = false;
 
+            //Gets the recipe from the recipe book by taking the ordinal recipebookOptionNumber and subtracting 1 to
+            //get the zero-based index of the recipe book.
             RecipeBook recipeBook = recipeBookLibrary.AllRecipeBooks[recipeBookOptionNumber - 1];
             UserInterface.DisplayOpenRecipeBook(userIO, recipeBook, out List<string> recipeBookOptions);
             string userOption = GetUserInput.GetUserOption(userIO, recipeBookOptions);
@@ -196,13 +201,15 @@ namespace Recipe2ShoppingList
             }
         }
 
-        //Runs the logic of displaying and running the options for viewing a Recipe
+        //Runs the logic of viewing a Recipe and making changes to it
         private static void RunRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, ShoppingList shoppingList, RecipeBook recipeBook, int recipeOptionNumber, out bool exitRecipeSection, out bool exitRecipeBookSection, out bool exitProgram)
         {
             exitProgram = false;
             exitRecipeSection = false;
             exitRecipeBookSection = false;
 
+            //Gets the recipe from the recipe book by taking the ordinal recipeOptionNumber and subtracting 1 to
+            //get the zero-based index of the recipe.
             Recipe recipe = recipeBook.Recipes[recipeOptionNumber - 1];
             UserInterface.DisplayOpenRecipe(userIO, recipe, recipeBook, out List<string> recipeEditOptions);
             string userOption = GetUserInput.GetUserOption(userIO, recipeEditOptions);
@@ -235,7 +242,7 @@ namespace Recipe2ShoppingList
             }
         }
 
-        //Runs the logic of displaying and running the options for editing custom measurment units
+        //Runs the logic of displaying and running the menu to edit custom measurment units
         private static void RunManageSavedMeasurementUnits(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
             bool exitMeasurementUnits = false;
@@ -247,6 +254,7 @@ namespace Recipe2ShoppingList
                 int allStandardMeasurementUnitsLength = MeasurementUnits.AllStandardMeasurementUnits().Count;
                 List<string> allMeasurementUnits = recipeBookLibrary.AllMeasurementUnits;
 
+                //Adds all measurement units and removes standard measurement units so that only custom measurement units will be displayed
                 List<string> userAddedMeasurementUnits = new List<string>();
                 userAddedMeasurementUnits.AddRange(allMeasurementUnits);
                 userAddedMeasurementUnits.RemoveRange(0, allStandardMeasurementUnitsLength);
@@ -260,6 +268,8 @@ namespace Recipe2ShoppingList
                 };
                 List<string> options = new List<string>();
 
+                //If there are no custom measurement units currently saved, removes the "Edit Measurement Unit" and
+                //"Delete Measurement Unit" options so they are not displayed in the editOptions menu.
                 if (userAddedMeasurementUnits.Count == 0)
                 {
                     editOptions.RemoveAt(1);
@@ -293,7 +303,8 @@ namespace Recipe2ShoppingList
             }
             while (!exitMeasurementUnits);
         }
-
+        
+        //Runs the logic of editing a recipe and its metadata
         public static void RunEditRecipe(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
             List<string[]> editRecipeOptions = new List<string[]>()
@@ -338,6 +349,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Runs the logic of editing recipe ingredients
         public static void RunEditRecipeIngredients(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -352,6 +364,8 @@ namespace Recipe2ShoppingList
             };
             List<string> options = new List<string>();
 
+            //If a recipe doesn't have any ingredients, remove the "Edit an Ingredient" and "Delete and Ingredient"
+            //options for the menuOptions list, so that only "Add a New Ingredient" and "Edit an Ingredient" are displayed
             if (recipe.IngredientList.AllIngredients.Count == 0)
             {
                 menuOptions.RemoveAt(1);
@@ -380,6 +394,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Runs the logic of editing recipe instructions
         public static void RunEditRecipeInstructions(IUserIO userIO, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -393,7 +408,10 @@ namespace Recipe2ShoppingList
                 new string[] { "R", "Return to Previous Menu"},
             };
             List<string> options = new List<string>();
-
+            
+            //If a recipe doesn't have any instruction blocks, remove the "Edit an Instruction Block" and
+            //"Delete an Instruction Block" options from the menuOptions list so they are not menu options
+            //displayed to the user.
             if (recipe.CookingInstructions.InstructionBlocks.Count == 0)
             {
                 menuOptions.RemoveAt(1);
@@ -421,6 +439,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Rungs the logic of editing a recipe instruction block
         public static void RunEditExistingInstructionBlock(IUserIO userIO, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -435,6 +454,9 @@ namespace Recipe2ShoppingList
                 instructionBlockOptions.Add(i.ToString());
             }
 
+            //Based on the number of instruction blocks, if there is more than one block give the user the option to select the instruction block
+            //they would like to edit. If there is only one instruction block, take the user directly to editing that block. If there are
+            //no instruction blocks, tell the user to add an instruction block to the recipe if they would like to edit the recipe instructions.
             if (numberOfInstructionBlocks > 1)
             {
                 UserInterface.DisplayRegularPrompt(userIO, "Enter the instruction block you would like to edit");
@@ -471,18 +493,24 @@ namespace Recipe2ShoppingList
             bool instructionLinesAreBlank = instructionBlockToEdit.InstructionLines.Count == 0;
             bool blockHeadingIsBlank = instructionBlockToEdit.BlockHeading == "";
 
+            //If an instruction block has no instruction lines, remove the "Edit Instruction Line" and "Delete Instruction Line"
+            //options from the editBlockMenuOptions so they are not displayed as valid menu options.
             if (instructionLinesAreBlank)
             {
                 editBlockMenuOptions.RemoveAt(1);
                 editBlockMenuOptions.RemoveAt(1);
             }
 
+            //If a block heading is blank, remove the "Edit Block Heading" and "Delete Block Heading" options from the
+            //editBlockMenuOptions so they are not displayed as valid menu options.
             if (blockHeadingIsBlank)
             {
                 editBlockMenuOptions.RemoveAt(editBlockMenuOptions.Count - 1);
                 editBlockMenuOptions.RemoveAt(editBlockMenuOptions.Count - 1);
             }
 
+            //If an instruction block has a block heading, remove the option to "Add Block Heading", so that the
+            //user is left with the options to edit or delete the block heading
             if (!blockHeadingIsBlank)
             {
                 editBlockMenuOptions.RemoveAt(editBlockMenuOptions.Count - 3);

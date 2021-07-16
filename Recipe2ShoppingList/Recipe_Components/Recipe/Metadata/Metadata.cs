@@ -32,6 +32,9 @@ namespace Recipe2ShoppingList
 
         public Servings Servings { get; set; } = new Servings();
 
+        //Creates a string of the recipe metadata. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public string ProduceMetadataText(bool printVersion)
         {
             string metadataText = "";

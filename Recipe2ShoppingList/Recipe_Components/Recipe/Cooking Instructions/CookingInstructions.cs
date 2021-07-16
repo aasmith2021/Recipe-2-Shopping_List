@@ -20,6 +20,9 @@ namespace Recipe2ShoppingList
             InstructionBlocks.RemoveAt(indexOfBlockToDelete);
         }
 
+        //Creates a string of the recipe cooking instructions. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public string ProduceInstructionsText(bool printVersion, bool includeEditHeadings = false)
         {
             string instructionsText = "";

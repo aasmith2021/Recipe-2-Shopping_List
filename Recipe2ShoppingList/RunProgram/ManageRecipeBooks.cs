@@ -6,6 +6,7 @@ namespace Recipe2ShoppingList
 {
     public static class ManageRecipeBooks
     {
+        //Prompts user and captures input to add a new recipe book to the recipe book library
         public static void AddNewRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
             UserInterface.DisplayMenuHeader(userIO, "---------- ADD NEW RECIPE BOOK ----------");
@@ -24,6 +25,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "new recipe book", "created");
         }
 
+        //Prompts user and captures input to rename a recipe book
         public static void RenameRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
             UserInterface.DisplayMenuHeader(userIO, "---------- RENAME RECIPE BOOK ----------");
@@ -56,6 +58,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "recipe book", "renamed");
         }
 
+        //Prompts user and captures input to delete a recipe book
         public static void DeleteRecipeBook(IUserIO userIO, RecipeBookLibrary recipeBookLibrary)
         {
             UserInterface.DisplayMenuHeader(userIO, "---------- DELETE RECIPE BOOK ----------");

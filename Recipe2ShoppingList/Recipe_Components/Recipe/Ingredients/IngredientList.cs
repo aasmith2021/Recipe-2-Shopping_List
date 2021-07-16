@@ -20,6 +20,9 @@ namespace Recipe2ShoppingList
             AllIngredients.Remove(ingredientToDelete);
         }
 
+        //Creates a string of the the ingredients a recipe uses. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public string ProduceIngredientsText(bool printVersion, bool includeLineNumbers = false)
         {
             string ingredientsText = "";

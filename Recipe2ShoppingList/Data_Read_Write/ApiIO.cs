@@ -6,6 +6,7 @@ using System.IO;
 
 namespace Recipe2ShoppingList
 {
+    //This is a client-side API used to send REST requests to the server-side API in order to peform CRUD operations on the recipe data
     public class ApiIO : IDataIO
     {
         private readonly string baseApiUrl;

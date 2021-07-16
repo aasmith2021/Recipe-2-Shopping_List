@@ -8,6 +8,7 @@ namespace Recipe2ShoppingList
     {
         public const string manageSavedMeasurementUnitsBanner = "---------- MANAGE SAVED MEASUREMENT UNITS ----------";
 
+        //Adds a new custom measurement unit to the recipe book library
         public static void AddNewMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
         {
             UserInterface.DisplayMenuHeader(userIO, manageSavedMeasurementUnitsBanner);
@@ -27,6 +28,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "measurement unit", "added");
         }
 
+        //Prompts the user and captures input to edit an existing custom (aka, user-provided) measurement unit
         public static void EditExistingMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
         {
             UserInterface.DisplayMenuHeader(userIO, manageSavedMeasurementUnitsBanner);
@@ -35,6 +37,8 @@ namespace Recipe2ShoppingList
 
             UserInterface.DisplayCurrentMeasurementUnits(userIO, userAddedMeasurementUnits);
 
+            //Populates userOptions with valid option choices based on the contents
+            //of the userAddedMeasurementUnits
             for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
             {
                 userOptions.Add((i + 1).ToString());
@@ -50,6 +54,7 @@ namespace Recipe2ShoppingList
             UserInterface.SuccessfulChange(userIO, true, "measurement unit name", "updated");
         }
 
+        //Prompts the user and captures input to delete an existing custom (aka, user-provided) measurement unit
         public static void DeleteExistingMeasurementUnit(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, List<string> userAddedMeasurementUnits)
         {
             UserInterface.DisplayMenuHeader(userIO, manageSavedMeasurementUnitsBanner);
@@ -58,6 +63,8 @@ namespace Recipe2ShoppingList
 
             UserInterface.DisplayCurrentMeasurementUnits(userIO, userAddedMeasurementUnits);
 
+            //Populates userOptions with valid option choices based on the contents
+            //of the userAddedMeasurementUnits
             for (int i = 0; i < userAddedMeasurementUnits.Count; i++)
             {
                 userOptions.Add((i + 1).ToString());

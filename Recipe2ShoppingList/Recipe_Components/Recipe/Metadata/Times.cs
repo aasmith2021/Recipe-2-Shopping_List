@@ -73,6 +73,9 @@ namespace Recipe2ShoppingList
             return formattedTime;
         }
 
+        //Creates a string of the prep times. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public string ProducePrepTimesText(bool printVersion)
         {
             bool includePrepTime = this.PrepTime != 0;

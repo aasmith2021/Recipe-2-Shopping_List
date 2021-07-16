@@ -6,6 +6,9 @@ namespace Recipe2ShoppingList
 {
     public class UserInterface
     {
+        //Displays an options menu to the user based on the menuOptions passed into the method. The "out"
+        //parameter outputs a list of option choices used by the program (usually the GetUserOption method) to validate
+        //the user's selection so that they select one of the menu options listed on the screen.
         public static void DisplayOptionsMenu(IUserIO userIO, List<string[]> menuOptions, out List<string> optionChoices)
         {
             optionChoices = new List<string>();
@@ -17,6 +20,8 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Used to make long strings wrap at a natural space so that the lines being printed to the console screen are less
+        //than 80 characters.
         public static string MakeStringConsoleLengthLines(string originalStatement)
         {
             string convertedStatement = "";
@@ -26,20 +31,33 @@ namespace Recipe2ShoppingList
             int segmentCounter = 0;
             int counter = 0;
 
+            //If the original statement is shorter than the lineLengthMax, then it can be printed to the console without being shortened.
             if (originalStatement.Length <= lineLengthMax)
             {
                 return originalStatement;
             }
             else
             {
+                //This while loop runs while the number of characters processed (measured by the <counter> variable) is less than
+                //the length of the original statement.
                 while (counter < originalStatement.Length)
                 {
+                    
                     tempStatement = "";
+
+                    //This for loop runs while i is less than the line length max (which is usually 80 characters). But, when processing the
+                    //last portion of a long string that's been cut up into console length lines, it's possible for the final string that
+                    //needs to be printed to the screen to be less than 80 characters. So, the second check of (i + (segmentCounter * lineLengthMax))
+                    //ensures that the total number of characters being checked in this loop is less than the length of the original statement.
+
+                    //Basically, this first for loop is setting the value of tempStatement to the next console-length-line of text to be processed.
                     for (int i = 0; (i < lineLengthMax && (i + (segmentCounter * lineLengthMax)) < originalStatement.Length); i++)
                     {
                         tempStatement += Convert.ToString(originalStatement[i + (segmentCounter * lineLengthMax)]);
                     }
 
+                    //This "for loop" takes the tempStatement and finds the first space on the right end of the string to use as a "breaking point" for the
+                    //text to wrap to the next line. The "breakIndex" of this breaking point is set to the index of that space character.
                     for (int j = tempStatement.Length - 1; j >= 0; j--)
                     {
                         if (tempStatement[j] == ' ')
@@ -49,6 +67,9 @@ namespace Recipe2ShoppingList
                         }
                     }
 
+                    //If the tempStatement's length is less than the line length maximum length (so, the line is shorter than 80 characters),
+                    //the converted statement (where all the lines are console length) has the value of tempStatement appended to it, and the counter
+                    //is updated to reflect all of the characters that were added to the convertedStatement.
                     if (tempStatement.Length < lineLengthMax)
                     {
                         convertedStatement += tempStatement;
@@ -59,6 +80,9 @@ namespace Recipe2ShoppingList
                     }
                     else
                     {
+                        //If tempStatement was the full line length maximum length (80 characters long), then
+                        //it's characters are added to the convertedStatement one-by-one. If the index matches the index
+                        //of where there should be a line break, the Enviornment.NewLine (line break) is added.
                         for (int k = 0; k < tempStatement.Length; k++)
                         {
                             if (k == breakIndex)
@@ -74,13 +98,16 @@ namespace Recipe2ShoppingList
                         }
                     }
 
+                    //The segment counter is incremented to measure how many 80 characters segments of the originalStatement have been processed
                     segmentCounter++;
                 }
             }
 
+            //The final converted statement, which is the originalStatement split into console-length lines with line breaks, is returned
             return convertedStatement;
         }
 
+        //Displays the main menu to the user
         public static void DisplayMainMenu(IUserIO userIO, RecipeBookLibrary recipeBookLibrary, out List<string> mainMenuOptions)
         {
             userIO.ClearDisplay();
@@ -92,6 +119,9 @@ namespace Recipe2ShoppingList
             List<string[]> mainMenuStandardOptions = new List<string[]>();
             mainMenuOptions = new List<string>();
 
+            //If there are no recipe books in the recipe book library, the user is only given options to add a new recipe book,
+            //manage saved measurement units, and save and exit the program. If there is at least one recipe book, then the user
+            //is given options to select those recipe books and edit the recipe books.
             if (recipeBookLibrary.AllRecipeBooks.Count == 0)
             {
                 userIO.DisplayData("You currently don't have any recipe books saved.");
@@ -128,6 +158,7 @@ namespace Recipe2ShoppingList
             DisplayOptionsMenu(userIO, mainMenuStandardOptions, out List<string> standardOptionsToAdd);
             userIO.DisplayData();
             
+            //This displays if there's at least one recipe book to open
             if (recipeBookLibrary.AllRecipeBooks.Count != 0)
             {
                 userIO.DisplayData();
@@ -136,6 +167,7 @@ namespace Recipe2ShoppingList
             mainMenuOptions.AddRange(standardOptionsToAdd);
         }
 
+        //Displays a selected recipe book to the user
         public static void DisplayOpenRecipeBook(IUserIO userIO, RecipeBook recipeBook, out List<string> recipeBookOptions)
         {           
             userIO.ClearDisplay();
@@ -147,6 +179,9 @@ namespace Recipe2ShoppingList
             List<string[]> recipeBookStandardOptions = new List<string[]>();
             recipeBookOptions = new List<string>();
 
+            //If there are no recipes in the recipe book, the user is only given options to add a new recipe, view the shopping list,
+            //return to the previous menu, and save and exit the program. If there is at least one recipe, then the user
+            //is given options to select the recipes and edit the edit them.
             if (recipeBook.Recipes.Count == 0)
             {
                 userIO.DisplayData("You currently don't have any recipes in this recipe book.");
@@ -185,6 +220,7 @@ namespace Recipe2ShoppingList
             DisplayOptionsMenu(userIO, recipeBookStandardOptions, out List<string> standardOptionsToAdd);
             userIO.DisplayData();
 
+            //This is only displayed if there are no recipes in a recipe book
             if (recipeBook.Recipes.Count != 0)
             {
                 userIO.DisplayData();
@@ -193,6 +229,7 @@ namespace Recipe2ShoppingList
             recipeBookOptions.AddRange(standardOptionsToAdd);
         }
 
+        //Displays a recipe to the user, and presents a menu of options for adding the recipe to the shopping list or editing the recipe
         public static void DisplayOpenRecipe(IUserIO userIO, Recipe recipe, RecipeBook recipeBook, out List<string> recipeOptions)
         {
             userIO.ClearDisplay();
@@ -216,6 +253,7 @@ namespace Recipe2ShoppingList
             userIO.DisplayData();
         }
 
+        //Displays text to indicate if a change was successfully made, or if a change was aborted based upon the user's choice to confirm a change or not
         public static void SuccessfulChange(IUserIO userIO, bool changeConfirmed, string changeNoun, string changeVerb, bool isPluralNoun = false)
         {
 
@@ -241,6 +279,7 @@ namespace Recipe2ShoppingList
             GetUserInput.GetEnterFromUser(userIO);
         }
 
+        //Used to run the logic of which successful change message should be displayed based upon a user's choice to confirm a change or not
         public static void DisplaySuccessfulChangeMessage(IUserIO userIO, bool isSure, string changeNoun, string changeVerb, bool isPluralNoun = false)
         {
             if (isSure)
@@ -253,6 +292,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Displays a menu header to the user based on the passed in parameters
         public static void DisplayMenuHeader(IUserIO userIO, string header, string additionalMessage = "", bool includeTrailingLineBreak = true)
         {
             userIO.ClearDisplay();
@@ -270,6 +310,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Displays and instruction block of a recipe
         public static void DisplayInstructionBlock(IUserIO userIO, InstructionBlock instructionBlock)
         {
             int lineNumber = 1;
@@ -288,6 +329,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Displays the shopping list, with items listed by store location, for the user to view
         public static void DisplayShoppingList(IUserIO userIO, ShoppingList shoppingList)
         {
             string header = "---------- SHOPPING LIST ----------";
@@ -309,6 +351,7 @@ namespace Recipe2ShoppingList
             GetUserInput.GetEnterFromUser(userIO);
         }
 
+        //Displays the current custom (aka, user-created) measurement units for the user to view
         public static void DisplayCurrentMeasurementUnits(IUserIO userIO, List<string> userAddedMeasurementUnits, bool addExtraLineBreak = false)
         {
             if (userAddedMeasurementUnits.Count == 0)
@@ -330,6 +373,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Displays a prompt to the user with "regular formatting", meaning the user's input is collected on the next line after the prompt.
         public static void DisplayRegularPrompt(IUserIO userIO, string message, bool includeLeadingLineBreak = true)
         {
             if (includeLeadingLineBreak)
@@ -340,6 +384,7 @@ namespace Recipe2ShoppingList
             userIO.DisplayData($"{message}:");
         }
 
+        //Displays a prompt to the user with "lite formatting", meaning the user's input is collected on the same line, directly after the prompt.
         public static void DisplayLitePrompt(IUserIO userIO, string message, bool includeLeadingLineBreak = true)
         {
             if (includeLeadingLineBreak)
@@ -350,6 +395,7 @@ namespace Recipe2ShoppingList
             userIO.DisplayDataLite($"{message}: ");
         }
 
+        //Displays a line of information to the user
         public static void DisplayInformation(IUserIO userIO, string message, bool includeTrailingLineBreak = true)
         {
             userIO.DisplayData(MakeStringConsoleLengthLines(message));
@@ -360,11 +406,14 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Used to insert a blank line on the display
         public static void InsertBlankLine(IUserIO userIO)
         {
             userIO.DisplayData();
         }
 
+        //Used to display an error message to the user, requiring the user to press enter to continue.
+        //(Mainly used to display errors that occur during loading or saving data)
         public static void DisplayErrorMessage(IUserIO userIO, string errorMessage, string action)
         {
             DisplayInformation(userIO, errorMessage);
@@ -372,6 +421,7 @@ namespace Recipe2ShoppingList
             GetUserInput.GetEnterFromUser(userIO);
         }
 
+        //Displays an exit message to the user as the exit the program indicating whether data was successfully saved or not
         public static void DisplayExitMessage(IUserIO userIO, bool writeRecipeBookLibrarySuccessful, bool writeShoppingListSuccessful, bool writeToBackupFileSuccessful)
         {
             string exitMessage = "";

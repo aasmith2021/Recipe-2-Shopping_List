@@ -37,6 +37,9 @@ namespace Recipe2ShoppingList
             InstructionLines[indexOfLineToEdit] = newInstructionLine;
         }
 
+        //Creates a string of an instruction block's text. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public void GetInstructionBlockFromText(string instructionBlockText)
         {
             string idStartMarker = "INSTRUCTION_BLOCK_ID:";
@@ -54,6 +57,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Used to parse the individual instruction lines from a text file to add the instruction lines to an instruction block in the program.
         private static string[] GetLinesForInstructionBlockFromText(string instructionBlockText)
         {
             string lineStartMarker = "LINE:";

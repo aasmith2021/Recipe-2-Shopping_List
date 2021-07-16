@@ -35,6 +35,9 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Creates a string of the recipe estimated serving values. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public string ProduceServingsText(bool printVersion)
         {
             string servingsText = "";

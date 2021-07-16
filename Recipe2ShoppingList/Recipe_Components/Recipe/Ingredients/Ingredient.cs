@@ -32,6 +32,7 @@ namespace Recipe2ShoppingList
 
         public string StoreLocation { get; set; }
 
+        //Runs the logic to combine one ingredient with another ingredient and return the combined ingredient to be added to the shopping list
         public Ingredient CombineIngredientsForShoppingList(Ingredient ingredient)
         {
             Ingredient combinedIngredient = new Ingredient(0, "", this.Name);

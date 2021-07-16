@@ -33,14 +33,17 @@ namespace Recipe2ShoppingList
             this.FoodGenre = newFoodGenre;
         }
 
+        //Creates a string of the recipe tags. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public string ProduceTagsText(bool printVersion)
         {
             string tagsText = "";
 
             if(printVersion)
             {
-                //This is stubbed in for the future if we want to print out
-                //the tags as a part of the recipe.
+                //This is stubbed in for the future if there is ever a need to print out
+                //the tags as a part of the recipe on the screen to the user.
                 tagsText = "";
             }
             else

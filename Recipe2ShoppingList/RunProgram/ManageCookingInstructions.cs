@@ -8,6 +8,7 @@ namespace Recipe2ShoppingList
     {
         public const string editRecipeBanner = "---------- EDIT RECIPE ----------";
 
+        //Prompts user and captures input to add a new instruction block to a recipe
         public static void AddNewInstructionBlock(IUserIO userIO, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -24,6 +25,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "new instruction block", "added");
         }
 
+        //Prompts user and captures input to add a new instruction line to an instruction block
         public static void AddInstructionLine(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -37,6 +39,7 @@ namespace Recipe2ShoppingList
             UserInterface.SuccessfulChange(userIO, true, "new instruction line", "added");
         }
 
+        //Prompts user and captures input to edit an instruction line in an instruction block
         public static void EditInstructionLine(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -60,6 +63,7 @@ namespace Recipe2ShoppingList
             UserInterface.SuccessfulChange(userIO, true, "instruction line", "edited");
         }
 
+        //Prompts user and captures input to delete an instruction line in an instruction block
         public static void DeleteInstructionLine(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -86,6 +90,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "instruction line", "deleted");
         }
 
+        //Prompts user and captures input to add an instruction block heading to an instruction block
         public static void AddInstructionBlockHeading(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -99,6 +104,7 @@ namespace Recipe2ShoppingList
             UserInterface.SuccessfulChange(userIO, true, "new block heading", "added");
         }
 
+        //Prompts user and captures input to edit an instruction block heading
         public static void EditInstructionBlockHeading(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -112,6 +118,7 @@ namespace Recipe2ShoppingList
             UserInterface.SuccessfulChange(userIO, true, "block heading", "edited");
         }
 
+        //Prompts user and captures input to delete an instruction block heading
         public static void DeleteInstructionBlockHeading(IUserIO userIO, InstructionBlock instructionBlock, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));
@@ -128,6 +135,7 @@ namespace Recipe2ShoppingList
             UserInterface.DisplaySuccessfulChangeMessage(userIO, isSure, "block heading", "deleted");
         }
 
+        //Prompts user and captures input to delete an existing instruction block
         public static void DeleteExistingInstructionBlock(IUserIO userIO, Recipe recipe)
         {
             UserInterface.DisplayMenuHeader(userIO, editRecipeBanner, UserInterface.MakeStringConsoleLengthLines($"Recipe being edited: {recipe.Metadata.Title}"));

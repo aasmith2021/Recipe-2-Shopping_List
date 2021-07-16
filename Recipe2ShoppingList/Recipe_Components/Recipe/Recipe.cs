@@ -29,6 +29,9 @@ namespace Recipe2ShoppingList
 
         public IngredientList IngredientList { get; set; } = new IngredientList();
 
+        //Creates a string of an entire recipe's text. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public string ProduceRecipeText(bool printVersion)
         {
             string recipeText = "";
@@ -45,6 +48,8 @@ namespace Recipe2ShoppingList
             return recipeText;
         }
 
+        //This method uses regular expressions patterns to parse the data from a saved text file
+        //to populate a recipe's metadata into the program.
         public void AddMetadataFromFile(string recipeText)
         {
             Dictionary<string, string> metadataRegexDictionary = new Dictionary<string, string>();
@@ -164,6 +169,7 @@ namespace Recipe2ShoppingList
             this.Metadata.Servings.HighNumberOfServings = highServings;
         }
 
+        //This method parses the data from a saved text file to populate a recipe's cooking instructions into the program.
         public void AddCookingInstructionsFromFile(string recipeText)
         {
             string regexExpression = @"COOKING_INSTRUCTIONS_ID:(.*?)-START_OF_INSTRUCTIONS-";
@@ -187,6 +193,7 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //This method parses the data from a saved text file to populate a recipe's ingredients into the program.
         public void AddIngredientsFromFile(string recipeText)
         {
             string recipeDataStartMarker = "-START_OF_INGREDIENTS-";
@@ -206,6 +213,7 @@ namespace Recipe2ShoppingList
             this.IngredientList = allRecipeIngredients;
         }
 
+        //This method parses the data from a saved text file to populate a recipe's ingredient list ID into the program.
         private int GetIngredientListIdFromText(string ingredientsText)
         {
             string idStartMarker = "INGREDIENT_LIST_ID:";
@@ -215,6 +223,7 @@ namespace Recipe2ShoppingList
             return ingredientListId;
         }
 
+        //This method parses the data from a saved text file to populate a recipe's ingredients into the program.
         private Ingredient[] GetIngredientsFromText(string ingredientsText)
         {            
             string[] splitMarkers = new string[] { "INGREDIENT_ID:", "INGREDIENT_NAME:", "QTY:", "UNIT:", "PREP_NOTE:", "STORE_LOC:" };

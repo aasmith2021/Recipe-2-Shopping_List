@@ -6,6 +6,10 @@ using System.Text.RegularExpressions;
 
 namespace Recipe2ShoppingList
 {
+    //This FileIO is used to read and write program data to a local file in the event a user does not want to
+    //use the API to load and save program data with a database.
+    //This FileIO is also used as a way to save a backup copy of the program data if the API server is down,
+    //and it also saves a copy of the program's shopping list to a local file.
     public class FileIO : IDataIO
     {
         public RecipeBookLibrary GetRecipeBookLibraryFromDataSource(string alternateFilePath = "")

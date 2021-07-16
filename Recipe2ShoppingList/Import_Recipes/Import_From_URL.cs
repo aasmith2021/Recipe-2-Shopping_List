@@ -7,6 +7,8 @@ namespace Recipe2ShoppingList
 {
     class Import_From_URL
     {
+        //THIS IS EXPERIMENTAL --- IS NOT CURRENTLY USED IN THE PROGRAM ---
+        
         public static string GetWebsiteDataFromURL(string url)
         {
             WebClient webClient = new WebClient();

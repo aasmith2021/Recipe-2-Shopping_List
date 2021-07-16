@@ -5,8 +5,10 @@ using System.Text;
 
 namespace Recipe2ShoppingList
 {
+    //This is the shopping list that ingredients are added to in the program
     public class ShoppingList
     {
+        //These represent the collection of ingredients in each location of a grocery store
         private List<Ingredient> produce = new List<Ingredient>();
         private List<Ingredient> bakeryDeli = new List<Ingredient>();
         private List<Ingredient> dryGoods = new List<Ingredient>();
@@ -90,8 +92,11 @@ namespace Recipe2ShoppingList
             }
         }
 
+        //Produces the text of the shopping list to be displayed to the user
         public string GetEntireShoppingList(bool includeHeader = false)
-        {
+        {   
+            //Creates a dictionary that maps the names of each store location to the array of ingredients
+            //set to that store location in the shopping list
             Dictionary<string, Ingredient[]> allLocations = new Dictionary<string, Ingredient[]>();
             allLocations["produce"] = this.Produce;
             allLocations["bakeryDeli"] = this.BakeryDeli;
@@ -103,8 +108,12 @@ namespace Recipe2ShoppingList
 
             string key = "";
             string optionalHeader = $"---------- SHOPPING LIST ----------{Environment.NewLine}{Environment.NewLine}";
+
+            //This creates the entireShoppingList string and adds the optional header if includeHeader is "true"
             string entireShoppingList = includeHeader ? optionalHeader : "";
 
+            //This loop goes through all the store locations and sets the value of "key" to the name of that store location
+            //based upon the array index that location represents in this.StoreLocations
             for (int i = 0; i < this.StoreLocations.Length; i++)
             {
                 switch (i)
@@ -134,6 +143,8 @@ namespace Recipe2ShoppingList
                         break;
                 }
 
+                //If a grocery store location doesn't have any ingredients in it, continue. Otherwise, print out the store location
+                //and all the ingredients found in that location.
                 if (allLocations[key].Length == 0)
                 {
                     continue;

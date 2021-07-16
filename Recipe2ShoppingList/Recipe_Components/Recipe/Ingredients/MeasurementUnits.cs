@@ -6,6 +6,7 @@ namespace Recipe2ShoppingList
 {
     public static class MeasurementUnits
     {
+        //These constants represent the standard measurement units a recipe book library will always have available to the user.
         private const string none = "None";
         private const string tsp = "tsp";
         private const string tbsp = "Tbsp";
@@ -21,6 +22,7 @@ namespace Recipe2ShoppingList
             return allStandardMeasurementUnits;
         }
 
+        //Creates an array of all the volume measurement units to be used when combining ingredients
         public static string[] AllVolumeMeasurementUnits()
         {
             string[] allVolumeMeasurementUnits = new string[] { "", tsp, tbsp, flOz, cup };
@@ -28,6 +30,7 @@ namespace Recipe2ShoppingList
             return allVolumeMeasurementUnits;
         }
 
+        //Creates an array of all the weight measurement units to be used when combining ingredients
         public static string[] AllWeightMeasurementUnits()
         {
             string[] allWeightMeasurementUnits = new string[] { oz, lb };
@@ -35,12 +38,14 @@ namespace Recipe2ShoppingList
             return allWeightMeasurementUnits;
         }
 
+        //Indicates whether an ingredient has a volume measurement unit
         public static bool IngredientHasVolumeMeasurementUnit(Ingredient ingredient)
         {
             bool ingredientHasVolumeMeasurement = ingredient.MeasurementUnit == "" || ingredient.MeasurementUnit == tsp || ingredient.MeasurementUnit == tbsp || ingredient.MeasurementUnit == cup || ingredient.MeasurementUnit == flOz;
             return ingredientHasVolumeMeasurement;
         }
-        
+
+        //Combines measurement units based upon if they are both blank/custom, are both volume units, or are both weight units
         public static Tuple<double, string> CombineMeasurementUnits(double quantity1, string measurementUnit1, bool mu1IsVolumeMeasure, double quantity2, string measurementUnit2, bool mu2IsVolumeMeasure)
         {
             List<string> allStandardMeasurementUnits = AllStandardMeasurementUnits();
@@ -74,6 +79,7 @@ namespace Recipe2ShoppingList
             return result;
         }
 
+        //Combines blank or custom measurement units
         private static Tuple<double, string> CombineBlankOrCustomMeasurementUnit(double[] quantities, string[] measurementUnits)
         {
             double combinedQuantity = 0;
@@ -89,6 +95,7 @@ namespace Recipe2ShoppingList
             return combinedBlankOrCustomMeasurementUnit;
         }
 
+        //Combines two volume measurement units into a common volume unit
         private static Tuple<double, string> CombineToCommonVolumeUnit(double[] quantities, string[] measurementUnits)
         {
             string[] allVolumeMeasurementUnits = AllVolumeMeasurementUnits();
@@ -128,6 +135,7 @@ namespace Recipe2ShoppingList
             return combinedVolumeUnit;
         }
 
+        //Combines two weight measurement units into a common weight unit
         private static Tuple<double, string> CombineToCommonWeightUnit(double[] quantities, string[] measurementUnits)
         {
             string[] allWeightMeasurementUnits = AllWeightMeasurementUnits();
@@ -162,6 +170,7 @@ namespace Recipe2ShoppingList
             return combinedWeightUnit;
         }
 
+        //Compares two volume measurement units and returns the large of the two units so that two units can be combined into the larger unit
         private static int GetLargerVolumeMeasurementUnit(string[] measurementUnits)
         {
             int cupPriority = 3;
@@ -206,6 +215,7 @@ namespace Recipe2ShoppingList
             return largerMeasurementUnitIndex;
         }
 
+        //Compares two weight measurement units and returns the large of the two units so that two units can be combined into the larger unit
         private static int GetLargerWeightMeasurementUnit(string[] measurementUnits)
         {
             int lbPriority = 1;
@@ -242,6 +252,7 @@ namespace Recipe2ShoppingList
             return largerMeasurementUnitIndex;
         }
 
+        //Based upon the volume measurement unit passed in, returns a conversion multiplier so that two units can be combined
         private static int GetVolumeConversionMultiplier(string measurementUnit)
         {
             int conversionMultiplier = 0;
@@ -267,6 +278,7 @@ namespace Recipe2ShoppingList
             return conversionMultiplier;
         }
 
+        //Based upon the weight measurement unit passed in, returns a conversion multiplier so that two units can be combined
         private static int GetWeightConversionMultiplier(string measurementUnit)
         {
             int conversionMultiplier = 0;
@@ -286,6 +298,9 @@ namespace Recipe2ShoppingList
             return conversionMultiplier;
         }
 
+        //Used to produce a list of all the measurement units in the recipe book library for display in a menu
+        //to the user. (i.e., 1. None, 2. tsp, 3. Tbsp, etc.) This also provides a menu option for the user to add
+        //a new measurement unit.
         public static List<string[]> AllMeasurementUnitsForUserInput(RecipeBookLibrary recipeBookLibrary)
         {
             List<string[]> allMeasurementUnitsForUserInput = new List<string[]>();
@@ -304,6 +319,9 @@ namespace Recipe2ShoppingList
             return allMeasurementUnitsForUserInput;
         }
 
+        //Creates a string of the recipe measurement units. When printVersion is true, the output is meant
+        //to be displayed directly to the user on the console. When it is false, the output is meant to be
+        //written to the database file so it can be parsed and loaded back into the program later.
         public static string ProduceMeasurementUnitsText(RecipeBookLibrary recipeBookLibrary)
         {
             string measurementUnitsText = "";

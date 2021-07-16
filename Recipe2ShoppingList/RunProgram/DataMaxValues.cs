@@ -6,6 +6,13 @@ namespace Recipe2ShoppingList
 {
     public static class DataMaxValues
     {
+        //This class sets the maximum values (number of characters/length for strings, maximum numeric values
+        //for quantities, maximum numbers of ingredients in a recipe, instruction blocks in a set of cooking
+        //instructions, etc.
+
+        //These are important to ensure that data being saved to the database meets the size of data the database
+        //is expecting.        
+        
         //<<< Recipe Book >>>
         public const int RECIPE_BOOK_NAME_LENGTH = 120;
 
