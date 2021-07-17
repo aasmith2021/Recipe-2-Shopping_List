@@ -66,7 +66,7 @@ namespace Recipe2ShoppingList
             metadataRegexDictionary["cookTime"] = @"COOK_TIME:(.*?)SERVINGS_ID:";
             metadataRegexDictionary["servingsId"] = @"SERVINGS_ID:(.*?)LOW_SERVINGS:";
             metadataRegexDictionary["lowServings"] = @"LOW_SERVINGS:(.*?)HIGH_SERVINGS:";
-            metadataRegexDictionary["highServings"] = @"HIGH_SERVINGS:(.*?)-START_OF_INGREDIENTS-";
+            metadataRegexDictionary["highServings"] = @"HIGH_SERVINGS:(.*?)INGREDIENT_LIST_ID:";
 
             string regexExpression;
             string regexResult;
@@ -97,11 +97,13 @@ namespace Recipe2ShoppingList
                         break;
 
                     case "recipeId":
-                        recipeId = int.Parse(regexResult);
+                        recipeId = 1;
+                        int.TryParse(regexResult, out recipeId);
                         break;
 
                     case "metadataId":
-                        metadataId = int.Parse(regexResult);
+                        metadataId = 1;
+                        int.TryParse(regexResult, out metadataId);
                         break;
 
                     case "title":
@@ -113,7 +115,8 @@ namespace Recipe2ShoppingList
                         break;
 
                     case "tagsId":
-                        tagsId = int.Parse(regexResult);
+                        tagsId = 1;
+                        int.TryParse(regexResult, out tagsId);
                         break;
 
                     case "foodType":
@@ -125,7 +128,8 @@ namespace Recipe2ShoppingList
                         break;
 
                     case "prepTimeId":
-                        prepTimeId = int.Parse(regexResult);
+                        prepTimeId = 1;
+                        int.TryParse(regexResult, out prepTimeId);
                         break;
 
                     case "prepTime":
@@ -137,7 +141,8 @@ namespace Recipe2ShoppingList
                         break;
 
                     case "servingsId":
-                        servingsId = int.Parse(regexResult);
+                        servingsId = 1;
+                        int.TryParse(regexResult, out servingsId);
                         break;
 
                     case "lowServings":
@@ -173,7 +178,8 @@ namespace Recipe2ShoppingList
         public void AddCookingInstructionsFromFile(string recipeText)
         {
             string regexExpression = @"COOKING_INSTRUCTIONS_ID:(.*?)-START_OF_INSTRUCTIONS-";
-            int cookingInstructionsId = Convert.ToInt32(Regex.Match(recipeText, regexExpression).Groups[1].Value.ToString());
+            int cookingInstructionsId = 1;
+            int.TryParse(Regex.Match(recipeText, regexExpression).Groups[1].Value.ToString(), out cookingInstructionsId);
             this.CookingInstructions.Id = cookingInstructionsId;
 
             string cookingInstructionsMarker = "-START_OF_INSTRUCTIONS-";
@@ -218,7 +224,8 @@ namespace Recipe2ShoppingList
         {
             string idStartMarker = "INGREDIENT_LIST_ID:";
             string endMarker = "-START_OF_INGREDIENTS-";
-            int ingredientListId = Convert.ToInt32(FileIO.GetDataFromStartAndEndMarkers(ingredientsText, idStartMarker, endMarker));
+            int ingredientListId = 1;
+            int.TryParse(FileIO.GetDataFromStartAndEndMarkers(ingredientsText, idStartMarker, endMarker), out ingredientListId);
 
             return ingredientListId;
         }

@@ -65,7 +65,10 @@ namespace Recipe2ShoppingList
         {
             string regexExpression = @"RECIPE_BOOK_ID:(.*?)RECIPE_BOOK_NAME:";
 
-            int recipeBookId = Convert.ToInt32(Regex.Match(recipeBookText, regexExpression).Groups[1].Value.ToString());
+            //Set recipeBookId to a default value of if no value for it exists in the data file
+            int recipeBookId = 1;
+            
+            int.TryParse(Regex.Match(recipeBookText, regexExpression).Groups[1].Value.ToString(), out recipeBookId);
 
             return recipeBookId;
         }
@@ -102,9 +105,13 @@ namespace Recipe2ShoppingList
             string startMaker = "RECIPE_BOOK_LIBRARY_ID:";
             string endMaker = "-START_OF_MEASUREMENT_UNITS-";
             string idText = GetDataFromStartAndEndMarkers(allTextFromFile, startMaker, endMaker);
-            int id = Convert.ToInt32(idText);
+            
+            //If the recipe book library has an id, set the id with the TryParse method
+            //Otherwise, set the default ID value to 1.
+            int parsedId = 0;
+            int.TryParse(idText, out parsedId);
 
-            return id;
+            return parsedId;
         }
 
         private string[] GetCustomMeasurementUnitsFromText(string allTextFromFile)

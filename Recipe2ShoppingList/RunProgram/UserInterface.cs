@@ -426,6 +426,8 @@ namespace Recipe2ShoppingList
         {
             string exitMessage = "";
 
+            UserInterface.InsertBlankLine(userIO);
+
             if (writeRecipeBookLibrarySuccessful && writeShoppingListSuccessful)
             {
                 exitMessage = "All data saved. Have a great day!";

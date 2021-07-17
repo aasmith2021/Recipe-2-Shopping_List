@@ -15,7 +15,7 @@ namespace Recipe2ShoppingList
             //   -Read the backup data at the start of the program to import backedup changes
             //   -Write a backup of the Shopping List data to a local file
             IUserIO userIO = new ConsoleIO();
-            IDataIO dataIO = new ApiIO();
+            IDataIO dataIO = new FileIO();
             FileIO fileBackupIO = new FileIO();
             
             bool exitProgram = false;
