@@ -10,9 +10,13 @@ namespace Recipe2ShoppingList.Test
         {
             string recipeTitle = "Mac & Cheese";
             Times prepTimes1 = new Times(10, 55);
+            prepTimes1.Id = 0;
             Tags tags1 = new Tags("Pasta", "Italian");
+            tags1.Id = 0;
             Servings servings1 = new Servings(8, 12);
+            servings1.Id = 0;
             Metadata metadata1 = new Metadata(recipeTitle, prepTimes1, tags1, servings1);
+            metadata1.Id = 0;
 
             string step1 = "Cook the pasta";
             string step2 = "Drain pasta";
@@ -20,25 +24,32 @@ namespace Recipe2ShoppingList.Test
             string step4 = "Serve and enjoy!";
 
             InstructionBlock firstBlock = new InstructionBlock("Prep Pasta");
+            firstBlock.Id = 0;
             firstBlock.AddInstructionLine(step1);
             firstBlock.AddInstructionLine(step2);
 
             InstructionBlock secondBlock = new InstructionBlock("Make Cheesey");
+            secondBlock.Id = 0;
             secondBlock.AddInstructionLine(step3);
             secondBlock.AddInstructionLine(step4);
 
             CookingInstructions ckinst1 = new CookingInstructions();
+            ckinst1.Id = 0;
             ckinst1.AddInstructionBlock(firstBlock);
             ckinst1.AddInstructionBlock(secondBlock);
 
             Ingredient pasta = new Ingredient(1d, "8 oz", "Box of macaroni pasta");
+            pasta.Id = 0;
             Ingredient cheese = new Ingredient(3d, "Cups", "Shredded cheddar cheese");
+            cheese.Id = 0;
 
             IngredientList macAndCheeseIngredients = new IngredientList();
+            macAndCheeseIngredients.Id = 0;
             macAndCheeseIngredients.AddIngredient(pasta);
             macAndCheeseIngredients.AddIngredient(cheese);
 
             Recipe recipe1 = new Recipe(metadata1, ckinst1, macAndCheeseIngredients);
+            recipe1.Id = 0;
 
             return recipe1;
         }
@@ -47,9 +58,13 @@ namespace Recipe2ShoppingList.Test
         {
             string recipeTitle = "Tuna Casserole";
             Times prepTimes1 = new Times(10, 45);
+            prepTimes1.Id = 0;
             Tags tags1 = new Tags("Pasta", "Italian");
+            tags1.Id = 0;
             Servings servings1 = new Servings(4);
+            servings1.Id = 0;
             Metadata metadata1 = new Metadata(recipeTitle, prepTimes1, tags1, servings1);
+            metadata1.Id = 0;
 
             string step1 = "Cook the pasta";
             string step2 = "Drain pasta";
@@ -58,28 +73,36 @@ namespace Recipe2ShoppingList.Test
             string step5 = "Eat up!";
 
             InstructionBlock firstBlock = new InstructionBlock("Prep Pasta");
+            firstBlock.Id = 0;
             firstBlock.AddInstructionLine(step1);
             firstBlock.AddInstructionLine(step2);
 
             InstructionBlock secondBlock = new InstructionBlock("Combine and Bake");
+            secondBlock.Id = 0;
             secondBlock.AddInstructionLine(step3);
             secondBlock.AddInstructionLine(step4);
             secondBlock.AddInstructionLine(step5);
 
             CookingInstructions ckinst1 = new CookingInstructions();
+            ckinst1.Id = 0;
             ckinst1.AddInstructionBlock(firstBlock);
             ckinst1.AddInstructionBlock(secondBlock);
 
             Ingredient pasta = new Ingredient(1d, "12 oz", "Box of penne pasta");
+            pasta.Id = 0;
             Ingredient tuna = new Ingredient(1d, "can", "tuna");
+            tuna.Id = 0;
             Ingredient soup = new Ingredient(1d, "10 oz can", "Cream of Mushroom soup");
+            soup.Id = 0;
 
             IngredientList recipeIngredients = new IngredientList();
+            recipeIngredients.Id = 0;
             recipeIngredients.AddIngredient(pasta);
             recipeIngredients.AddIngredient(tuna);
             recipeIngredients.AddIngredient(soup);
 
             Recipe recipe1 = new Recipe(metadata1, ckinst1, recipeIngredients);
+            recipe1.Id = 0;
 
             return recipe1;
         }
@@ -87,7 +110,9 @@ namespace Recipe2ShoppingList.Test
         private RecipeBookLibrary GetTestRecipeBookLibrary()
         {
             RecipeBookLibrary testRecipeBookLibrary = new RecipeBookLibrary();
+            testRecipeBookLibrary.Id = 0;
             RecipeBook myCookBook = new RecipeBook("My Cook Book");
+            myCookBook.Id = 0;
             Recipe recipe1 = GenerateTestRecipe1();
             Recipe recipe2 = GenerateTestRecipe2();
             myCookBook.AddRecipe(recipe1);

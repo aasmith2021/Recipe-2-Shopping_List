@@ -203,7 +203,7 @@ namespace Recipe2ShoppingList
         public void AddIngredientsFromFile(string recipeText)
         {
             string recipeDataStartMarker = "-START_OF_INGREDIENTS-";
-            string endMarker = "-START_OF_INSTRUCTIONS-";
+            string endMarker = "COOKING_INSTRUCTIONS_ID:";
             string ingredientsText = FileIO.GetDataFromStartAndEndMarkers(recipeText, recipeDataStartMarker, endMarker);
 
             IngredientList allRecipeIngredients = new IngredientList();
@@ -254,11 +254,11 @@ namespace Recipe2ShoppingList
                     ingredientQty = doubleResult;
                 }
 
-                string ingredientUnit = ingredientsAsComponents[i + 3] == "NONE" ? "" : ingredientsAsComponents[i + 2];
+                string ingredientUnit = ingredientsAsComponents[i + 3] == "NONE" ? "" : ingredientsAsComponents[i + 3];
 
-                string ingredientPrepNote = ingredientsAsComponents[i + 4] == "NONE" ? "" : ingredientsAsComponents[i + 3];
+                string ingredientPrepNote = ingredientsAsComponents[i + 4] == "NONE" ? "" : ingredientsAsComponents[i + 4];
 
-                string ingredientStoreLocation = ingredientsAsComponents[i + 5] == "NONE" ? "" : ingredientsAsComponents[i + 4];
+                string ingredientStoreLocation = ingredientsAsComponents[i + 5] == "NONE" ? "" : ingredientsAsComponents[i + 5];
 
                 Ingredient newIngredientToAdd = new Ingredient(ingredientQty, ingredientUnit, ingredientName, ingredientPrepNote, ingredientStoreLocation);
 
